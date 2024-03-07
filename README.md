@@ -1,2 +1,2 @@
-# puddle-simulator
-Shallow water simulation for CS 434. Name TBD
+# Puddle Simulator!
+This is a shallow water simulator for CS 434.
