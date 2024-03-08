@@ -5,7 +5,7 @@
 *.ruser
 *.suo
 *.user
-*userosschache
+*.userosschache
 *.sln.docstates
 
 *.userprefs
