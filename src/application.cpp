@@ -1,7 +1,5 @@
 #include "application.h"
 
-#include <iostream>
-
 // Runs the main application loop
 void Application::Run()
 {
@@ -30,7 +28,7 @@ void Application::Init()
 	if (!m_Window)
 	{
 		CleanUp();
-		throw GLFWWindowCreationException();
+		PrintAndThrowException(GLFWWindowCreationException());
 	}
 
 	glfwMakeContextCurrent(m_Window);
@@ -43,7 +41,7 @@ void Application::Init()
 	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
 	{
 		CleanUp();
-		throw GLADLoaderException();
+		PrintAndThrowException(GLADLoaderException());
 	}
 
 	// Set OpenGL flags and variables

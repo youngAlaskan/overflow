@@ -1,12 +1,20 @@
-#include <glm\glm.hpp>
+#include <iostream>
 
 #include "application.h"
 
 int main()
-{
-	Application app = Application(800, 800);
+{	
+	try
+	{
+		Application app = Application(800, 800);
 
-	app.Run();
+		app.Run();
+	}
+	catch (const std::exception& e)
+	{
+		(void) e;
+		return 1;
+	}
 
 	return 0;
 }

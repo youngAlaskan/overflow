@@ -8,6 +8,7 @@
 #include <GLFW\glfw3.h>
 
 #include <exception>
+#include <iostream>
 
 // Handles all GLFW and glad window management
 class Application
@@ -21,7 +22,7 @@ public:
 	void Run();
 
 public:
-	GLFWwindow* m_Window;
+	GLFWwindow* m_Window = nullptr;
 	uint32_t m_WindowWidth = 400;
 	uint32_t m_WindowHeight = 400;
 
@@ -46,6 +47,12 @@ inline void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 }
 
 // Exceptions
+
+inline void PrintAndThrowException(const std::exception& e)
+{
+	std::cerr << e.what() << std::endl;
+	throw e;
+}
 
 // The function glfwCreateWindow failed (returned nullptr)
 class GLFWWindowCreationException : public std::exception {
