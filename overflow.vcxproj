@@ -67,7 +67,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>vendor\include;$(IncludePath)</IncludePath>
+    <IncludePath>src\imgui\backends;src\imgui;vendor\include;$(IncludePath)</IncludePath>
     <LibraryPath>vendor\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -75,7 +75,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>vendor\include;$(IncludePath)</IncludePath>
+    <IncludePath>src\imgui\backends;src\imgui;vendor\include;$(IncludePath)</IncludePath>
     <LibraryPath>vendor\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -95,7 +95,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -117,7 +117,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
@@ -262,6 +262,18 @@
     <None Include="vendor\include\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\application.h" />
+    <ClInclude Include="src\imgui\backends\imgui_impl_glfw.h" />
+    <ClInclude Include="src\imgui\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\imgui\backends\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="src\imgui\imconfig.h" />
+    <ClInclude Include="src\imgui\imgui.h" />
+    <ClInclude Include="src\imgui\imgui_internal.h" />
+    <ClInclude Include="src\imgui\imstb_rectpack.h" />
+    <ClInclude Include="src\imgui\imstb_textedit.h" />
+    <ClInclude Include="src\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\imgui\misc\cpp\imgui_stdlib.h" />
+    <ClInclude Include="src\imgui\misc\single_file\imgui_single_file.h" />
     <ClInclude Include="vendor\include\glad\glad.h" />
     <ClInclude Include="vendor\include\GLFW\glfw3.h" />
     <ClInclude Include="vendor\include\GLFW\glfw3native.h" />
@@ -547,10 +559,24 @@
     <ClInclude Include="vendor\include\glm\vec3.hpp" />
     <ClInclude Include="vendor\include\glm\vec4.hpp" />
     <ClInclude Include="vendor\include\glm\vector_relational.hpp" />
+    <ClInclude Include="vendor\include\KHR\khrplatform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\application.cpp" />
+    <ClCompile Include="src\glad.c" />
+    <ClCompile Include="src\imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="src\imgui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\imgui\imgui.cpp" />
+    <ClCompile Include="src\imgui\imgui_demo.cpp" />
+    <ClCompile Include="src\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\imgui\imgui_tables.cpp" />
+    <ClCompile Include="src\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\imgui\misc\cpp\imgui_stdlib.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="vendor\include\glm\detail\glm.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="vendor\lib\glfw3.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
