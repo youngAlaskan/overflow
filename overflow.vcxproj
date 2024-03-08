@@ -71,6 +71,7 @@
     <IncludePath>src\imgui\backends;src\imgui;vendor\include;$(IncludePath)</IncludePath>
     <LibraryPath>vendor\lib;$(LibraryPath)</LibraryPath>
     <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>bin\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -80,6 +81,7 @@
     <IncludePath>src\imgui\backends;src\imgui;vendor\include;$(IncludePath)</IncludePath>
     <LibraryPath>vendor\lib;$(LibraryPath)</LibraryPath>
     <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>bin\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
