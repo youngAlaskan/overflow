@@ -22,6 +22,7 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{19482386-352D-4465-8A29-AAB075303D0B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -69,6 +70,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>src\imgui\backends;src\imgui;vendor\include;$(IncludePath)</IncludePath>
     <LibraryPath>vendor\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -77,6 +79,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>src\imgui\backends;src\imgui;vendor\include;$(IncludePath)</IncludePath>
     <LibraryPath>vendor\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
