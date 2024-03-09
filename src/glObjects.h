@@ -10,15 +10,13 @@
 class GLO
 {
 public:
-	GLuint GetID() { return m_ID; }
-
 	virtual void Bind() const = 0;
-protected:
+public:
 	GLuint m_ID = 0;
 };
 
 // Vertex Array Object
-class VAO : protected GLO
+class VAO : public GLO
 {
 public:
 	VAO() { glGenVertexArrays(1, &m_ID); }
@@ -32,7 +30,7 @@ public:
 };
 
 // Vertex Buffer Object
-class VBO : protected GLO
+class VBO : public GLO
 {
 public:
 	VBO() { glGenBuffers(1, &m_ID); }
@@ -47,7 +45,7 @@ public:
 };
 
 // Element Buffer Object
-class EBO : protected GLO
+class EBO : public GLO
 {
 public:
 	EBO() { glGenBuffers(1, &m_ID); }

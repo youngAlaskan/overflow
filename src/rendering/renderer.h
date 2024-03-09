@@ -13,6 +13,6 @@ public:
 
 public:
 	std::vector<VAO> m_VAOs = {};
-	std::unordered_map<VAO, ShaderProgram> m_VAOtoShaderProgram = {};
+	std::unordered_map<GLuint, ShaderProgram> m_VAOtoShaderProgram = {};
 };
 
