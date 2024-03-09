@@ -10,6 +10,8 @@
 #include <exception>
 #include <iostream>
 
+#include "Renderer/renderer.h"
+
 // Handles all GLFW and glad window management
 class Application
 {
@@ -25,6 +27,7 @@ public:
 	GLFWwindow* m_Window = nullptr;
 	uint32_t m_WindowWidth = 400;
 	uint32_t m_WindowHeight = 400;
+	Renderer m_Renderer = {};
 
 private:
 	void Init();

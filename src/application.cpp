@@ -8,6 +8,8 @@ void Application::Run()
 	{
 		OnFrameStart();
 
+		m_Renderer.Render();
+
 		OnFrameEnd();
 	}
 }

@@ -25,6 +25,10 @@ public:
 	~VAO() { glDeleteVertexArrays(1, &m_ID); }
 
 	void Bind() const { glBindVertexArray(m_ID); }
+
+public:
+	bool hasEBO = false;
+	GLuint triangleCount = 0;
 };
 
 // Vertex Buffer Object
