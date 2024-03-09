@@ -97,6 +97,7 @@
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -119,6 +120,7 @@
     <ClCompile>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -267,6 +269,7 @@
     <None Include="vendor\include\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Renderer\renderer.h" />
     <ClInclude Include="src\application.h" />
     <ClInclude Include="src\imgui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="src\imgui\backends\imgui_impl_opengl3.h" />
@@ -279,6 +282,7 @@
     <ClInclude Include="src\imgui\imstb_truetype.h" />
     <ClInclude Include="src\imgui\misc\cpp\imgui_stdlib.h" />
     <ClInclude Include="src\imgui\misc\single_file\imgui_single_file.h" />
+    <ClInclude Include="src\Renderer\shaderProgram.h" />
     <ClInclude Include="vendor\include\glad\glad.h" />
     <ClInclude Include="vendor\include\GLFW\glfw3.h" />
     <ClInclude Include="vendor\include\GLFW\glfw3native.h" />
@@ -567,6 +571,8 @@
     <ClInclude Include="vendor\include\KHR\khrplatform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\glObjects.h" />
+    <ClCompile Include="src\Renderer\renderer.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\imgui\backends\imgui_impl_glfw.cpp" />
@@ -578,6 +584,7 @@
     <ClCompile Include="src\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\imgui\misc\cpp\imgui_stdlib.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Renderer\shaderProgram.cpp" />
     <ClCompile Include="vendor\include\glm\detail\glm.cpp" />
   </ItemGroup>
   <ItemGroup>
