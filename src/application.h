@@ -10,7 +10,7 @@
 #include <exception>
 #include <iostream>
 
-#include "Renderer/renderer.h"
+#include "rendering/renderer.h"
 
 // Handles all GLFW and glad window management
 class Application
