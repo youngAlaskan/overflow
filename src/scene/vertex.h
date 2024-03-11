@@ -5,15 +5,16 @@
 
 struct Vertex
 {
-	glm::vec4 Position;
-	glm::vec3 Normal;
-	glm::vec2 TexCoord;
+	glm::vec4 Position; // Position in model space 
+	glm::vec3 Normal; // Outward facing normal
+	glm::vec2 TexCoord; // Texture Coordinate
+	GLuint WaterLevel; // Water level at vertex [0, Inf]
 
 	Vertex() = default;
 	~Vertex() = default;
 
-	Vertex(const glm::vec4& pos, const glm::vec3& norm, const glm::vec2& texCoord)
-		: Position(pos), Normal(norm), TexCoord(texCoord) {}
+	Vertex(const glm::vec4& pos, const glm::vec3& norm, const glm::vec2& texCoord, const GLuint waterLevel = 0)
+		: Position(pos), Normal(norm), TexCoord(texCoord), WaterLevel(waterLevel) {}
 
 	bool operator==(const Vertex& other) const
 	{
