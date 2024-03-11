@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <assert.h>
 
 #include <glm/gtc/type_ptr.hpp>
@@ -15,7 +16,9 @@ void ShaderProgram::AttachShaders(std::vector<std::pair<GLenum, const char*>> sh
     {
         const auto& [shader, filepath] = shaderTypesAndFilepaths[i];
         shaderIDs[i] = glCreateShader(shader);
-        const char* code = ReadFile(filepath);
+        const std::string& s = ReadFile(filepath);
+
+        const char* code = s.c_str();
         
         glShaderSource(shaderIDs[i], 1, &code, nullptr);
         
@@ -97,21 +100,28 @@ void ShaderProgram::SetMat4(const char* name, const glm::mat4& m) const
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m));
 }
 
-const char* ShaderProgram::ReadFile(const char* filepath) const
+std::string ShaderProgram::ReadFile(const char* filepath) const
 {
+    std::ifstream fileStream;
+    std::stringstream sstream;
+
     try
     {
-        std::ifstream fileStream(filepath);
         fileStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
-        return std::string(std::istreambuf_iterator<char>(fileStream), std::istreambuf_iterator<char>()).c_str();
+        fileStream.open(filepath);
+
+        sstream << fileStream.rdbuf();
+
+        fileStream.close();
     }
     catch (std::ifstream::failure& e)
     {
         std::cout << "ERROR: Could not read file: " << e.what() << std::endl;
+        return {};
     }
 
-    return {};
+    return sstream.str();
 }
 
 void ShaderProgram::CheckShaderCompilation(const uint32_t shader) const

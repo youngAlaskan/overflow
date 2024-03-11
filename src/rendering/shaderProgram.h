@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <utility>
+#include <string>
 
 class ShaderProgram
 {
@@ -27,7 +28,7 @@ public:
     void SetMat4(const char* name, const glm::mat4& m) const;
 
 private:
-	const char* ReadFile(const char* filepath) const;
+	std::string ReadFile(const char* filepath) const;
 
 	void CheckShaderCompilation(const uint32_t shader) const;
 	void CheckProgramCompilation() const;
