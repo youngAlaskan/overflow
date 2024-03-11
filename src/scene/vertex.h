@@ -24,7 +24,7 @@ struct Vertex
 	}
 };
 
-inline void SetVertexAttributes(const Vertex& vertex)
+inline void SetVertexAttributes()
 {
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, Position))); // NOLINT(performance-no-int-to-ptr)
 	glEnableVertexAttribArray(0);
