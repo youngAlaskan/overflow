@@ -34,4 +34,7 @@ inline void SetVertexAttributes(const Vertex& vertex)
 
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, TexCoord))); // NOLINT(performance-no-int-to-ptr)
 	glEnableVertexAttribArray(2);
+
+	glVertexAttribPointer(3, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, WaterLevel))); // NOLINT(performance-no-int-to-ptr)
+	glEnableVertexAttribArray(3);
 }
