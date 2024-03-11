@@ -11,6 +11,6 @@ void Renderer::Render()
 		if (VAO.hasEBO)
 			glDrawElements(GL_TRIANGLES, VAO.triangleCount, GL_UNSIGNED_INT, 0);
 		else
-			glDrawArrays(GL_TRIANGLES, 0, VAO.triangleCount);
+			glDrawArrays(GL_TRIANGLES, 0, 3 * VAO.triangleCount);
 	}
 }

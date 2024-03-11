@@ -15,6 +15,8 @@ public:
 
 	void Render();
 
+	void RegisterVAOShaderMatch(GLuint id, const ShaderProgram& sp) { m_VAOtoShaderProgram.insert({ id, sp }); }
+
 private:
 	std::shared_ptr<std::vector<VAO>> m_VAOs = nullptr;
 	std::unordered_map<GLuint, ShaderProgram> m_VAOtoShaderProgram = {};
