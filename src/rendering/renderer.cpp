@@ -2,7 +2,9 @@
 
 void Renderer::Render()
 {
-	for (const auto& VAO : m_VAOs)
+	if (!m_VAOs) return;
+
+	for (const auto& VAO : *m_VAOs)
 	{
 		m_VAOtoShaderProgram[VAO.m_ID].Use();
 		VAO.Bind();
