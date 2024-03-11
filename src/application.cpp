@@ -3,6 +3,8 @@
 // Runs the main application loop
 void Application::Run()
 {
+	m_Renderer.SetVAOs(m_Scene.GetVAOs());
+
 	// Main loop
 	while (WindowIsOpen())
 	{

@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "rendering/renderer.h"
+#include "scene/scene.h"
 
 // Handles all GLFW and glad window management
 class Application
@@ -28,6 +29,7 @@ public:
 	uint32_t m_WindowWidth = 400;
 	uint32_t m_WindowHeight = 400;
 	Renderer m_Renderer = {};
+	Scene m_Scene = {};
 
 private:
 	void Init();

@@ -283,6 +283,8 @@
     <ClInclude Include="src\imgui\misc\cpp\imgui_stdlib.h" />
     <ClInclude Include="src\imgui\misc\single_file\imgui_single_file.h" />
     <ClInclude Include="src\rendering\shaderProgram.h" />
+    <ClInclude Include="src\scene\scene.h" />
+    <ClInclude Include="src\scene\terrain.h" />
     <ClInclude Include="vendor\include\glad\glad.h" />
     <ClInclude Include="vendor\include\GLFW\glfw3.h" />
     <ClInclude Include="vendor\include\GLFW\glfw3native.h" />
@@ -585,6 +587,7 @@
     <ClCompile Include="src\imgui\misc\cpp\imgui_stdlib.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\rendering\shaderProgram.cpp" />
+    <ClCompile Include="src\scene\scene.cpp" />
     <ClCompile Include="vendor\include\glm\detail\glm.cpp" />
   </ItemGroup>
   <ItemGroup>
