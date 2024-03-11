@@ -424,6 +424,9 @@
     <None Include="vendor\include\glm\gtx\wrap.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="src\scene\README.md" />
+    <None Include="src\shaders\vertex\simple.vert" />
+    <None Include="src\shaders\fragment\simple.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vendor\include\glad\glad.h">
@@ -1330,6 +1333,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scene\vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
