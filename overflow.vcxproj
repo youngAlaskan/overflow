@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="README.md" />
+    <None Include="src\scene\README.md" />
     <None Include="vendor\include\glm\detail\func_common.inl" />
     <None Include="vendor\include\glm\detail\func_common_simd.inl" />
     <None Include="vendor\include\glm\detail\func_exponential.inl" />

@@ -1,0 +1,11 @@
+# Scene
+
+Contains it's namesake the Scene class, as well as, anything the Scene class is conceptually related to. Part of the reason for this folders creation is the philosophy that the scene and renderer should not rely on, nor have any knowledge of, one another.
+
+## Scene Class
+
+The Scene class serves as a way to interface with all of the objects in the scene.
+
+The Scene class has members
+- `m_Terrain`: A Terrain instance which corresponds to the ground of the scene
+- `m_VAOs`: An `std::shared_ptr` to an `std::vector` of VAO instances. These VAOs correspond to the objects represented in the scene (i.e. the water droplets and the terrain).
