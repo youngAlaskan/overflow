@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <vector>
 
+#include "scene/vertex.h"
+
 // Vertex Array Object
 class VAO
 {
@@ -37,7 +39,7 @@ public:
 	void Init() { glGenBuffers(1, &m_ID); }
 
 	void Bind() const { glBindBuffer(GL_ARRAY_BUFFER, m_ID); }
-	void SetBufferData(const std::vector<glm::vec3>& vertices) const
+	void SetBufferData(const std::vector<Vertex>& vertices) const
 	{
 		Bind();
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
