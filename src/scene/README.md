@@ -9,3 +9,11 @@ The Scene class serves as a way to interface with all of the objects in the scen
 The Scene class has members
 - `m_Terrain`: A Terrain instance which corresponds to the ground of the scene
 - `m_VAOs`: An `std::shared_ptr` to an `std::vector` of VAO instances. These VAOs correspond to the objects represented in the scene (i.e. the water droplets and the terrain).
+
+## Terrain Class
+
+The Terrain class contains all information relating to rendering and simulating the terrain.
+
+## Vertex Class
+
+The Vertex class is used to make setting attribute pointers easier.
