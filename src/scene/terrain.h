@@ -5,7 +5,7 @@
 class Terrain
 {
 public:
-	Terrain() { m_VAO = VAO(); }
+	Terrain() = default;
 public:
-	VAO m_VAO;
+	VAO m_VAO = VAO();
 };
