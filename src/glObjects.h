@@ -35,6 +35,8 @@ public:
 	{
 		Bind();
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
+
+		SetVertexAttributes();
 	}
 
 public:
