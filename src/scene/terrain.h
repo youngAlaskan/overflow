@@ -8,8 +8,19 @@
 class Terrain
 {
 public:
-	Terrain() = default;
+	Terrain() : m_Vertices() {}
+	Terrain(const std::vector<Vertex>& vertices) { SetVertices(vertices); }
+
+	void SetVertices(std::vector<Vertex> vertices)
+	{
+		m_Vertices = vertices;
+
+		m_VAO.Bind();
+
+		m_VBO.SetBufferData(m_Vertices);
+	}
 public:
 	VAO m_VAO = VAO();
-	std::vector<Vertex> m_Vertices = std::vector<Vertex>();
+	VBO m_VBO = VBO();
+	std::vector<Vertex> m_Vertices;
 };

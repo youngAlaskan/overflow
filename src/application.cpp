@@ -3,7 +3,7 @@
 // Runs the main application loop
 void Application::Run()
 {
-	m_Renderer->SetVAOs(std::make_shared<std::vector<VAO>>(m_Scene->m_VAOs));
+	m_Renderer->SetVAOs(m_Scene->m_VAOs);
 
 	// Main loop
 	while (WindowIsOpen())

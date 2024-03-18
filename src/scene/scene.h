@@ -11,5 +11,5 @@ public:
 
 public:
 	Terrain m_Terrain = Terrain();
-	std::vector<VAO> m_VAOs = std::vector<VAO>();
+	std::shared_ptr<std::vector<VAO>> m_VAOs = std::make_shared<std::vector<VAO>>();
 };
