@@ -28,7 +28,7 @@ void Application::Init()
 
 	// Create Window
 	// -------------
-	m_Window = glfwCreateWindow(m_WindowWidth, m_WindowHeight, "LearnOpenGL", nullptr, nullptr);
+	m_Window = glfwCreateWindow(m_WindowWidth, m_WindowHeight, "Overflow Shallow Water Simulation", nullptr, nullptr);
 	if (!m_Window)
 	{
 		CleanUp();
