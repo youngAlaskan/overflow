@@ -28,8 +28,8 @@ public:
 	GLFWwindow* m_Window = nullptr;
 	uint32_t m_WindowWidth = 400;
 	uint32_t m_WindowHeight = 400;
-	Renderer m_Renderer = Renderer();
-	Scene m_Scene = Scene();
+	Renderer* m_Renderer = nullptr;
+	Scene* m_Scene = nullptr;
 
 private:
 	void Init();
@@ -40,7 +40,7 @@ private:
 
 	bool WindowIsOpen();
 
-	void CleanUp() { glfwTerminate(); }
+	void CleanUp() const;
 };
 
 // Application Callbacks:

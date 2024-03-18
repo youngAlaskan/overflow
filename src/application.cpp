@@ -3,14 +3,14 @@
 // Runs the main application loop
 void Application::Run()
 {
-	m_Renderer.SetVAOs(m_Scene.GetVAOs());
+	m_Renderer->SetVAOs(std::make_shared<std::vector<VAO>>(m_Scene->m_VAOs));
 
 	// Main loop
 	while (WindowIsOpen())
 	{
 		OnFrameStart();
 
-		m_Renderer.Render();
+		m_Renderer->Render();
 
 		OnFrameEnd();
 	}
@@ -61,6 +61,9 @@ void Application::Init()
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
+
+	m_Renderer = new Renderer();
+	m_Scene = new Scene();
 }
 
 // Sets up start of new frame
@@ -86,4 +89,14 @@ void Application::OnFrameEnd()
 bool Application::WindowIsOpen()
 {
 	return !glfwWindowShouldClose(m_Window);
+}
+
+void Application::CleanUp() const
+{
+	if (m_Renderer)
+		delete m_Renderer;
+	if (m_Scene)
+		delete m_Scene;
+
+	glfwTerminate();
 }
