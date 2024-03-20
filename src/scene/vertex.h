@@ -20,11 +20,12 @@ struct Vertex
 	{
 		return Position == other.Position &&
 			Normal == other.Normal &&
-			TexCoord == other.TexCoord;
+			TexCoord == other.TexCoord &&
+			WaterLevel == other.WaterLevel;
 	}
 };
 
-inline void SetVertexAttributes()
+inline void SetVertexAttributesPointers()
 {
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, Position))); // NOLINT(performance-no-int-to-ptr)
 	glEnableVertexAttribArray(0);

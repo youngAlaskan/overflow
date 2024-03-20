@@ -124,7 +124,7 @@ std::string ShaderProgram::ReadFile(const char* filepath) const
     return sstream.str();
 }
 
-void ShaderProgram::CheckShaderCompilation(const uint32_t shader) const
+void ShaderProgram::CheckShaderCompilation(const GLuint shader) const
 {
     int success = 0;
     char infoLog[1024];

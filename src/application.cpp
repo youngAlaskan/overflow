@@ -3,7 +3,28 @@
 // Runs the main application loop
 void Application::Run()
 {
+	// Link VAO pointers
 	m_Renderer->SetVAOs(m_Scene->m_VAOs);
+
+	std::vector<Vertex> vertices = std::vector<Vertex>();
+
+	vertices.emplace_back(glm::vec4(-0.5f, -0.5f, 0.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f));
+	vertices.emplace_back(glm::vec4( 0.5f, -0.5f, 0.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f));
+	vertices.emplace_back(glm::vec4( 0.0f,  0.5f, 0.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f));
+
+	m_Scene->m_Terrain = std::make_unique<Terrain>(vertices);
+	m_Scene->m_VAOs->push_back(m_Scene->m_Terrain->m_VAO);
+
+	ShaderProgram simpleShader = ShaderProgram();
+
+	simpleShader.AttachShaders(
+		{
+			{ GL_VERTEX_SHADER, "C:\\Dev\\cs434\\overflow\\src\\shaders\\vertex\\simple.vert" },
+			{ GL_FRAGMENT_SHADER, "C:\\Dev\\cs434\\overflow\\src\\shaders\\fragment\\simple.frag" }
+		}
+	);
+
+	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Terrain->m_VAO->m_ID, simpleShader);
 
 	// Main loop
 	while (WindowIsOpen())

@@ -10,6 +10,6 @@ public:
 	Scene() = default;
 
 public:
-	Terrain m_Terrain = Terrain();
-	std::shared_ptr<std::vector<VAO>> m_VAOs = std::make_shared<std::vector<VAO>>();
+	std::unique_ptr<Terrain> m_Terrain = nullptr;
+	std::shared_ptr<std::vector<std::shared_ptr<VAO>>> m_VAOs = std::make_shared<std::vector<std::shared_ptr<VAO>>>();
 };

@@ -30,7 +30,7 @@ public:
 private:
 	std::string ReadFile(const char* filepath) const;
 
-	void CheckShaderCompilation(const uint32_t shader) const;
+	void CheckShaderCompilation(const GLuint shader) const;
 	void CheckProgramCompilation() const;
 
 private:
