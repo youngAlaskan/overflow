@@ -91,13 +91,15 @@ void Application::Init()
 	ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
-	m_Renderer = new Renderer();
-	m_Scene = new Scene();
+	m_Renderer = std::make_unique<Renderer>();
+	m_Scene = std::make_unique<Scene>();
 }
 
 // Sets up start of new frame
 void Application::OnFrameStart()
 {
+	processInput(m_Window);
+
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	ImGui_ImplOpenGL3_NewFrame();
@@ -122,10 +124,5 @@ bool Application::WindowIsOpen()
 
 void Application::CleanUp() const
 {
-	if (m_Renderer)
-		delete m_Renderer;
-	if (m_Scene)
-		delete m_Scene;
-
 	glfwTerminate();
 }

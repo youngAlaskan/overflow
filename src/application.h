@@ -28,8 +28,8 @@ public:
 	GLFWwindow* m_Window = nullptr;
 	uint32_t m_WindowWidth = 400;
 	uint32_t m_WindowHeight = 400;
-	Renderer* m_Renderer = nullptr;
-	Scene* m_Scene = nullptr;
+	std::unique_ptr<Renderer> m_Renderer = nullptr;
+	std::unique_ptr<Scene> m_Scene = nullptr;
 
 private:
 	void Init();
@@ -49,6 +49,12 @@ private:
 inline void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+}
+
+inline void processInput(GLFWwindow* window)
+{
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
 }
 
 // Exceptions
