@@ -1,5 +1,7 @@
 #include "application.h"
 
+#include <filesystem>
+
 #include "glErrors.h"
 
 // Runs the main application loop
@@ -19,10 +21,11 @@ void Application::Run()
 
 	ShaderProgram simpleShader = ShaderProgram();
 
+
 	simpleShader.AttachShaders(
 		{
-			{ GL_VERTEX_SHADER, "C:\\Dev\\cs434\\overflow\\src\\shaders\\vertex\\simple.vert" },
-			{ GL_FRAGMENT_SHADER, "C:\\Dev\\cs434\\overflow\\src\\shaders\\fragment\\simple.frag" }
+			{ GL_VERTEX_SHADER, "src\\shaders\\vertex\\simple.vert" },
+			{ GL_FRAGMENT_SHADER, "src\\shaders\\fragment\\simple.frag" }
 		}
 	);
 
