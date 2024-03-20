@@ -9,11 +9,11 @@ void Renderer::Render()
 		if (!VAO)
 			continue;
 
-		ShaderProgram::Use(m_VAOtoShaderProgram[VAO->m_ID]);
+		ShaderProgram::Use(m_VAOtoShaderProgram[VAO->GetID()]);
 
 		VAO->Bind();
 		if (VAO->hasEBO)
-			glDrawElements(GL_TRIANGLES, VAO->triangleCount, GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, 3 * VAO->triangleCount, GL_UNSIGNED_INT, 0);
 		else
 			glDrawArrays(GL_TRIANGLES, 0, VAO->vertexCount);
 	}

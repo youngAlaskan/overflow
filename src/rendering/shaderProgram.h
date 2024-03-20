@@ -11,6 +11,12 @@ class ShaderProgram
 {
 public:
 	ShaderProgram() { m_ID = glCreateProgram(); }
+	ShaderProgram(std::vector<std::pair<GLenum, const char*>> shaderTypesAndFilepaths)
+	{
+		m_ID = glCreateProgram();
+		AttachShaders(shaderTypesAndFilepaths);
+	}
+
 	~ShaderProgram() { glDeleteProgram(m_ID); }
 
 	GLuint GetID() const { return m_ID; }
