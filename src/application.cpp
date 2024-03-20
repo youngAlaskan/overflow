@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#include "glErrors.h"
+// #include "glErrors.h"
 
 // Runs the main application loop
 void Application::Run()
@@ -44,11 +44,16 @@ void Application::Run()
 // Initializes GLFW, glad, and ImGui
 void Application::Init()
 {
-	// Initialize GLFW to use OpenGL 4.6
+	// Initialize GLFW to use OpenGL 3.3
 	// ---------------------------------
 	glfwInit();
+#ifdef OPENGL_DEBUGGING
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+#else // OPENGL_BEBUGGING
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+#endif // OPENGL_BEBUGGING
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create Window
@@ -74,9 +79,11 @@ void Application::Init()
 	}
 
 	// Set OpenGL flags and variables
+#ifdef OPENGL_DEBUGGING
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback(MessageCallback, nullptr);
+#endif // OPENGL_DEBUGGING
 
 	glEnable(GL_CULL_FACE);
 
@@ -115,14 +122,4 @@ void Application::OnFrameEnd()
 
 	glfwSwapBuffers(m_Window);
 	glfwPollEvents();
-}
-
-bool Application::WindowIsOpen()
-{
-	return !glfwWindowShouldClose(m_Window);
-}
-
-void Application::CleanUp() const
-{
-	glfwTerminate();
 }

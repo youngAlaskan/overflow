@@ -4,6 +4,8 @@
 #include <iostream>
 #include <unordered_map>
 
+#define OPENGL_DEBUGGING
+
 inline std::unordered_map<GLenum, std::string> errorMessages
 {
 	{ GL_INVALID_ENUM, "INVALID_ENUM, 0x0500" },

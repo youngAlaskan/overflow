@@ -38,9 +38,9 @@ private:
 
 	void OnFrameEnd();
 
-	bool WindowIsOpen();
+	bool WindowIsOpen() { return !glfwWindowShouldClose(m_Window); }
 
-	void CleanUp() const;
+	void CleanUp() const { glfwTerminate(); }
 };
 
 // Application Callbacks:
