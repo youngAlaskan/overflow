@@ -272,6 +272,7 @@
     <None Include="vendor\include\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\glErrors.h" />
     <ClInclude Include="src\rendering\renderer.h" />
     <ClInclude Include="src\application.h" />
     <ClInclude Include="src\imgui\backends\imgui_impl_glfw.h" />

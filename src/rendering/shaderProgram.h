@@ -15,7 +15,10 @@ public:
 
 	void AttachShaders(std::vector<std::pair<GLenum, const char *>> shaderTypesAndFilepaths) const;
 
-	void Use() const { glUseProgram(m_ID); }
+	void Use() const
+	{
+		glUseProgram(m_ID);
+	}
 
 	void SetBool(const char* name, const bool value) const;
     void SetInt(const char* name, const int value) const;

@@ -1,5 +1,7 @@
 #include "application.h"
 
+#include "glErrors.h"
+
 // Runs the main application loop
 void Application::Run()
 {
@@ -40,11 +42,11 @@ void Application::Run()
 // Initializes GLFW, glad, and ImGui
 void Application::Init()
 {
-	// Initialize GLFW to use OpenGL 3.3
+	// Initialize GLFW to use OpenGL 4.6
 	// ---------------------------------
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create Window
@@ -70,6 +72,10 @@ void Application::Init()
 	}
 
 	// Set OpenGL flags and variables
+	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	glDebugMessageCallback(MessageCallback, nullptr);
+
 	glEnable(GL_CULL_FACE);
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);

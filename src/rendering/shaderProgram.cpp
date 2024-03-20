@@ -129,7 +129,7 @@ void ShaderProgram::CheckShaderCompilation(const GLuint shader) const
     int success = 0;
     char infoLog[1024];
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success)
+    if (success != GL_TRUE)
     {
         glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
         std::cout << "ERROR::SHADER_COMPILATION:\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
@@ -141,7 +141,7 @@ void ShaderProgram::CheckProgramCompilation() const
     int success = 0;
     char infoLog[1024];
     glGetProgramiv(m_ID, GL_LINK_STATUS, &success);
-    if (!success)
+    if (success != GL_TRUE)
     {
         glGetProgramInfoLog(m_ID, 1024, nullptr, infoLog);
         std::cout << "ERROR::PROGRAM_LINKING:\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
