@@ -18,8 +18,8 @@ public:
 		m_VAO->Bind();
 
 		m_VAO->hasEBO = false;
-		m_VAO->vertexCount = m_Vertices.size();
-		m_VAO->triangleCount = m_VAO->vertexCount / 3;
+		m_VAO->vertexCount = static_cast<GLuint>(m_Vertices.size());
+		m_VAO->triangleCount = m_VAO->vertexCount / 3U;
 
 		m_VBO.SetBufferData(m_Vertices);
 	}

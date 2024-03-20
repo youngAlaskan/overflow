@@ -9,7 +9,8 @@ void Renderer::Render()
 		if (!VAO)
 			continue;
 
-		m_VAOtoShaderProgram[VAO->m_ID].Use();
+		ShaderProgram::Use(m_VAOtoShaderProgram[VAO->m_ID]);
+
 		VAO->Bind();
 		if (VAO->hasEBO)
 			glDrawElements(GL_TRIANGLES, VAO->triangleCount, GL_UNSIGNED_INT, 0);

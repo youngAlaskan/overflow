@@ -13,12 +13,13 @@ public:
 	ShaderProgram() { m_ID = glCreateProgram(); }
 	~ShaderProgram() { glDeleteProgram(m_ID); }
 
+	GLuint GetID() const { return m_ID; }
+
 	void AttachShaders(std::vector<std::pair<GLenum, const char *>> shaderTypesAndFilepaths) const;
 
-	void Use() const
-	{
-		glUseProgram(m_ID);
-	}
+	void Use() const { glUseProgram(m_ID); }
+
+	static void Use(GLuint id) { glUseProgram(id); }
 
 	void SetBool(const char* name, const bool value) const;
     void SetInt(const char* name, const int value) const;
@@ -34,8 +35,8 @@ private:
 	std::string ReadFile(const char* filepath) const;
 
 	void CheckShaderCompilation(const GLuint shader) const;
-	void CheckProgramCompilation() const;
+	void CheckProgramLinking() const;
 
 private:
-	GLuint m_ID;
+	GLuint m_ID = 0;
 };

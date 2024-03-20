@@ -26,7 +26,7 @@ void Application::Run()
 		}
 	);
 
-	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Terrain->m_VAO->m_ID, simpleShader);
+	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Terrain->m_VAO->m_ID, simpleShader.GetID());
 
 	// Main loop
 	while (WindowIsOpen())

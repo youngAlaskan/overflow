@@ -29,7 +29,7 @@ void ShaderProgram::AttachShaders(std::vector<std::pair<GLenum, const char*>> sh
     }
 
     glLinkProgram(m_ID);
-    CheckProgramCompilation();
+    CheckProgramLinking();
 
     for (GLuint shaderID : shaderIDs)
     {
@@ -136,7 +136,7 @@ void ShaderProgram::CheckShaderCompilation(const GLuint shader) const
     }
 }
 
-void ShaderProgram::CheckProgramCompilation() const
+void ShaderProgram::CheckProgramLinking() const
 {
     int success = 0;
     char infoLog[1024];
