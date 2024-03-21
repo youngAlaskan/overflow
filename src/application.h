@@ -13,6 +13,8 @@
 #include "rendering/renderer.h"
 #include "scene/scene.h"
 
+constexpr float DELTA_TIME = 1.0f;
+
 // Handles all GLFW and glad window management
 class Application
 {
@@ -51,10 +53,21 @@ inline void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-inline void processInput(GLFWwindow* window)
+inline void processInput(GLFWwindow* window, Camera& camera)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera.ProcessKeyboard(FORWARD, DELTA_TIME);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera.ProcessKeyboard(BACKWARD, DELTA_TIME);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera.ProcessKeyboard(LEFT, DELTA_TIME);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera.ProcessKeyboard(RIGHT, DELTA_TIME);
+	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
+		camera.ProcessKeyboard(TOGGLE_FLY, DELTA_TIME);
 }
 
 // Exceptions

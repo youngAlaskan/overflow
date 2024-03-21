@@ -272,6 +272,7 @@
     <None Include="vendor\include\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\scene\camera.h" />
     <ClInclude Include="src\glErrors.h" />
     <ClInclude Include="src\rendering\renderer.h" />
     <ClInclude Include="src\application.h" />
@@ -578,6 +579,7 @@
     <ClInclude Include="vendor\include\KHR\khrplatform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\scene\camera.cpp" />
     <ClCompile Include="src\glObjects.h" />
     <ClCompile Include="src\rendering\renderer.cpp" />
     <ClCompile Include="src\application.cpp" />

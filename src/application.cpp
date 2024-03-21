@@ -35,6 +35,8 @@ void Application::Run()
 	{
 		OnFrameStart();
 
+		m_Scene->OnUpdate();
+
 		m_Renderer->Render();
 
 		OnFrameEnd();
@@ -100,12 +102,14 @@ void Application::Init()
 
 	m_Renderer = std::make_unique<Renderer>();
 	m_Scene = std::make_unique<Scene>();
+
+	m_Scene->m_Camera.m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
 }
 
 // Sets up start of new frame
 void Application::OnFrameStart()
 {
-	processInput(m_Window);
+	processInput(m_Window, m_Scene->m_Camera);
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
