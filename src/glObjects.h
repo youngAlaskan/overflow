@@ -41,7 +41,7 @@ public:
 	void SetBufferData(const std::vector<Vertex>& vertices) const
 	{
 		Bind();
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
 		SetVertexAttributesPointers();
 	}
@@ -63,7 +63,7 @@ public:
 	void SetBufferData(const std::vector<GLuint>& indices) const
 	{
 		Bind();
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 	}
 
 private:
