@@ -13,23 +13,37 @@ void Application::Run()
 	// Create Terrain
 	std::vector<Vertex> vertices = std::vector<Vertex>();
 
-	vertices.emplace_back(glm::vec4(-0.5f, -0.5f, -1.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f));
-	vertices.emplace_back(glm::vec4( 0.5f, -0.5f, -1.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f));
-	vertices.emplace_back(glm::vec4( 0.0f,  0.5f, -1.0f, 1.0f), glm::vec3(0.0f), glm::vec2(0.0f));
+	vertices.emplace_back(glm::vec4(-0.5f, -0.5f, -1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f));
+	vertices.emplace_back(glm::vec4( 0.5f, -0.5f, -1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f));
+	vertices.emplace_back(glm::vec4( 0.0f,  0.5f, -1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f));
 
 	m_Scene->SetTerrain(vertices);
 
 	// Create Terrain Shader
-	std::shared_ptr<ShaderProgram> simpleShader = m_Renderer->AddShaderProgram(
-		std::vector<std::pair<GLenum, const char*>>{
-			{ GL_VERTEX_SHADER, "src\\shaders\\vertex\\simple.vert" },
-			{ GL_FRAGMENT_SHADER, "src\\shaders\\fragment\\simple.frag" }
+	std::shared_ptr<ShaderProgram> terrainShader = m_Renderer->AddShaderProgram(
+		std::vector<std::pair<GLenum, const char*>>
+		{
+			{ GL_VERTEX_SHADER, "src\\shaders\\vertex\\terrain.vert" },
+			{ GL_FRAGMENT_SHADER, "src\\shaders\\fragment\\terrain.frag" }
+		}
+	);
+
+	// Create Droplets
+	m_Scene->CreateDroplets({glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(7.0f)});
+
+	std::shared_ptr<ShaderProgram> dropletShader = m_Renderer->AddShaderProgram(
+		std::vector<std::pair<GLenum, const char*>>
+		{
+			{ GL_VERTEX_SHADER, "src\\shaders\\vertex\\droplet.vert" },
+			{ GL_FRAGMENT_SHADER, "src\\shaders\\fragment\\droplet.frag" }
 		}
 	);
 
 	// Register Shader ID with VAO ID
-	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Terrain->m_VAO->GetID(), simpleShader->GetID());
+	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Terrain->m_VAO->GetID(), terrainShader->GetID());
+	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Droplets->m_VAO->GetID(), dropletShader->GetID());
 
+	// Setup Matrices UBO
 	UBO viewProjMatrices = UBO("Matrices");
 	viewProjMatrices.SetEmptyBuffer(2 * sizeof(glm::mat4));
 

@@ -425,8 +425,10 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="src\scene\README.md" />
-    <None Include="src\shaders\vertex\simple.vert" />
-    <None Include="src\shaders\fragment\simple.frag" />
+    <None Include="src\shaders\vertex\terrain.vert" />
+    <None Include="src\shaders\fragment\terrain.frag" />
+    <None Include="src\shaders\vertex\droplet.vert" />
+    <None Include="src\shaders\fragment\droplet.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vendor\include\glad\glad.h">
@@ -1342,6 +1344,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scene\droplets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

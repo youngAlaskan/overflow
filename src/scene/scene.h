@@ -1,9 +1,10 @@
-#pragma once
+﻿#pragma once
 
 #include <memory>
 
 #include "camera.h"
 #include "terrain.h"
+#include "droplets.h"
 
 class Scene
 {
@@ -19,6 +20,12 @@ public:
 		m_VAOs->push_back(m_Terrain->m_VAO);
 	}
 
+	void CreateDroplets(std::vector<glm::vec3> centers)
+	{
+		m_Droplets = std::make_unique<Droplets>(centers);
+		m_VAOs->push_back(m_Droplets->m_VAO);
+	}
+
 	void OnUpdate() const
 	{
 		m_Camera->OnUpdate();
@@ -27,5 +34,6 @@ public:
 public:
 	std::shared_ptr<Camera> m_Camera = std::make_shared<Camera>();
 	std::unique_ptr<Terrain> m_Terrain = nullptr;
+	std::unique_ptr<Droplets> m_Droplets = nullptr;
 	std::shared_ptr<std::vector<std::shared_ptr<VAO>>> m_VAOs = std::make_shared<std::vector<std::shared_ptr<VAO>>>();
 };

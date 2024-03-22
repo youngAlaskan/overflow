@@ -23,8 +23,10 @@ public:
 
 public:
 	bool hasEBO = false;
+	bool isInstanced = false;
 	GLuint triangleCount = 0;
 	GLuint vertexCount = 0;
+	GLsizei instanceCount = 0;
 
 private:
 	GLuint m_ID = 0;
@@ -40,12 +42,11 @@ public:
 	GLuint GetID() const { return m_ID; }
 
 	void Bind() const { glBindBuffer(GL_ARRAY_BUFFER, m_ID); }
-	void SetBufferData(const std::vector<Vertex>& vertices) const
+	template<typename T>
+	void SetBufferData(const std::vector<T>& vertices) const
 	{
 		Bind();
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
-
-		SetVertexAttributesPointers();
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(T), vertices.data(), GL_STATIC_DRAW);
 	}
 
 private:

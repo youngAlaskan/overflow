@@ -17,3 +17,9 @@ The Terrain class contains all information relating to rendering and simulating 
 ## Vertex Class
 
 The Vertex class is used to make setting attribute pointers easier.
+
+## Note
+
+Water droplets positions should be tracked. When a water droplet gets close enough to a terrain vertex, the terrain vertex's water level is decreased and the water droplet is deleted.
+
+Pools of water are then computed per frame/time step. A collection of triangle meshes, each with it's outer ring positions lying on the terrain.

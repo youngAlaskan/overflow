@@ -12,9 +12,20 @@ void Renderer::Render()
 		ShaderProgram::Use(m_VAOtoShaderProgram[VAO->GetID()]);
 
 		VAO->Bind();
-		if (VAO->hasEBO)
-			glDrawElements(GL_TRIANGLES, 3 * VAO->triangleCount, GL_UNSIGNED_INT, 0);
+
+		if (VAO->isInstanced)
+		{
+			if (VAO->hasEBO)
+				glDrawElementsInstanced(GL_TRIANGLES, 3 * VAO->triangleCount, GL_UNSIGNED_INT, 0, VAO->instanceCount);
+			else
+				glDrawArraysInstanced(GL_TRIANGLES, 0, VAO->vertexCount, VAO->instanceCount);
+		}
 		else
-			glDrawArrays(GL_TRIANGLES, 0, VAO->vertexCount);
+		{
+			if (VAO->hasEBO)
+				glDrawElements(GL_TRIANGLES, 3 * VAO->triangleCount, GL_UNSIGNED_INT, 0);
+			else
+				glDrawArrays(GL_TRIANGLES, 0, VAO->vertexCount);
+		}
 	}
 }

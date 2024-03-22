@@ -22,6 +22,8 @@ public:
 		m_VAO->triangleCount = m_VAO->vertexCount / 3U;
 
 		m_VBO.SetBufferData(m_Vertices);
+
+		SetVertexAttributesPointers();
 	}
 public:
 	std::shared_ptr<VAO> m_VAO = std::make_shared<VAO>();
