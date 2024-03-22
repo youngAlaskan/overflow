@@ -16,7 +16,7 @@
 constexpr float DELTA_TIME = 1.0f;
 
 constexpr uint32_t SCR_WIDTH = 800;
-constexpr uint32_t SCR_HEIGHT = 600;
+constexpr uint32_t SCR_HEIGHT = 800;
 
 inline std::shared_ptr<Camera> g_ActiveCamera = nullptr;
 
