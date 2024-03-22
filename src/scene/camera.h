@@ -31,14 +31,12 @@ public:
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void ProcessMouseMovement(float xOffset, float yOffset, const GLboolean constrainPitch = true);
 
-    // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(const float yOffset)
     {
-        m_Zoom -= yOffset;
-        if (m_Zoom < 1.0f)
-            m_Zoom = 1.0f;
+        //m_MovementSpeed += 0.001f * yOffset;
+        //if (m_MovementSpeed < 0.0f)
+        //    m_MovementSpeed = 0.0f;
     }
-
 public:
     // Camera attributes
     
@@ -58,9 +56,8 @@ public:
     
     // Camera options
     
-    float m_MovementSpeed    = 2.5f;
-    float m_MouseSensitivity = 0.0f;
-    float m_Zoom             = 45.0f;
+    float m_MovementSpeed    = 0.05f;
+    float m_MouseSensitivity = 0.1f;
     bool m_CanFly            = false;
 
 private:

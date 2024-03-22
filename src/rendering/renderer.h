@@ -23,6 +23,14 @@ public:
 		return shaderProgram;
 	}
 
+	void RegisterUniformBuffer(const UBO& ubo)
+	{
+		for (const auto& shaderProgram_ptr : m_ShaderPrograms)
+		{
+			shaderProgram_ptr->SetUniformBlockBinding(ubo.GetLabel().c_str(), ubo.GetBindingPoint());
+		}
+	}
+
 	void RegisterVAOShaderMatch(GLuint id, GLuint sp) { m_VAOtoShaderProgram.insert({ id, sp }); }
 
 private:

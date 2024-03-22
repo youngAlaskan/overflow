@@ -36,6 +36,11 @@ public:
 	void SetMat2(const char* name, const glm::mat2& m) const;
     void SetMat3(const char* name, const glm::mat3& m) const;
     void SetMat4(const char* name, const glm::mat4& m) const;
+	
+	void SetUniformBlockBinding(const char* name, GLuint uniformBlockBinding) const
+	{
+		glUniformBlockBinding(m_ID, glGetUniformBlockIndex(m_ID, name), uniformBlockBinding);
+	}
 
 private:
 	std::string ReadFile(const char* filepath) const;

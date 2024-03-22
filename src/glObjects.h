@@ -2,9 +2,11 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <stdint.h>
 #include <vector>
+#include <string>
 
 #include "scene/vertex.h"
 
@@ -69,3 +71,53 @@ public:
 private:
 	GLuint m_ID = 0;
 };
+
+// Uniform Buffer Object
+class UBO
+{
+public:
+	UBO() { Init(); }
+	UBO(const std::string& label) : m_Label(label) { Init(); }
+	~UBO() { glDeleteBuffers(1, &m_ID); }
+
+	GLuint GetID() const { return m_ID; }
+	GLuint GetBindingPoint() const { return m_BindingPoint; }
+	static GLuint GetBindingPointCount() { return s_BindingPointCount; }
+	std::string GetLabel() const { return m_Label; }
+
+	void Bind() const { glBindBuffer(GL_UNIFORM_BUFFER, m_ID); }
+	void SetEmptyBuffer(GLsizeiptr size) const
+	{
+		Bind();
+		glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_STATIC_DRAW);
+	}
+	template<typename T>
+	void SetBufferData(const T& data) const
+	{
+		Bind();
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(T), glm::value_ptr(data), GL_STATIC_DRAW);
+	}
+	template<typename T>
+	void SetBufferSubData(GLintptr offset, const T& data) const
+	{
+		Bind();
+		glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(T), glm::value_ptr(data));
+	}
+
+	std::string GetLabel() { return m_Label; }
+private:
+	void Init()
+	{
+		glGenBuffers(1, &m_ID);
+		m_BindingPoint = s_BindingPointCount++;
+		glBindBufferBase(GL_UNIFORM_BUFFER, m_BindingPoint, m_ID);
+	}
+
+private:
+	GLuint m_ID = 0;
+	GLuint m_BindingPoint = 0;
+	static GLuint s_BindingPointCount;
+	std::string m_Label;
+};
+
+inline GLuint UBO::s_BindingPointCount = 0;

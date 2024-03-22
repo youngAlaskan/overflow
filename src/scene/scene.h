@@ -19,13 +19,13 @@ public:
 		m_VAOs->push_back(m_Terrain->m_VAO);
 	}
 
-	void OnUpdate()
+	void OnUpdate() const
 	{
-		m_Camera.OnUpdate();
+		m_Camera->OnUpdate();
 	}
 
 public:
-	Camera m_Camera = Camera();
+	std::shared_ptr<Camera> m_Camera = std::make_shared<Camera>();
 	std::unique_ptr<Terrain> m_Terrain = nullptr;
 	std::shared_ptr<std::vector<std::shared_ptr<VAO>>> m_VAOs = std::make_shared<std::vector<std::shared_ptr<VAO>>>();
 };

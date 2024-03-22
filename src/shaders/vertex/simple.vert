@@ -5,7 +5,13 @@ layout (location = 1) in vec3 aNorm;
 layout (location = 2) in vec2 aTexCoord;
 layout (location = 3) in uint aWaterLevel;
 
+layout (std140) uniform Matrices
+{
+    mat4 projection;
+    mat4 view;
+};
+
 void main()
 {
-	gl_Position = aPos;
+	gl_Position = projection * view * aPos;
 }

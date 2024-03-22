@@ -3,7 +3,7 @@
 void Camera::OnUpdate()
 {
     m_View = GetViewMatrix();
-    m_Proj = glm::perspective(glm::radians(m_Zoom), m_AspectRatio, 0.01f, 100.0f);
+    m_Proj = glm::perspective(glm::radians(45.0f), m_AspectRatio, 0.01f, 100.0f);
 }
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)

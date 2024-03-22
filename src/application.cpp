@@ -20,15 +20,20 @@ void Application::Run()
 	m_Scene->SetTerrain(vertices);
 
 	// Create Terrain Shader
-	ShaderProgram simpleShader = ShaderProgram(
-		{
+	std::shared_ptr<ShaderProgram> simpleShader = m_Renderer->AddShaderProgram(
+		std::vector<std::pair<GLenum, const char*>>{
 			{ GL_VERTEX_SHADER, "src\\shaders\\vertex\\simple.vert" },
 			{ GL_FRAGMENT_SHADER, "src\\shaders\\fragment\\simple.frag" }
 		}
 	);
 
 	// Register Shader ID with VAO ID
-	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Terrain->m_VAO->GetID(), simpleShader.GetID());
+	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Terrain->m_VAO->GetID(), simpleShader->GetID());
+
+	UBO viewProjMatrices = UBO("Matrices");
+	viewProjMatrices.SetEmptyBuffer(2 * sizeof(glm::mat4));
+
+	m_Renderer->RegisterUniformBuffer(viewProjMatrices);
 
 	// Main loop
 	while (WindowIsOpen())
@@ -36,6 +41,9 @@ void Application::Run()
 		OnFrameStart();
 
 		m_Scene->OnUpdate();
+
+		viewProjMatrices.SetBufferSubData(0, m_Scene->m_Camera->m_Proj);
+		viewProjMatrices.SetBufferSubData(sizeof(glm::mat4), m_Scene->m_Camera->m_View);
 
 		m_Renderer->Render();
 
@@ -72,6 +80,13 @@ void Application::Init()
 	// Register window resizing callback
 	glfwSetFramebufferSizeCallback(m_Window, FramebufferSizeCallback);
 
+	// Register mouse callback
+	glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(m_Window, MouseCallback);
+
+	// Register scroll callback
+	glfwSetScrollCallback(m_Window, ScrollCallback);
+
 	// Initialize GLAD
 	// ---------------
 	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
@@ -103,13 +118,14 @@ void Application::Init()
 	m_Renderer = std::make_unique<Renderer>();
 	m_Scene = std::make_unique<Scene>();
 
-	m_Scene->m_Camera.m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
+	m_Scene->m_Camera->m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
+	g_ActiveCamera = m_Scene->m_Camera;
 }
 
 // Sets up start of new frame
 void Application::OnFrameStart()
 {
-	processInput(m_Window, m_Scene->m_Camera);
+	processInput(m_Window);
 
 	glClear(GL_COLOR_BUFFER_BIT);
 

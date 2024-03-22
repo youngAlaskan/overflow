@@ -15,6 +15,15 @@
 
 constexpr float DELTA_TIME = 1.0f;
 
+constexpr uint32_t SCR_WIDTH = 800;
+constexpr uint32_t SCR_HEIGHT = 600;
+
+inline std::shared_ptr<Camera> g_ActiveCamera = nullptr;
+
+inline float g_LastX = SCR_WIDTH / 2.0f;
+inline float g_LastY = SCR_HEIGHT / 2.0f;
+inline bool g_IsFirstMouse = true;
+
 // Handles all GLFW and glad window management
 class Application
 {
@@ -28,8 +37,8 @@ public:
 
 public:
 	GLFWwindow* m_Window = nullptr;
-	uint32_t m_WindowWidth = 400;
-	uint32_t m_WindowHeight = 400;
+	uint32_t m_WindowWidth = SCR_WIDTH;
+	uint32_t m_WindowHeight = SCR_HEIGHT;
 	std::unique_ptr<Renderer> m_Renderer = nullptr;
 	std::unique_ptr<Scene> m_Scene = nullptr;
 
@@ -53,21 +62,52 @@ inline void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-inline void processInput(GLFWwindow* window, Camera& camera)
+inline void MouseCallback(GLFWwindow* window, double xPosIn, double yPosIn)
+{
+	const auto xPos = static_cast<float>(xPosIn);
+	const auto yPos = static_cast<float>(yPosIn);
+
+	if (g_IsFirstMouse)
+	{
+		g_LastX = xPos;
+		g_LastY = yPos;
+		g_IsFirstMouse = false;
+	}
+
+	const float xOffset = xPos - g_LastX;
+	const float yOffset = g_LastY - yPos; // reversed since y-coordinates go from bottom to top
+
+	g_LastX = xPos;
+	g_LastY = yPos;
+
+	if (g_ActiveCamera)
+		g_ActiveCamera->ProcessMouseMovement(xOffset, yOffset);
+}
+
+inline void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
+{
+	if (g_ActiveCamera)
+		g_ActiveCamera->ProcessMouseScroll(static_cast<float>(yOffset));
+}
+
+inline void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
+	if (!g_ActiveCamera)
+		return;
+
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.ProcessKeyboard(FORWARD, DELTA_TIME);
+		g_ActiveCamera->ProcessKeyboard(FORWARD, DELTA_TIME);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.ProcessKeyboard(BACKWARD, DELTA_TIME);
+		g_ActiveCamera->ProcessKeyboard(BACKWARD, DELTA_TIME);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.ProcessKeyboard(LEFT, DELTA_TIME);
+		g_ActiveCamera->ProcessKeyboard(LEFT, DELTA_TIME);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.ProcessKeyboard(RIGHT, DELTA_TIME);
+		g_ActiveCamera->ProcessKeyboard(RIGHT, DELTA_TIME);
 	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
-		camera.ProcessKeyboard(TOGGLE_FLY, DELTA_TIME);
+		g_ActiveCamera->ProcessKeyboard(TOGGLE_FLY, DELTA_TIME);
 }
 
 // Exceptions
