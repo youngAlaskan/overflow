@@ -1402,6 +1402,9 @@
     <ClCompile Include="src\scene\camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\scene\droplets.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="vendor\lib\glfw3.lib" />

@@ -1,7 +1,7 @@
 #include "renderer.h"
 
 void Renderer::Render()
-{
+{ 
 	if (!m_VAOs) return;
 
 	for (const auto& VAO : *m_VAOs)
@@ -19,6 +19,8 @@ void Renderer::Render()
 				glDrawElementsInstanced(GL_TRIANGLES, 3 * VAO->triangleCount, GL_UNSIGNED_INT, 0, VAO->instanceCount);
 			else
 				glDrawArraysInstanced(GL_TRIANGLES, 0, VAO->vertexCount, VAO->instanceCount);
+			glPointSize(5.0f);
+			glDrawArrays(GL_POINTS, 0, VAO->vertexCount);
 		}
 		else
 		{

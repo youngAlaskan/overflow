@@ -31,6 +31,7 @@ void Application::Run()
 	// Create Droplets
 	m_Scene->CreateDroplets({glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(7.0f)});
 
+	// Create Droplets shader
 	std::shared_ptr<ShaderProgram> dropletShader = m_Renderer->AddShaderProgram(
 		std::vector<std::pair<GLenum, const char*>>
 		{
