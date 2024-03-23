@@ -29,36 +29,42 @@ inline glm::vec3 SphereS(GLfloat u, GLfloat v)
 
 void Droplets::CreateSphere()
 {
+	const int limit = m_Subdivisions + 1;
+
 	// Creates a sphere with 5 subdivisions on each axis.
+	auto points = std::vector<std::vector<glm::vec3>>(limit, std::vector<glm::vec3>(limit));
 
-	glm::vec3 points[6][6] = {};
-
-	GLfloat u[6] = { 0.0f, 0.2f, 0.4f, 0.6f, 0.8f, 1.0f };
-	GLfloat v[6] = { 0.0f, 0.2f, 0.4f, 0.6f, 0.8f, 1.0f };
+	auto u = std::vector<GLfloat>(limit);
+	auto v = std::vector<GLfloat>(limit);
+	for (int i = 0; i < limit; i++)
+	{
+		u[i] = static_cast<float>(i) / m_Subdivisions;
+		v[i] = static_cast<float>(i) / m_Subdivisions;
+	}
 
 	// Create every point
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < limit; i++)
 	{
-		for (int j = 0; j < 6; j++)
+		for (int j = 0; j < limit; j++)
 		{
 			points[i][j] = SphereS(u[i], v[j]);
 		}
 	}
 
 	// Add every triangle to vertices
-	for (int i = 0; i < 5; i++)
+	for (int i = 0, iNext = 1; i < m_Subdivisions; i++, iNext++)
 	{
-		for (int j = 0; j < 5; j++)
+		for (int j = 0, jNext = 1; j < m_Subdivisions; j++, jNext++)
 		{
 			// Bottom Right Triangle
-			m_Vertices.push_back(points[i + 1][j    ]); // BL
-			m_Vertices.push_back(points[i    ][j + 1]); // TR
-			m_Vertices.push_back(points[i + 1][j + 1]); // BR
+			m_Vertices.push_back(points[iNext][j    ]); // BL
+			m_Vertices.push_back(points[i    ][jNext]); // TR
+			m_Vertices.push_back(points[iNext][jNext]); // BR
 			
 			// Top Left Triangle
-			m_Vertices.push_back(points[i + 1][j    ]); // BL
+			m_Vertices.push_back(points[iNext][j    ]); // BL
 			m_Vertices.push_back(points[i    ][j    ]); // TL
-			m_Vertices.push_back(points[i    ][j + 1]); // TR
+			m_Vertices.push_back(points[i    ][jNext]); // TR
 		}
 	}
 }

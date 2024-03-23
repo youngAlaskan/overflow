@@ -13,7 +13,20 @@ constexpr float TAU = 6.283185307179586f; // 2 * pi
 class Droplets
 {
 public:
+	Droplets()
+	{
+		SetSphereVBO();
+		SetInstanceVBO({});
+	}
+
 	Droplets(std::vector<glm::vec3> centers)
+	{
+		SetSphereVBO();
+		SetInstanceVBO(centers);
+	}
+
+	Droplets(const int subdivisions, std::vector<glm::vec3> centers)
+		: m_Subdivisions(subdivisions)
 	{
 		SetSphereVBO();
 		SetInstanceVBO(centers);
@@ -32,4 +45,7 @@ private:
 	void CreateSphere();
 
 	void SetSphereVBO();
+
+private:
+	int m_Subdivisions = 5;
 };

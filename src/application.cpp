@@ -29,7 +29,7 @@ void Application::Run()
 	);
 
 	// Create Droplets
-	m_Scene->CreateDroplets({glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(7.0f)});
+	m_Scene->CreateDroplets(10, std::vector<glm::vec3>{ glm::vec3(0.0f, 3.0f, -3.0f) });
 
 	// Create Droplets shader
 	std::shared_ptr<ShaderProgram> dropletShader = m_Renderer->AddShaderProgram(
@@ -116,8 +116,6 @@ void Application::Init()
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback(MessageCallback, nullptr);
 #endif // OPENGL_DEBUGGING
-
-	glEnable(GL_CULL_FACE);
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 

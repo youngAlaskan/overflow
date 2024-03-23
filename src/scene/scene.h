@@ -25,9 +25,10 @@ public:
 		m_Terrain->SetVertices(vertices);
 	}
 
-	void CreateDroplets(std::vector<glm::vec3> centers)
+	template<typename... Args>
+	void CreateDroplets(Args... args)
 	{
-		m_Droplets = std::make_unique<Droplets>(centers);
+		m_Droplets = std::make_unique<Droplets>(args...);
 		m_VAOs->push_back(m_Droplets->m_VAO);
 	}
 
