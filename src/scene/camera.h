@@ -4,6 +4,8 @@
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
+#include "../glObjects.h"
+
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum CameraMovement {
     FORWARD,
@@ -48,6 +50,7 @@ public:
     glm::mat4 m_View     = glm::mat4(0.0f);
     glm::mat4 m_Proj     = glm::mat4(0.0f);
     float m_AspectRatio  = 0.0f;
+    UBO m_ViewProjMatrices = UBO("Matrices");
     
     // Euler angles
 
@@ -58,7 +61,7 @@ public:
     
     float m_MovementSpeed    = 0.05f;
     float m_MouseSensitivity = 0.1f;
-    bool m_CanFly            = false;
+    bool m_CanFly            = true;
 
 private:
     // calculates the front vector from the Camera's (updated) Euler Angles

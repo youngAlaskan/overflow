@@ -1,6 +1,6 @@
 #include "application.h"
 
-#include <filesystem>
+#include <thread>
 
 // #include "glErrors.h"
 
@@ -13,9 +13,13 @@ void Application::Run()
 	// Create Terrain
 	std::vector<Vertex> vertices = std::vector<Vertex>();
 
-	vertices.emplace_back(glm::vec4(-0.5f, -0.5f, -1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f));
-	vertices.emplace_back(glm::vec4( 0.5f, -0.5f, -1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f));
-	vertices.emplace_back(glm::vec4( 0.0f,  0.5f, -1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f));
+	vertices.emplace_back(glm::vec4(-50.0f, -3.0f,  50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
+	vertices.emplace_back(glm::vec4( 50.0f, -3.0f,  50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
+	vertices.emplace_back(glm::vec4( 50.0f, -3.0f, -50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
+
+	vertices.emplace_back(glm::vec4(-50.0f, -3.0f,  50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
+	vertices.emplace_back(glm::vec4( 50.0f, -3.0f, -50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
+	vertices.emplace_back(glm::vec4(-50.0f, -3.0f, -50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
 
 	m_Scene->SetTerrain(vertices);
 
@@ -29,7 +33,7 @@ void Application::Run()
 	);
 
 	// Create Droplets
-	m_Scene->CreateDroplets(10, std::vector<glm::vec3>{ glm::vec3(0.0f, 3.0f, -3.0f) });
+	m_Scene->CreateDroplets(10, std::vector<glm::vec3>{ glm::vec3(0.0f, 3.0f, -3.0f), glm::vec3(0.0f, 5.0f, -3.0f) });
 
 	// Create Droplets shader
 	std::shared_ptr<ShaderProgram> dropletShader = m_Renderer->AddShaderProgram(
@@ -44,26 +48,14 @@ void Application::Run()
 	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Terrain->m_VAO->GetID(), terrainShader->GetID());
 	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Droplets->m_VAO->GetID(), dropletShader->GetID());
 
-	// Setup Matrices UBO
-	UBO viewProjMatrices = UBO("Matrices");
-	viewProjMatrices.SetEmptyBuffer(2 * sizeof(glm::mat4));
-
-	m_Renderer->RegisterUniformBuffer(viewProjMatrices);
+	m_Renderer->RegisterUniformBuffer(m_Scene->m_Camera->m_ViewProjMatrices);
 
 	// Main loop
-	while (WindowIsOpen())
-	{
-		OnFrameStart();
+	std::thread renderThread(Render);
+	std::thread phyisicsThread(Simulate);
 
-		m_Scene->OnUpdate();
-
-		viewProjMatrices.SetBufferSubData(0, m_Scene->m_Camera->m_Proj);
-		viewProjMatrices.SetBufferSubData(sizeof(glm::mat4), m_Scene->m_Camera->m_View);
-
-		m_Renderer->Render();
-
-		OnFrameEnd();
-	}
+	renderThread.join();
+	phyisicsThread.join();
 }
 
 // Initializes GLFW, glad, and ImGui
@@ -117,6 +109,12 @@ void Application::Init()
 	glDebugMessageCallback(MessageCallback, nullptr);
 #endif // OPENGL_DEBUGGING
 
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 	// Initialize ImGui
@@ -132,6 +130,7 @@ void Application::Init()
 	m_Scene = std::make_unique<Scene>();
 
 	m_Scene->m_Camera->m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
+	m_Scene->m_Camera->m_ViewProjMatrices.SetEmptyBuffer(2 * sizeof(glm::mat4));
 	g_ActiveCamera = m_Scene->m_Camera;
 }
 
@@ -140,7 +139,7 @@ void Application::OnFrameStart()
 {
 	processInput(m_Window);
 
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -155,4 +154,18 @@ void Application::OnFrameEnd()
 
 	glfwSwapBuffers(m_Window);
 	glfwPollEvents();
+}
+
+void Application::Render()
+{
+	while (WindowIsOpen())
+	{
+		OnFrameStart();
+
+		m_Scene->OnUpdate();
+
+		m_Renderer->Render();
+
+		OnFrameEnd();
+	}
 }

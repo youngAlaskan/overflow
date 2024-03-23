@@ -49,6 +49,10 @@ private:
 
 	void OnFrameEnd();
 
+	void Render();
+
+	void Simulate();
+
 	bool WindowIsOpen() { return !glfwWindowShouldClose(m_Window); }
 
 	void CleanUp() const { glfwTerminate(); }
