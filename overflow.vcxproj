@@ -132,9 +132,9 @@
   <ItemGroup>
     <None Include="README.md" />
     <None Include="src\scene\README.md" />
-    <None Include="src\shaders\fragment\droplet.frag" />
+    <None Include="src\shaders\fragment\droplets.frag" />
     <None Include="src\shaders\fragment\terrain.frag" />
-    <None Include="src\shaders\vertex\droplet.vert" />
+    <None Include="src\shaders\vertex\droplets.vert" />
     <None Include="src\shaders\vertex\terrain.vert" />
     <None Include="vendor\include\glm\detail\func_common.inl" />
     <None Include="vendor\include\glm\detail\func_common_simd.inl" />

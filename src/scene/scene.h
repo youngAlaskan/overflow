@@ -20,10 +20,20 @@ public:
 		m_VAOs->push_back(m_Terrain->m_VAO);
 	}
 
+	void UpdateTerrain(std::vector<Vertex> vertices) const
+	{
+		m_Terrain->SetVertices(vertices);
+	}
+
 	void CreateDroplets(std::vector<glm::vec3> centers)
 	{
 		m_Droplets = std::make_unique<Droplets>(centers);
 		m_VAOs->push_back(m_Droplets->m_VAO);
+	}
+
+	void UpdateDroplets(std::vector<glm::vec3> centers) const
+	{
+		m_Droplets->SetInstanceVBO(centers);
 	}
 
 	void OnUpdate() const

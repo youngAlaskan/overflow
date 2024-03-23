@@ -35,8 +35,8 @@ void Application::Run()
 	std::shared_ptr<ShaderProgram> dropletShader = m_Renderer->AddShaderProgram(
 		std::vector<std::pair<GLenum, const char*>>
 		{
-			{ GL_VERTEX_SHADER, "src\\shaders\\vertex\\droplet.vert" },
-			{ GL_FRAGMENT_SHADER, "src\\shaders\\fragment\\droplet.frag" }
+			{ GL_VERTEX_SHADER, "src\\shaders\\vertex\\droplets.vert" },
+			{ GL_FRAGMENT_SHADER, "src\\shaders\\fragment\\droplets.frag" }
 		}
 	);
 

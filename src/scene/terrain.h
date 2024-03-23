@@ -25,6 +25,7 @@ public:
 
 		SetVertexAttributesPointers();
 	}
+
 public:
 	std::shared_ptr<VAO> m_VAO = std::make_shared<VAO>();
 	VBO m_VBO = VBO();
