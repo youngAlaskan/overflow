@@ -51,11 +51,7 @@ void Application::Run()
 	m_Renderer->RegisterUniformBuffer(m_Scene->m_Camera->m_ViewProjMatrices);
 
 	// Main loop
-	std::thread renderThread(Render);
-	std::thread phyisicsThread(Simulate);
-
-	renderThread.join();
-	phyisicsThread.join();
+	Render();
 }
 
 // Initializes GLFW, glad, and ImGui
