@@ -1,9 +1,9 @@
 #version 330 core
 
-layout (location = 0) in vec4 aPos;
-layout (location = 1) in vec3 aNorm;
-layout (location = 2) in vec2 aTexCoords;
-layout (location = 3) in uint aWaterLevel;
+layout (location = 0) in vec4 iPos;
+layout (location = 1) in vec3 iNorm;
+layout (location = 2) in vec2 iTexCoords;
+layout (location = 3) in uint iWaterLevel;
 
 layout (std140) uniform Matrices
 {
@@ -20,9 +20,9 @@ out VertexData
 
 void main()
 {
-    oVertexData.FragPos = aPos;
-    oVertexData.Normal = aNorm;
-    oVertexData.TexCoords = aTexCoords;
+    oVertexData.FragPos = iPos;
+    oVertexData.Normal = iNorm;
+    oVertexData.TexCoords = iTexCoords;
 
-	gl_Position = projection * view * aPos;
+	gl_Position = projection * view * iPos;
 }
