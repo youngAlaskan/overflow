@@ -165,3 +165,11 @@ void Application::Render()
 		OnFrameEnd();
 	}
 }
+
+void Application::Simulate()
+{
+	while (WindowIsOpen())
+	{
+
+	}
+}
