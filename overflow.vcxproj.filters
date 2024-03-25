@@ -2460,6 +2460,12 @@
     <ClInclude Include="src\physics\simulator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="vendor\include\stb_image\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scene\texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -2517,6 +2523,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\physics\simulator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scene\texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

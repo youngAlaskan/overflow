@@ -309,6 +309,7 @@
     <ClInclude Include="src\scene\droplets.h" />
     <ClInclude Include="src\scene\scene.h" />
     <ClInclude Include="src\scene\terrain.h" />
+    <ClInclude Include="src\scene\texture.h" />
     <ClInclude Include="src\scene\vertex.h" />
     <ClInclude Include="vendor\include\glad\glad.h" />
     <ClInclude Include="vendor\include\GLFW\glfw3.h" />
@@ -961,6 +962,7 @@
     <ClInclude Include="vendor\include\physx\vehicle\PxVehicleUtilSetup.h" />
     <ClInclude Include="vendor\include\physx\vehicle\PxVehicleUtilTelemetry.h" />
     <ClInclude Include="vendor\include\physx\vehicle\PxVehicleWheels.h" />
+    <ClInclude Include="vendor\include\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\physics\simulator.cpp" />
@@ -981,6 +983,7 @@
     <ClCompile Include="src\rendering\shaderProgram.cpp" />
     <ClCompile Include="src\scene\droplets.cpp" />
     <ClCompile Include="src\scene\scene.cpp" />
+    <ClCompile Include="src\scene\texture.cpp" />
     <ClCompile Include="vendor\include\glm\detail\glm.cpp" />
   </ItemGroup>
   <ItemGroup>
