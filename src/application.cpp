@@ -124,6 +124,7 @@ void Application::Init()
 
 	m_Renderer = std::make_unique<Renderer>();
 	m_Scene = std::make_unique<Scene>();
+	m_Simulator = std::make_unique<Simulator>();
 
 	m_Scene->m_Camera->m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
 	m_Scene->m_Camera->m_ViewProjMatrices.SetEmptyBuffer(2 * sizeof(glm::mat4));
@@ -170,6 +171,6 @@ void Application::Simulate()
 {
 	while (WindowIsOpen())
 	{
-
+		m_Simulator->Step();
 	}
 }

@@ -18,9 +18,4 @@ private:
 	void Init();
 
 	void CleanUp();
-private:
-	static physx::PxFoundation*				m_Foundation;
-	static physx::PxPhysics*				m_Physics;
-	static physx::PxDefaultCpuDispatcher*	m_Dispatcher;
-	static physx::PxScene*					m_Scene;
 };

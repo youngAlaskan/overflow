@@ -12,6 +12,7 @@
 
 #include "rendering/renderer.h"
 #include "scene/scene.h"
+#include "physics/simulator.h"
 
 constexpr float DELTA_TIME = 1.0f;
 
@@ -41,6 +42,7 @@ public:
 	uint32_t m_WindowHeight = SCR_HEIGHT;
 	std::unique_ptr<Renderer> m_Renderer = nullptr;
 	std::unique_ptr<Scene> m_Scene = nullptr;
+	std::unique_ptr<Simulator> m_Simulator = nullptr;
 
 private:
 	void Init();
