@@ -12,17 +12,7 @@ void Application::Run()
 	m_Renderer->SetVAOs(m_Scene->m_VAOs);
 
 	// Create Terrain
-	std::vector<Vertex> vertices = std::vector<Vertex>();
-
-	vertices.emplace_back(glm::vec3(-50.0f, -3.0f,  50.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
-	vertices.emplace_back(glm::vec3( 50.0f, -3.0f,  50.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
-	vertices.emplace_back(glm::vec3( 50.0f, -3.0f, -50.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
-
-	vertices.emplace_back(glm::vec3(-50.0f, -3.0f,  50.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
-	vertices.emplace_back(glm::vec3( 50.0f, -3.0f, -50.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
-	vertices.emplace_back(glm::vec3(-50.0f, -3.0f, -50.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
-
-	m_Scene->SetTerrain(vertices);
+	m_Scene->SetTerrain(100, -1.5f, 1.5f, 0.5f);
 
 	// Create Terrain Shader
 	std::shared_ptr<ShaderProgram> terrainShader = m_Renderer->AddShaderProgram(
@@ -54,14 +44,14 @@ void Application::Run()
 
 	for (const auto& pos : centers)
 	{
-		m_Simulator->AddDroplet(physx::PxVec3(pos.x, pos.y, pos.z));
+		m_Simulator->AddDroplet(physx::PxVec3(pos.x, pos.y, pos.z), static_cast<physx::PxReal>(g_ParticleRadius));
 	}
 
-	std::vector<physx::PxVec3> terrainVertices = std::vector<physx::PxVec3>(vertices.size(), physx::PxVec3());
+	std::vector<physx::PxVec3> terrainVertices = std::vector<physx::PxVec3>(m_Scene->m_Terrain->m_Vertices.size(), physx::PxVec3());
 
 	for (int i = 0; i < terrainVertices.size(); i++)
 	{
-		glm::vec3 pos = vertices.at(i).Position;
+		glm::vec3 pos = m_Scene->m_Terrain->m_Vertices.at(i).Position;
 		terrainVertices.at(i) = physx::PxVec3(pos.x, pos.y, pos.z);
 	}
 
@@ -206,12 +196,34 @@ void Application::SetImGuiWindows() const
 {
 	ImGui::Begin("Droplet Spawner");
 
+	if (ImGui::DragFloat("Particle Radius", &g_ParticleRadius, 0.01f, 0.0f, 5.0f))
+	{
+		m_Scene->m_Droplets->UpdateVertexVBO(g_ParticleRadius);
+
+		m_Scene->m_Droplets->m_Centers.clear();
+		m_Scene->m_Droplets->UpdateInstanceVBO();
+		m_Simulator->ClearDroplets();
+	}
+
+	static int count = 1;
+
+	if (ImGui::InputInt("Droplet Count", &count))
+	{
+		if (count < 0)
+			count = 0;
+	}
+
+	ImGui::SameLine();
+
 	if (ImGui::Button("Spawn Droplet"))
 	{
-		float x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
-		float y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / ( 15.0f))) +  5.0f;
-		float z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
-		m_Simulator->AddDroplet({ x, y, z });
+		for (int i = 0; i < count; i++)
+		{
+			float x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
+			float y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5.0f))) + 25.0f;
+			float z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
+			m_Simulator->AddDroplet({ x, y, z }, g_ParticleRadius);
+		}
 	}
 
 	ImGui::End();

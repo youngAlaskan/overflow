@@ -983,6 +983,7 @@
     <ClCompile Include="src\rendering\shaderProgram.cpp" />
     <ClCompile Include="src\scene\droplets.cpp" />
     <ClCompile Include="src\scene\scene.cpp" />
+    <ClCompile Include="src\scene\terrain.cpp" />
     <ClCompile Include="src\scene\texture.cpp" />
     <ClCompile Include="vendor\include\glm\detail\glm.cpp" />
   </ItemGroup>

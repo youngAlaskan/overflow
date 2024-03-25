@@ -27,6 +27,8 @@ inline bool g_IsFirstMouse = true;
 
 inline bool g_IsMouseDisabled = true;
 
+inline float g_ParticleRadius = 1.0f;
+
 // Handles all GLFW and glad window management
 class Application
 {

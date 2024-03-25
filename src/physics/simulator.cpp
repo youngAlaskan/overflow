@@ -11,10 +11,10 @@ void Simulator::Step()
 	g_Scene->fetchResults(true);
 }
 
-void Simulator::AddDroplet(physx::PxVec3 center)
+void Simulator::AddDroplet(physx::PxVec3 center, physx::PxReal radius)
 {
 	physx::PxMaterial* dropletMaterial = CreateMaterial(0.01f, 0.01f, 0.2f);
-	physx::PxSphereGeometry sphereGeometry = physx::PxSphereGeometry(1.0f);
+	physx::PxSphereGeometry sphereGeometry = physx::PxSphereGeometry(radius);
 
 	m_Droplets.push_back(CreateDynamic(physx::PxTransform(center), sphereGeometry, *dropletMaterial));
 }
@@ -66,6 +66,15 @@ physx::PxTriangleMesh* Simulator::CreateTriangleMesh(const std::vector<physx::Px
 	physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
 
 	return g_Physics->createTriangleMesh(readBuffer);
+}
+
+void Simulator::ClearDroplets()
+{
+	for (auto droplet : m_Droplets)
+	{
+		g_Scene->removeActor(*droplet);
+	}
+	m_Droplets.clear();
 }
 
 void Simulator::Init()

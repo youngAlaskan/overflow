@@ -15,8 +15,23 @@ void Droplets::SetInstanceVBO(std::vector<glm::vec3> centers)
 	glVertexAttribDivisor(1, 1);
 }
 
+void Droplets::UpdateInstanceVBO() const
+{
+	m_VAO->isInstanced = true;
+	m_VAO->instanceCount = static_cast<GLsizei>(m_Centers.size());
+
+	m_InstanceVBO.SetBufferData(m_Centers);
+}
+
+void Droplets::UpdateVertexVBO(float radius)
+{
+	m_Radius = radius;
+
+	SetSphereVBO();
+}
+
 // u goes from [0.0, 1.0] and v goes from [0.0, 1.0]
-inline glm::vec3 SphereS(GLfloat u, GLfloat v)
+glm::vec3 Droplets::SphereS(GLfloat u, GLfloat v) const
 {
 	GLfloat p = 2.0f * sqrtf(u * (1.0f - u));
 
@@ -24,10 +39,10 @@ inline glm::vec3 SphereS(GLfloat u, GLfloat v)
 		p * sinf(TAU * v),	// x: [-1.0, 1.0]
 		1.0f - 2.0f * u,	// y: [-1.0, 1.0]
 		p * cosf(TAU * v)	// z: [-1.0, 1.0]
-	);
+	) * m_Radius;
 }
 
-std::vector<glm::vec3> Droplets::CreateSphere()
+std::vector<glm::vec3> Droplets::CreateSphere() const
 {
 	const int limit = m_Subdivisions + 1;
 

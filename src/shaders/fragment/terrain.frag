@@ -7,9 +7,13 @@ in VertexData
     vec2 TexCoords;
 } iVertexData;
 
-out vec4 FragColor;
-
 void main()
 {
-   FragColor = vec4(0.1, 0.7f, 0.2f, 1.0f);
+  vec3 N = normalize(iVertexData.Normal);
+  vec3 L = normalize(-vec3(1.0f, -1.0f, 1.0f));
+
+  // Lambert's cosine law
+  float lambertian = max(dot(N, L), 0.0);
+
+  gl_FragColor = vec4(lambertian * vec3(0.1f, 1.0f, 0.1f), 1.0);
 }

@@ -2528,6 +2528,9 @@
     <ClCompile Include="src\scene\texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\scene\terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="vendor\lib\GLFW\glfw3.lib" />
