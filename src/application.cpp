@@ -33,7 +33,8 @@ void Application::Run()
 	);
 
 	// Create Droplets
-	m_Scene->CreateDroplets(10, std::vector<glm::vec3>{ glm::vec3(0.0f, 3.0f, -3.0f), glm::vec3(0.0f, 5.0f, -3.0f) });
+	std::vector<glm::vec3> centers = { glm::vec3(0.0f, 3.0f, -3.0f), glm::vec3(0.0f, 5.0f, -3.0f) };
+	m_Scene->CreateDroplets(10, centers);
 
 	// Create Droplets shader
 	std::shared_ptr<ShaderProgram> dropletShader = m_Renderer->AddShaderProgram(
@@ -50,8 +51,52 @@ void Application::Run()
 
 	m_Renderer->RegisterUniformBuffer(m_Scene->m_Camera->m_ViewProjMatrices);
 
+	physx::PxMaterial* dropletMaterial = m_Simulator->CreateMaterial(0.5f, 0.5f, 0.6f);
+	physx::PxSphereGeometry sphereGeometry = physx::PxSphereGeometry(1.0f);
+
+	std::vector<physx::PxRigidDynamic*> droplets = {};
+
+	for (const auto& pos : centers)
+	{
+		droplets.push_back(m_Simulator->CreateDynamic(physx::PxTransform(physx::PxVec3(pos.x, pos.y, pos.z)), sphereGeometry, *dropletMaterial));
+	}
+
+	std::vector<physx::PxVec3> terrainVertices = std::vector<physx::PxVec3>(vertices.size(), physx::PxVec3());
+
+	for (int i = 0; i < terrainVertices.size(); i++)
+	{
+		glm::vec3 pos = vertices.at(i).Position;
+		terrainVertices.at(i) = physx::PxVec3(pos.x, pos.y, pos.z);
+	}
+
+	physx::PxTriangleMesh* terrainMesh = m_Simulator->CreateTriangleMesh(terrainVertices);
+	physx::PxTriangleMeshGeometry terrainGeometry = physx::PxTriangleMeshGeometry(terrainMesh);
+	m_Simulator->CreateStatic(physx::PxTransform(physx::PxVec3(0.0f)), terrainGeometry, *dropletMaterial);
+
 	// Main loop
-	Render();
+	while (WindowIsOpen())
+	{
+		OnFrameStart();
+
+		m_Simulator->Step();
+
+		m_Scene->OnUpdate();
+
+		m_Renderer->Render();
+
+		centers.clear();
+
+		for (auto droplet : droplets)
+		{
+			physx::PxTransform pose = droplet->getGlobalPose();
+			physx::PxVec3 position = pose.p;
+			centers.push_back(glm::vec3(position.x, position.y, position.z));
+		}
+
+		m_Scene->UpdateDroplets(centers);
+
+		OnFrameEnd();
+	}
 }
 
 // Initializes GLFW, glad, and ImGui

@@ -1,7 +1,5 @@
 #include "simulator.h"
 
-#include <assert.h>
-
 inline static physx::PxFoundation* g_Foundation           = NULL;
 inline static physx::PxPhysics* g_Physics                 = NULL;
 inline static physx::PxDefaultCpuDispatcher* g_Dispatcher = NULL;
@@ -9,7 +7,7 @@ inline static physx::PxScene* g_Scene                     = NULL;
 
 void Simulator::Step()
 {
-	g_Scene->simulate(1.0f / 60.0f);
+	g_Scene->simulate(1.0f / 1024.0f);
 	g_Scene->fetchResults(true);
 }
 
@@ -30,6 +28,42 @@ physx::PxRigidStatic* Simulator::CreateStatic(const physx::PxTransform& t, const
 	g_Scene->addActor(*rigidStatic);
 	return rigidStatic;
 
+}
+
+physx::PxMaterial* Simulator::CreateMaterial(physx::PxReal staticFriction, physx::PxReal dynamicFriction, physx::PxReal restitution)
+{
+	return g_Physics->createMaterial(staticFriction, dynamicFriction, restitution);
+}
+
+physx::PxTriangleMesh* Simulator::CreateTriangleMesh(const std::vector<physx::PxVec3>& vertices)
+{
+	physx::PxTriangleMeshDesc meshDesc;
+	meshDesc.points.count = vertices.size();
+	meshDesc.points.stride = sizeof(physx::PxVec3);
+	meshDesc.points.data = vertices.data();
+
+	std::vector<physx::PxU32> indices = std::vector<physx::PxU32>(vertices.size(), 0);
+	for (int i = 0; i < indices.size(); i++)
+	{
+		indices.at(i) = i;
+	}
+
+	meshDesc.triangles.count = indices.size() / 3;
+	meshDesc.triangles.stride = 3 * sizeof(physx::PxU32);
+	meshDesc.triangles.data = indices.data();
+
+	physx::PxTolerancesScale scale;
+	physx::PxCookingParams params(scale);
+
+	physx::PxDefaultMemoryOutputStream writeBuffer;
+	physx::PxTriangleMeshCookingResult::Enum result;
+	bool status = PxCookTriangleMesh(params, meshDesc, writeBuffer, &result);
+	if (!status)
+		return NULL;
+
+	physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+
+	return g_Physics->createTriangleMesh(readBuffer);
 }
 
 void Simulator::Init()
