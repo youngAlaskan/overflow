@@ -1,6 +1,7 @@
 #include "application.h"
 
 #include <thread>
+#include <random>
 
 // #include "glErrors.h"
 
@@ -13,13 +14,13 @@ void Application::Run()
 	// Create Terrain
 	std::vector<Vertex> vertices = std::vector<Vertex>();
 
-	vertices.emplace_back(glm::vec4(-50.0f, -3.0f,  50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
-	vertices.emplace_back(glm::vec4( 50.0f, -3.0f,  50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
-	vertices.emplace_back(glm::vec4( 50.0f, -3.0f, -50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
+	vertices.emplace_back(glm::vec3(-50.0f, -3.0f,  50.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
+	vertices.emplace_back(glm::vec3( 50.0f, -3.0f,  50.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
+	vertices.emplace_back(glm::vec3( 50.0f, -3.0f, -50.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
 
-	vertices.emplace_back(glm::vec4(-50.0f, -3.0f,  50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
-	vertices.emplace_back(glm::vec4( 50.0f, -3.0f, -50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
-	vertices.emplace_back(glm::vec4(-50.0f, -3.0f, -50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
+	vertices.emplace_back(glm::vec3(-50.0f, -3.0f,  50.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
+	vertices.emplace_back(glm::vec3( 50.0f, -3.0f, -50.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
+	vertices.emplace_back(glm::vec3(-50.0f, -3.0f, -50.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
 
 	m_Scene->SetTerrain(vertices);
 
@@ -33,7 +34,7 @@ void Application::Run()
 	);
 
 	// Create Droplets
-	std::vector<glm::vec3> centers = { glm::vec3(0.0f, 3.0f, -3.0f), glm::vec3(0.0f, 5.0f, -3.0f) };
+	std::vector<glm::vec3> centers = { glm::vec3(0.0f, 3.0f, -3.0f), glm::vec3(0.5f, 5.0f, -3.0f) };
 	m_Scene->CreateDroplets(10, centers);
 
 	// Create Droplets shader
@@ -51,14 +52,9 @@ void Application::Run()
 
 	m_Renderer->RegisterUniformBuffer(m_Scene->m_Camera->m_ViewProjMatrices);
 
-	physx::PxMaterial* dropletMaterial = m_Simulator->CreateMaterial(0.5f, 0.5f, 0.6f);
-	physx::PxSphereGeometry sphereGeometry = physx::PxSphereGeometry(1.0f);
-
-	std::vector<physx::PxRigidDynamic*> droplets = {};
-
 	for (const auto& pos : centers)
 	{
-		droplets.push_back(m_Simulator->CreateDynamic(physx::PxTransform(physx::PxVec3(pos.x, pos.y, pos.z)), sphereGeometry, *dropletMaterial));
+		m_Simulator->AddDroplet(physx::PxVec3(pos.x, pos.y, pos.z));
 	}
 
 	std::vector<physx::PxVec3> terrainVertices = std::vector<physx::PxVec3>(vertices.size(), physx::PxVec3());
@@ -69,9 +65,10 @@ void Application::Run()
 		terrainVertices.at(i) = physx::PxVec3(pos.x, pos.y, pos.z);
 	}
 
+	physx::PxMaterial* terrainMaterial = m_Simulator->CreateMaterial(0.6f, 0.5f, 0.1f);
 	physx::PxTriangleMesh* terrainMesh = m_Simulator->CreateTriangleMesh(terrainVertices);
 	physx::PxTriangleMeshGeometry terrainGeometry = physx::PxTriangleMeshGeometry(terrainMesh);
-	m_Simulator->CreateStatic(physx::PxTransform(physx::PxVec3(0.0f)), terrainGeometry, *dropletMaterial);
+	m_Simulator->CreateStatic(physx::PxTransform(physx::PxVec3(0.0f)), terrainGeometry, *terrainMaterial);
 
 	// Main loop
 	while (WindowIsOpen())
@@ -86,11 +83,10 @@ void Application::Run()
 
 		centers.clear();
 
-		for (auto droplet : droplets)
+		for (auto droplet : m_Simulator->m_Droplets)
 		{
 			physx::PxTransform pose = droplet->getGlobalPose();
-			physx::PxVec3 position = pose.p;
-			centers.push_back(glm::vec3(position.x, position.y, position.z));
+			centers.push_back(glm::vec3(pose.p.x, pose.p.y, pose.p.z));
 		}
 
 		m_Scene->UpdateDroplets(centers);
@@ -186,6 +182,8 @@ void Application::OnFrameStart()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+
+	SetImGuiWindows();
 }
 
 // Renders ImGui elements, swaps glfw buffers, and polls glfw events
@@ -196,6 +194,21 @@ void Application::OnFrameEnd()
 
 	glfwSwapBuffers(m_Window);
 	glfwPollEvents();
+}
+
+void Application::SetImGuiWindows() const
+{
+	ImGui::Begin("Droplet Spawner");
+
+	if (ImGui::Button("Spawn Droplet"))
+	{
+		float x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
+		float y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / ( 15.0f))) +  5.0f;
+		float z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
+		m_Simulator->AddDroplet({ x, y, z });
+	}
+
+	ImGui::End();
 }
 
 void Application::Render()

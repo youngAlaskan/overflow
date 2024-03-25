@@ -27,9 +27,11 @@ inline glm::vec3 SphereS(GLfloat u, GLfloat v)
 	);
 }
 
-void Droplets::CreateSphere()
+std::vector<glm::vec3> Droplets::CreateSphere()
 {
 	const int limit = m_Subdivisions + 1;
+
+	std::vector<glm::vec3> vertices = std::vector<glm::vec3>();
 
 	// Creates a sphere with 5 subdivisions on each axis.
 	auto points = std::vector<std::vector<glm::vec3>>(limit, std::vector<glm::vec3>(limit));
@@ -57,30 +59,32 @@ void Droplets::CreateSphere()
 		for (int j = 0, jNext = 1; j < m_Subdivisions; j++, jNext++)
 		{
 			// Bottom Right Triangle
-			m_Vertices.push_back(points[iNext][j    ]); // BL
-			m_Vertices.push_back(points[i    ][jNext]); // TR
-			m_Vertices.push_back(points[iNext][jNext]); // BR
+			vertices.push_back(points[iNext][j    ]); // BL
+			vertices.push_back(points[i    ][jNext]); // TR
+			vertices.push_back(points[iNext][jNext]); // BR
 			
 			// Top Left Triangle
-			m_Vertices.push_back(points[iNext][j    ]); // BL
-			m_Vertices.push_back(points[i    ][j    ]); // TL
-			m_Vertices.push_back(points[i    ][jNext]); // TR
+			vertices.push_back(points[iNext][j    ]); // BL
+			vertices.push_back(points[i    ][j    ]); // TL
+			vertices.push_back(points[i    ][jNext]); // TR
 		}
 	}
+
+	return vertices;
 }
 
 void Droplets::SetSphereVBO()
 {
-	CreateSphere();
+	std::vector<glm::vec3> vertices = CreateSphere();
 
 	m_VAO->Bind();
 
 	// Set position buffer
 	m_VAO->hasEBO = false;
-	m_VAO->vertexCount = static_cast<GLuint>(m_Vertices.size());
+	m_VAO->vertexCount = static_cast<GLuint>(vertices.size());
 	m_VAO->triangleCount = m_VAO->vertexCount / 3U;
 
-	m_SphereVBO.SetBufferData(m_Vertices);
+	m_SphereVBO.SetBufferData(vertices);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
 	glEnableVertexAttribArray(0);

@@ -1,6 +1,6 @@
 #version 330 core
 
-layout (location = 0) in vec4 iPos;
+layout (location = 0) in vec3 iPos;
 layout (location = 1) in vec3 iNorm;
 layout (location = 2) in vec2 iTexCoords;
 layout (location = 3) in uint iWaterLevel;
@@ -20,9 +20,9 @@ out VertexData
 
 void main()
 {
-    oVertexData.FragPos = iPos;
+    oVertexData.FragPos = vec4(iPos, 1.0f);
     oVertexData.Normal = iNorm;
     oVertexData.TexCoords = iTexCoords;
 
-	gl_Position = projection * view * iPos;
+	gl_Position = projection * view * oVertexData.FragPos;
 }

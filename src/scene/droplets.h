@@ -35,14 +35,13 @@ public:
 	void SetInstanceVBO(std::vector<glm::vec3> centers);
 
 public:
-	std::vector<glm::vec3> m_Vertices = std::vector<glm::vec3>();
 	std::vector<glm::vec3> m_Centers = std::vector<glm::vec3>();
 	std::shared_ptr<VAO> m_VAO = std::make_shared<VAO>();
 	VBO m_SphereVBO = VBO();
 	VBO m_InstanceVBO = VBO();
 
 private:
-	void CreateSphere();
+	std::vector<glm::vec3> CreateSphere();
 
 	void SetSphereVBO();
 

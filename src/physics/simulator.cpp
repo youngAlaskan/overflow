@@ -11,6 +11,14 @@ void Simulator::Step()
 	g_Scene->fetchResults(true);
 }
 
+void Simulator::AddDroplet(physx::PxVec3 center)
+{
+	physx::PxMaterial* dropletMaterial = CreateMaterial(0.01f, 0.01f, 0.2f);
+	physx::PxSphereGeometry sphereGeometry = physx::PxSphereGeometry(1.0f);
+
+	m_Droplets.push_back(CreateDynamic(physx::PxTransform(center), sphereGeometry, *dropletMaterial));
+}
+
 physx::PxRigidDynamic* Simulator::CreateDynamic(const physx::PxTransform& t, const physx::PxGeometry& geometry, const physx::PxMaterial& material, const physx::PxVec3& velocity)
 {
 	physx::PxRigidDynamic* rigidDynamic = g_Physics->createRigidDynamic(t);

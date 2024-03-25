@@ -25,6 +25,8 @@ inline float g_LastX = SCR_WIDTH / 2.0f;
 inline float g_LastY = SCR_HEIGHT / 2.0f;
 inline bool g_IsFirstMouse = true;
 
+inline bool g_IsMouseDisabled = true;
+
 // Handles all GLFW and glad window management
 class Application
 {
@@ -50,6 +52,8 @@ private:
 	void OnFrameStart();
 
 	void OnFrameEnd();
+
+	void SetImGuiWindows() const;
 
 	void Render();
 
@@ -86,7 +90,7 @@ inline void MouseCallback(GLFWwindow* window, double xPosIn, double yPosIn)
 	g_LastX = xPos;
 	g_LastY = yPos;
 
-	if (g_ActiveCamera)
+	if (g_ActiveCamera && g_IsMouseDisabled)
 		g_ActiveCamera->ProcessMouseMovement(xOffset, yOffset);
 }
 
@@ -100,6 +104,12 @@ inline void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS)
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, g_IsMouseDisabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+		g_IsMouseDisabled = !g_IsMouseDisabled;
+	}
 
 	if (!g_ActiveCamera)
 		return;
