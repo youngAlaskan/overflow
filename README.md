@@ -7,9 +7,9 @@ The primary control flow is the following:
 
 ## TODO
 - [ ] Terrain Generation
-- [ ] Textures
+- [X] Textures
 - [ ] Terrain Shader
 - [ ] Physics Engine
-	- [ ] Simulating droplets
+	- [X] Simulating droplets
 	- [ ] Simulating SPH on the ground
 - [ ] Figuring out how SPH is going to be rendered 
