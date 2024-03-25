@@ -18,7 +18,7 @@ public:
 	static physx::PxRigidStatic* CreateStatic(const physx::PxTransform& t, const physx::PxGeometry& geometry, const physx::PxMaterial& material);
 
 	static physx::PxMaterial* CreateMaterial(physx::PxReal staticFriction, physx::PxReal dynamicFriction, physx::PxReal restitution);
-	static physx::PxTriangleMesh* CreateTriangleMesh(const std::vector<physx::PxVec3>& vertices);
+	static physx::PxTriangleMesh* CreateTriangleMesh(const std::vector<physx::PxVec3>& vertices, const std::vector<physx::PxU32>& indices);
 public:
 	std::vector<physx::PxRigidDynamic*> m_Droplets = std::vector<physx::PxRigidDynamic*>();
 

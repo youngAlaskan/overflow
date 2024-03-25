@@ -43,21 +43,15 @@ physx::PxMaterial* Simulator::CreateMaterial(physx::PxReal staticFriction, physx
 	return g_Physics->createMaterial(staticFriction, dynamicFriction, restitution);
 }
 
-physx::PxTriangleMesh* Simulator::CreateTriangleMesh(const std::vector<physx::PxVec3>& vertices)
+physx::PxTriangleMesh* Simulator::CreateTriangleMesh(const std::vector<physx::PxVec3>& vertices, const std::vector<physx::PxU32>& indices)
 {
 	physx::PxTriangleMeshDesc meshDesc;
-	meshDesc.points.count = vertices.size();
+	meshDesc.points.count = static_cast<physx::PxU32>(vertices.size());
 	meshDesc.points.stride = sizeof(physx::PxVec3);
 	meshDesc.points.data = vertices.data();
 
-	std::vector<physx::PxU32> indices = std::vector<physx::PxU32>(vertices.size(), 0);
-	for (int i = 0; i < indices.size(); i++)
-	{
-		indices.at(i) = i;
-	}
-
-	meshDesc.triangles.count = indices.size() / 3;
-	meshDesc.triangles.stride = 3 * sizeof(physx::PxU32);
+	meshDesc.triangles.count = static_cast<physx::PxU32>(indices.size()) / 3U;
+	meshDesc.triangles.stride = 3U * sizeof(physx::PxU32);
 	meshDesc.triangles.data = indices.data();
 
 	physx::PxTolerancesScale scale;

@@ -65,8 +65,14 @@ void Application::Run()
 		terrainVertices.at(i) = physx::PxVec3(pos.x, pos.y, pos.z);
 	}
 
+	std::vector<physx::PxU32> terrainIndices = std::vector<physx::PxU32>(terrainVertices.size(), 0);
+	for (int i = 0; i < terrainIndices.size(); i++)
+	{
+		terrainIndices.at(i) = i;
+	}
+
 	physx::PxMaterial* terrainMaterial = m_Simulator->CreateMaterial(0.6f, 0.5f, 0.1f);
-	physx::PxTriangleMesh* terrainMesh = m_Simulator->CreateTriangleMesh(terrainVertices);
+	physx::PxTriangleMesh* terrainMesh = m_Simulator->CreateTriangleMesh(terrainVertices, terrainIndices);
 	physx::PxTriangleMeshGeometry terrainGeometry = physx::PxTriangleMeshGeometry(terrainMesh);
 	m_Simulator->CreateStatic(physx::PxTransform(physx::PxVec3(0.0f)), terrainGeometry, *terrainMaterial);
 
