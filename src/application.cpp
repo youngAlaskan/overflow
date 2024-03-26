@@ -1,7 +1,8 @@
 #include "application.h"
 
 #include <thread>
-#include <random>
+
+#include "generators/terrainGenerator.h";
 
 // #include "glErrors.h"
 
@@ -12,7 +13,8 @@ void Application::Run()
 	m_Renderer->SetVAOs(m_Scene->m_VAOs);
 
 	// Create Terrain
-	m_Scene->SetTerrain(100, -1.5f, 1.5f, 0.5f);
+	auto vertices = TerrainGenerator::GenerateVertices();
+	m_Scene->SetTerrain(vertices);
 
 	// Create Terrain Shader
 	std::shared_ptr<ShaderProgram> terrainShader = m_Renderer->AddShaderProgram(

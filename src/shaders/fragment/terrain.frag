@@ -15,5 +15,5 @@ void main()
   // Lambert's cosine law
   float lambertian = max(dot(N, L), 0.0);
 
-  gl_FragColor = vec4(lambertian * vec3(0.1f, 1.0f, 0.1f), 1.0);
+  gl_FragColor = vec4(0.1f * vec3(0.1f, 1.0f, 0.1f) + lambertian * vec3(0.1f, 1.0f, 0.1f), 1.0);
 }
