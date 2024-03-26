@@ -91,12 +91,12 @@ float perlin(float x, float y) {
 	float u = fade(x);
 	float v = fade(y);
 
-	int tl = hash(X, Y - 1, 0);
-	int tr = hash(X - 1, Y - 1, 0);
-	int bl = hash(X, Y, 0);
-	int br = hash(X - 1, Y, 0);
+	int tl = hash(X, Y, 0);
+	int tr = hash(X + 1, Y, 0);
+	int bl = hash(X, Y + 1, 0);
+	int br = hash(X + 1, Y + 1, 0);
 
 	return lerp(
-		lerp(grad(tl, x, y - 1.0f), grad(tr, x - 1.0f, y - 1.0f), u),
-		lerp(grad(bl, x - 1.0f, y), grad(br, x - 1.0f, y), u), v);
+		lerp(grad(tl, x, y), grad(tr, x + 1.0f, y), u),
+		lerp(grad(bl, x, y + 1.0f), grad(br, x + 1.0f, y + 1.0f), u), v);
 }

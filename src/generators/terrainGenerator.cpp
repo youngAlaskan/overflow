@@ -5,13 +5,20 @@
 #include <cstdio>
 #include <fstream>
 
-GLfloat** TerrainGenerator::GenerateHeightMap(unsigned int resX, unsigned int resY, float scale) {
+GLfloat** TerrainGenerator::GenerateHeightMap(unsigned int resX, unsigned int resY, float freq, unsigned int octaves) {
 	GLfloat** heightMap = new GLfloat*[resY];
 
 	for (GLuint j = 0; j < resY; j++) {
 		heightMap[j] = new GLfloat[resX];
 		for (GLuint i = 0; i < resX; i++) {
-			heightMap[j][i] = (GLfloat)perlin(i * scale, j * scale);
+			GLfloat x = i * freq;
+			GLfloat y = j * freq;
+			heightMap[j][i] = 0;
+
+			for (GLuint k = 0; k < octaves; k++) {
+				GLfloat oct = (GLfloat)pow(2, k);
+				heightMap[j][i] += (GLfloat)perlin(x * oct, y * oct) * pow(0.5, k);
+			}
 		}
 	}
 
@@ -24,16 +31,16 @@ std::vector<Vertex> TerrainGenerator::GenerateVertices() { // TODO: Make heightm
 	GLfloat size_x = 100.0f;
 	GLfloat size_z = 100.0f;
 
-	GLuint subd_x = 200;
+	GLuint subd_x = 100;
 	GLuint subd_z = 100;
 
 	GLfloat dx = size_x / (GLfloat)subd_x;
 	GLfloat dz = size_z / (GLfloat)subd_z;
 
-	GLfloat height = 3.0f;
-	GLfloat** heightMap = GenerateHeightMap(subd_x + 1, subd_z + 1, 0.02f);
+	GLfloat height = 2.0f;
+	GLfloat** heightMap = GenerateHeightMap(subd_x + 1, subd_z + 1, 0.02f, 8);
 
-	auto og = glm::vec4(-size_x / 2, -50.0f, -size_x + 2, 1.0f);
+	auto og = glm::vec4(-size_x / 2, -25.0f, -size_x + 2, 1.0f);
 
 	auto img = std::ofstream("test.pgm");
 	img << "P2\n" << subd_x + 1 << " " << subd_z + 1 << "\n255\n";

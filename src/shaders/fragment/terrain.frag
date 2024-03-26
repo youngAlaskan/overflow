@@ -11,5 +11,6 @@ out vec4 FragColor;
 
 void main()
 {
-   FragColor = vec4(iVertexData.Normal.xyz, 1.0f) * vec4(0.5f, 0.9f, 0.1f, 1.0f);
+    vec3 color = vec3(0.5f, 0.9f, 0.1f);
+    FragColor = vec4(color * (iVertexData.Normal * 0.5f + 0.5f), 1.0f);
 }
