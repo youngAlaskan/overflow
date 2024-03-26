@@ -274,6 +274,7 @@
     <None Include="vendor\include\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\generators\noise.h" />
     <ClInclude Include="src\scene\camera.h" />
     <ClInclude Include="src\glErrors.h" />
     <ClInclude Include="src\rendering\renderer.h" />
@@ -294,6 +295,7 @@
     <ClInclude Include="src\scene\scene.h" />
     <ClInclude Include="src\scene\terrain.h" />
     <ClInclude Include="src\scene\vertex.h" />
+    <ClInclude Include="src\generators\terrainGenerator.h" />
     <ClInclude Include="vendor\include\glad\glad.h" />
     <ClInclude Include="vendor\include\GLFW\glfw3.h" />
     <ClInclude Include="vendor\include\GLFW\glfw3native.h" />
@@ -582,6 +584,7 @@
     <ClInclude Include="vendor\include\KHR\khrplatform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\generators\noise.cpp" />
     <ClCompile Include="src\scene\camera.cpp" />
     <ClCompile Include="src\glObjects.h" />
     <ClCompile Include="src\rendering\renderer.cpp" />
@@ -599,6 +602,7 @@
     <ClCompile Include="src\rendering\shaderProgram.cpp" />
     <ClCompile Include="src\scene\droplets.cpp" />
     <ClCompile Include="src\scene\scene.cpp" />
+    <ClCompile Include="src\generators\terrainGenerator.cpp" />
     <ClCompile Include="vendor\include\glm\detail\glm.cpp" />
   </ItemGroup>
   <ItemGroup>

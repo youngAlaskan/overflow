@@ -2,6 +2,8 @@
 
 #include <thread>
 
+#include "generators/terrainGenerator.h";
+
 // #include "glErrors.h"
 
 // Runs the main application loop
@@ -11,16 +13,7 @@ void Application::Run()
 	m_Renderer->SetVAOs(m_Scene->m_VAOs);
 
 	// Create Terrain
-	std::vector<Vertex> vertices = std::vector<Vertex>();
-
-	vertices.emplace_back(glm::vec4(-50.0f, -3.0f,  50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
-	vertices.emplace_back(glm::vec4( 50.0f, -3.0f,  50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
-	vertices.emplace_back(glm::vec4( 50.0f, -3.0f, -50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
-
-	vertices.emplace_back(glm::vec4(-50.0f, -3.0f,  50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
-	vertices.emplace_back(glm::vec4( 50.0f, -3.0f, -50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
-	vertices.emplace_back(glm::vec4(-50.0f, -3.0f, -50.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f));
-
+	auto vertices = TerrainGenerator::GenerateVertices();
 	m_Scene->SetTerrain(vertices);
 
 	// Create Terrain Shader
