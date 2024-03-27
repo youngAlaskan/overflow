@@ -10,8 +10,8 @@ public:
 	Sphere(float radius) : m_Radius(radius) {}
 	Sphere(glm::vec3 center, float radius) : m_Center(center), m_Radius(radius) {}
 
-	void SetCenter(glm::vec3 center) { m_Center = center; }
-	glm::vec3 GetCenter() const { return m_Center; }
+	void SetPosition(glm::vec3 center) { m_Center = center; }
+	glm::vec3 GetPosition() const { return m_Center; }
 
 	void SetRadius(float radius) { m_Radius = radius; }
 	float GetRadius() const { return m_Radius; }
@@ -24,9 +24,41 @@ private:
 class DynamicSphere : public Sphere
 {
 public:
+	DynamicSphere() : Sphere() { m_Mass = 0.0f; }
+	glm::vec3 GetActiveForce() const { return m_ActiveForces; }
+
 	void ApplyForce(glm::vec3 force) { m_ActiveForces += force; }
 	void ClearForces() { m_ActiveForces = glm::vec3(); }
 
+	glm::vec3 GetVelocity() const { return m_Velocity; }
+	void SetVelocity(glm::vec3 velocity) { m_Velocity = velocity; }
+	void UpdateVelocity(glm::vec3 prevAcceleration, const float deltaTime) { m_Velocity += 0.5f * (prevAcceleration + m_Acceleration) * deltaTime; }
+
+	void SetAcceleration(glm::vec3 acceleration) { m_Acceleration = acceleration; }
+	glm::vec3 GetAcceleration() const { return m_Acceleration; }
+	void UpdateAcceleration() { m_Acceleration = m_ActiveForces / m_Density; }
+
+	void UpdatePosition(const float deltaTime) { SetPosition(GetPosition() + m_Velocity * deltaTime + 0.5f * m_Acceleration * deltaTime * deltaTime); }
+
+	void SetDensity(float density) { m_Density = density; }
+	float GetDensity() const { return m_Density; }
+
+	static void SetMass(float mass) { m_Mass = mass; }
+	static float GetMass() { return m_Mass; }
+
+	// Update velocity and position using leap frog scheme
+	void Update(const float deltaTime)
+	{
+		UpdatePosition(deltaTime);
+
+		glm::vec3 prevAcceleration = GetAcceleration();
+		UpdateAcceleration();
+		UpdateVelocity(prevAcceleration, deltaTime);
+	}
 private:
-	glm::vec3 m_ActiveForces = glm::vec3();
+	glm::vec3 m_ActiveForces = glm::vec3(0.0f);
+	glm::vec3 m_Acceleration = glm::vec3(0.0f);
+	glm::vec3 m_Velocity = glm::vec3(0.0f);
+	float m_Density = 0.0f;
+	static float m_Mass;
 };
