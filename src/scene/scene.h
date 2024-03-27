@@ -29,7 +29,7 @@ public:
 	void CreateDroplets(Args... args)
 	{
 		m_Droplets = std::make_unique<Droplets>(args...);
-		m_VAOs->push_back(m_Droplets->m_VAO);
+		m_VAOs->push_back(m_Droplets->GetVAO());
 	}
 
 	void UpdateDroplets(std::vector<Droplet> droplets) const

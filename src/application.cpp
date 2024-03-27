@@ -25,6 +25,8 @@ void Application::Run()
 		}
 	);
 
+	m_Scene->CreateDroplets(0.1f);
+
 	// Create Droplets shader
 	std::shared_ptr<ShaderProgram> dropletShader = m_Renderer->AddShaderProgram(
 		std::vector<std::pair<GLenum, const char*>>
