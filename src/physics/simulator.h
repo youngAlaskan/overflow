@@ -42,7 +42,11 @@ public:
 	void ClearParticles() { m_Particles.clear(); }
 	void ClearParticleGrid() { m_ParticleGrid.clear(); }
 
-	void Step();
+	void Step()
+	{
+		HandleCollisions();
+		ApplySPH();
+	}
 
 private:
 	void Init()
@@ -95,9 +99,9 @@ private:
 private:
 	std::unique_ptr<Heightfield> m_TerrainGeometry = nullptr;
 	std::vector<DynamicSphere> m_Particles = std::vector<DynamicSphere>();
-	float m_DeltaTime = 0.0f;
 	std::vector<std::vector<std::vector<std::vector<DynamicSphere>>>> m_ParticleGrid = std::vector<std::vector<std::vector<std::vector<DynamicSphere>>>>();
 	uint32_t m_WorldLength = 0U;
 	uint32_t m_WorldWidth  = 0U;
 	uint32_t m_WorldDepth  = 0U;
+	float m_DeltaTime      = 0.0f;
 };
