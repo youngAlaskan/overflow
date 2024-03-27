@@ -32,9 +32,9 @@ public:
 		m_VAOs->push_back(m_Droplets->m_VAO);
 	}
 
-	void UpdateDroplets(std::vector<glm::vec3> centers) const
+	void UpdateDroplets(std::vector<Droplet> droplets) const
 	{
-		m_Droplets->SetInstanceVBO(centers);
+		m_Droplets->SetInstanceVBO(droplets);
 	}
 
 	void OnUpdate() const

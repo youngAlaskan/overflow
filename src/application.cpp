@@ -2,7 +2,7 @@
 
 #include <thread>
 
-#include "generators/terrainGenerator.h";
+#include "generators/terrainGenerator.h"
 
 // #include "glErrors.h"
 
@@ -25,10 +25,6 @@ void Application::Run()
 		}
 	);
 
-	// Create Droplets
-	std::vector<glm::vec3> centers = { glm::vec3(0.0f, 3.0f, -3.0f), glm::vec3(0.5f, 5.0f, -3.0f) };
-	m_Scene->CreateDroplets(10, centers);
-
 	// Create Droplets shader
 	std::shared_ptr<ShaderProgram> dropletShader = m_Renderer->AddShaderProgram(
 		std::vector<std::pair<GLenum, const char*>>
@@ -40,33 +36,9 @@ void Application::Run()
 
 	// Register Shader ID with VAO ID
 	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Terrain->m_VAO->GetID(), terrainShader->GetID());
-	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Droplets->m_VAO->GetID(), dropletShader->GetID());
+	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Droplets->GetVAO()->GetID(), dropletShader->GetID());
 
 	m_Renderer->RegisterUniformBuffer(m_Scene->m_Camera->m_ViewProjMatrices);
-
-	for (const auto& pos : centers)
-	{
-		m_Simulator->AddDroplet(physx::PxVec3(pos.x, pos.y, pos.z), static_cast<physx::PxReal>(g_ParticleRadius));
-	}
-
-	std::vector<physx::PxVec3> terrainVertices = std::vector<physx::PxVec3>(m_Scene->m_Terrain->m_Vertices.size(), physx::PxVec3());
-
-	for (int i = 0; i < terrainVertices.size(); i++)
-	{
-		glm::vec3 pos = m_Scene->m_Terrain->m_Vertices.at(i).Position;
-		terrainVertices.at(i) = physx::PxVec3(pos.x, pos.y, pos.z);
-	}
-
-	std::vector<physx::PxU32> terrainIndices = std::vector<physx::PxU32>(terrainVertices.size(), 0);
-	for (int i = 0; i < terrainIndices.size(); i++)
-	{
-		terrainIndices.at(i) = i;
-	}
-
-	physx::PxMaterial* terrainMaterial = m_Simulator->CreateMaterial(0.6f, 0.5f, 0.1f);
-	physx::PxTriangleMesh* terrainMesh = m_Simulator->CreateTriangleMesh(terrainVertices, terrainIndices);
-	physx::PxTriangleMeshGeometry terrainGeometry = physx::PxTriangleMeshGeometry(terrainMesh);
-	m_Simulator->CreateStatic(physx::PxTransform(physx::PxVec3(0.0f)), terrainGeometry, *terrainMaterial);
 
 	// Main loop
 	while (WindowIsOpen())
@@ -78,16 +50,6 @@ void Application::Run()
 		m_Scene->OnUpdate();
 
 		m_Renderer->Render();
-
-		centers.clear();
-
-		for (auto droplet : m_Simulator->m_Droplets)
-		{
-			physx::PxTransform pose = droplet->getGlobalPose();
-			centers.push_back(glm::vec3(pose.p.x, pose.p.y, pose.p.z));
-		}
-
-		m_Scene->UpdateDroplets(centers);
 
 		OnFrameEnd();
 	}
@@ -196,39 +158,7 @@ void Application::OnFrameEnd()
 
 void Application::SetImGuiWindows() const
 {
-	ImGui::Begin("Droplet Spawner");
-
-	if (ImGui::DragFloat("Particle Radius", &g_ParticleRadius, 0.01f, 0.0f, 5.0f))
-	{
-		m_Scene->m_Droplets->UpdateVertexVBO(g_ParticleRadius);
-
-		m_Scene->m_Droplets->m_Centers.clear();
-		m_Scene->m_Droplets->UpdateInstanceVBO();
-		m_Simulator->ClearDroplets();
-	}
-
-	static int count = 1;
-
-	if (ImGui::InputInt("Droplet Count", &count))
-	{
-		if (count < 0)
-			count = 0;
-	}
-
-	ImGui::SameLine();
-
-	if (ImGui::Button("Spawn Droplet"))
-	{
-		for (int i = 0; i < count; i++)
-		{
-			float x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
-			float y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5.0f))) + 25.0f;
-			float z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
-			m_Simulator->AddDroplet({ x, y, z }, g_ParticleRadius);
-		}
-	}
-
-	ImGui::End();
+	// Nothing so far...
 }
 
 void Application::Render()

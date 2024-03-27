@@ -1,14 +1,14 @@
 ﻿#include "droplets.h"
 
-void Droplets::SetInstanceVBO(std::vector<glm::vec3> centers)
+void Droplets::SetInstanceVBO(std::vector<Droplet> droplets)
 {
-	m_Centers = centers;
+	m_Droplets = droplets;
 
 	// Set offset buffer
 	m_VAO->isInstanced = true;
-	m_VAO->instanceCount = static_cast<GLsizei>(m_Centers.size());
+	m_VAO->instanceCount = static_cast<GLsizei>(m_Droplets.size());
 
-	m_InstanceVBO.SetBufferData(m_Centers);
+	m_InstanceVBO.SetBufferData(m_Droplets);
 
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
 	glEnableVertexAttribArray(1);
@@ -18,9 +18,9 @@ void Droplets::SetInstanceVBO(std::vector<glm::vec3> centers)
 void Droplets::UpdateInstanceVBO() const
 {
 	m_VAO->isInstanced = true;
-	m_VAO->instanceCount = static_cast<GLsizei>(m_Centers.size());
+	m_VAO->instanceCount = static_cast<GLsizei>(m_Droplets.size());
 
-	m_InstanceVBO.SetBufferData(m_Centers);
+	m_InstanceVBO.SetBufferData(m_Droplets);
 }
 
 void Droplets::UpdateVertexVBO(float radius)
