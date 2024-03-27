@@ -16,6 +16,16 @@ public:
 	void SetRadius(float radius) { m_Radius = radius; }
 	float GetRadius() const { return m_Radius; }
 
+	bool operator==(const Sphere& other) const
+	{
+		return Compare(&other);
+	}
+
+	bool Compare(const Sphere* other) const
+	{
+		return m_Center == other->m_Center && m_Radius == other->m_Radius;
+	}
+
 private:
 	glm::vec3 m_Center = glm::vec3();
 	float m_Radius = 0.0f;
@@ -55,10 +65,20 @@ public:
 		UpdateAcceleration();
 		UpdateVelocity(prevAcceleration, deltaTime);
 	}
+
+	bool operator==(const DynamicSphere& other) const
+	{
+		return Compare(&other) &&
+			m_ActiveForces == other.m_ActiveForces &&
+			m_Acceleration == other.m_Acceleration &&
+			m_Velocity == other.m_Velocity &&
+			m_Density == other.m_Density;
+	}
+
 private:
 	glm::vec3 m_ActiveForces = glm::vec3(0.0f);
 	glm::vec3 m_Acceleration = glm::vec3(0.0f);
 	glm::vec3 m_Velocity = glm::vec3(0.0f);
 	float m_Density = 0.0f;
-	static float m_Mass;
+	inline static float m_Mass;
 };

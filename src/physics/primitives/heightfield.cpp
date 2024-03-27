@@ -17,24 +17,24 @@ float Heightfield::GetHieght(float s, float t)
 	}
 	else if (sLow == m_Width - 1U)
 	{
-		TL = m_Heights[t][s];
-		TR = m_Heights[t][s];
-		BR = m_Heights[t + 1U][s];
-		BL = m_Heights[t + 1U][s];
+		TL = m_Heights[tLow][sLow];
+		TR = m_Heights[tLow][sLow];
+		BR = m_Heights[static_cast<uint64_t>(tLow) + 1ULL][sLow];
+		BL = m_Heights[static_cast<uint64_t>(tLow) + 1ULL][sLow];
 	}
 	else if (tLow == m_Length - 1U)
 	{
-		TL = m_Heights[t][s];
-		TR = m_Heights[t][s + 1U];
-		BR = m_Heights[t][s + 1U];
-		BL = m_Heights[t][s];
+		TL = m_Heights[tLow][sLow];
+		TR = m_Heights[tLow][static_cast<uint64_t>(sLow) + 1ULL];
+		BR = m_Heights[tLow][static_cast<uint64_t>(sLow) + 1ULL];
+		BL = m_Heights[tLow][sLow];
 	}
 	else
 	{
-		TL = m_Heights[t][s];
-		TR = m_Heights[t][s + 1U];
-		BR = m_Heights[t + 1U][s + 1U];
-		BL = m_Heights[t + 1U][s];
+		TL = m_Heights[tLow][sLow];
+		TR = m_Heights[tLow][static_cast<uint64_t>(sLow) + 1ULL];
+		BR = m_Heights[static_cast<uint64_t>(tLow) + 1ULL][static_cast<uint64_t>(sLow) + 1ULL];
+		BL = m_Heights[static_cast<uint64_t>(tLow) + 1ULL][sLow];
 	}
 
 	float leftLerp = TL + tOffset * (BL - TL);
@@ -55,25 +55,25 @@ glm::vec3 Heightfield::GetNormal(float s, float t)
 
 	if (sLow == m_Width - 1U && tLow == m_Length - 1U)
 	{
-		TL = TR = BL = m_Heights[t][s];
+		TL = TR = BL = m_Heights[tLow][sLow];
 	}
 	else if (sLow == m_Width - 1U)
 	{
-		TL = m_Heights[t][s];
-		TR = m_Heights[t][s];
-		BL = m_Heights[t + 1U][s];
+		TL = m_Heights[tLow][sLow];
+		TR = m_Heights[tLow][sLow];
+		BL = m_Heights[static_cast<uint64_t>(tLow) + 1ULL][sLow];
 	}
 	else if (tLow == m_Length - 1U)
 	{
-		TL = m_Heights[t][s];
-		TR = m_Heights[t][s + 1U];
-		BL = m_Heights[t][s];
+		TL = m_Heights[tLow][sLow];
+		TR = m_Heights[tLow][static_cast<uint64_t>(sLow) + 1ULL];
+		BL = m_Heights[tLow][sLow];
 	}
 	else
 	{
-		TL = m_Heights[t][s];
-		TR = m_Heights[t][s + 1U];
-		BL = m_Heights[t + 1U][s];
+		TL = m_Heights[tLow][sLow];
+		TR = m_Heights[tLow][static_cast<uint64_t>(sLow) + 1ULL];
+		BL = m_Heights[static_cast<uint64_t>(tLow) + 1ULL][sLow];
 	}
 
 	// Calculate the gradient in the s and t directions

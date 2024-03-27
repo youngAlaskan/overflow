@@ -13,7 +13,7 @@ class Simulator
 public:
 	Simulator() { Init(); }
 	Simulator(uint32_t width, uint32_t length, uint32_t depth) : m_WorldWidth(width), m_WorldLength(length), m_WorldDepth(depth) { Init(); }
-	~Simulator() { CleanUp(); }
+	~Simulator() = default;
 
 	void SetDeltaTime(float deltaTime) { m_DeltaTime = deltaTime; }
 	float GetDeltaTime() const { return m_DeltaTime; }
@@ -93,8 +93,6 @@ private:
 
 		return static_cast<float>(14.32394488 * (1.0 - distance));
 	}
-
-	void CleanUp() {}
 
 private:
 	std::unique_ptr<Heightfield> m_TerrainGeometry = nullptr;
