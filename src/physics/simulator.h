@@ -18,10 +18,11 @@ public:
 	void SetDeltaTime(float deltaTime) { m_DeltaTime = deltaTime; }
 	float GetDeltaTime() const { return m_DeltaTime; }
 
-	void SetWorldBounds(uint32_t width, uint32_t length)
+	void SetWorldBounds(uint32_t width, uint32_t length, uint32_t depth)
 	{
 		m_WorldWidth = width;
 		m_WorldLength = length;
+		m_WorldDepth = depth;
 	}
 
 	void SetWorldWidth(uint32_t width) { m_WorldWidth = width; }
@@ -33,6 +34,22 @@ public:
 	void SetWorldDepth(uint32_t depth) { m_WorldDepth = depth; }
 	uint32_t SetWorldDepth() const { return m_WorldDepth; }
 
+	void SetTerrain(std::vector<glm::vec3> vertices)
+	{
+		if (!m_TerrainGeometry)
+			m_TerrainGeometry = std::make_unique<Heightfield>(m_WorldLength, m_WorldWidth);
+
+		m_TerrainGeometry->SetHeightsFromTraingleMesh(vertices);
+	}
+
+	void RegisterParticles(const std::vector<glm::vec3>& centers, float radius)
+	{
+		for (const auto& center : centers)
+		{
+			RegisterParticle({ center, radius });
+		}
+	}
+
 	void RegisterParticle(const DynamicSphere& particle)
 	{
 		m_Particles.push_back(particle);
@@ -40,7 +57,19 @@ public:
 	}
 
 	void ClearParticles() { m_Particles.clear(); }
-	void ClearParticleGrid() { m_ParticleGrid.clear(); }
+	void ClearParticleGrid()
+	{
+		for (auto& row : m_ParticleGrid)
+		{
+			for (auto& col : row)
+			{
+				for (auto& aisle : col)
+				{
+					aisle.clear();
+				}
+			}
+		}
+	}
 
 	void Step()
 	{

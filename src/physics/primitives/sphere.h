@@ -35,6 +35,10 @@ class DynamicSphere : public Sphere
 {
 public:
 	DynamicSphere() : Sphere() { m_Mass = 0.0f; }
+	DynamicSphere(glm::vec3 center) : Sphere(center) {}
+	DynamicSphere(float radius) : Sphere(radius) {}
+	DynamicSphere(glm::vec3 center, float radius) : Sphere(center, radius) {}
+
 	glm::vec3 GetActiveForce() const { return m_ActiveForces; }
 
 	void ApplyForce(glm::vec3 force) { m_ActiveForces += force; }

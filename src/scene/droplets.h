@@ -14,6 +14,7 @@ class Droplet
 {
 public:
 	Droplet() : m_Position(0.0f) {}
+	Droplet(const glm::vec3& position) : m_Position(position) {}
 
 	void SetPosition(const glm::vec3& position) { m_Position = position; }
 	glm::vec3 GetPosition() const { return m_Position; }
@@ -39,6 +40,7 @@ public:
 	Droplets(const int subdivisions, std::vector<Droplet> droplets, float radius)
 		: m_Subdivisions(subdivisions), m_Droplets(droplets), m_Radius(radius) { Init(); }
 
+	void AddDroplets(const std::vector<Droplet>& droplets) { m_Droplets.insert(m_Droplets.end(), droplets.begin(), droplets.end()); }
 	void AddDroplet(const Droplet& droplet) { m_Droplets.push_back(droplet); }
 	void RemoveDroplet(const Droplet& droplet)
 	{
@@ -47,6 +49,8 @@ public:
 		if (iter == m_Droplets.end()) return;
 		m_Droplets.erase(iter);
 	}
+
+	std::vector<Droplet> GetDroplets() const { return m_Droplets; }
 
 	void ClearDroplets() { m_Droplets.clear(); }
 

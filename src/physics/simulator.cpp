@@ -41,7 +41,7 @@ void Simulator::HandleCollisions()
 		// Check that center is within height field bounds
 		if (center.x >= minX && center.x <= maxX && center.z >= minZ && center.z <= maxZ)
 		{
-			float offset = abs(m_TerrainGeometry->GetHeight(static_cast<uint32_t>(center.x), static_cast<uint32_t>(center.z)) - center.y);
+			float offset = abs(m_TerrainGeometry->GetHeight(GetParticleWidthIndex(center.x), GetParticleLengthIndex(center.z)) - center.y);
 			// Check that sphere is intersecting height field
 			if (offset < particle.GetRadius())
 				particle.SetPosition(center + m_TerrainGeometry->GetNormal(center.x, center.z) * offset); // Push sphere outwards
@@ -60,6 +60,7 @@ void Simulator::ApplySPH()
 		m_Particles[i].SetDensity(GetDensity(m_Particles[i], neighbors[i]));
 	}
 
+	// Update based on calculated forces
 	for (uint32_t i = 0; i < m_Particles.size(); i++)
 	{
 		ApplyForces(m_Particles[i], neighbors[i]);
@@ -96,7 +97,7 @@ void Simulator::ApplyPreassureForce(DynamicSphere& particle, const std::vector<D
 	glm::vec3 force = glm::vec3(0.0f);
 
 	static double gasConstant = 0.0; // TODO
-	static double restDensity = 1000; // TODO
+	static double restDensity = 1000;
 
 	for (const auto& neighbor : neighbors)
 	{

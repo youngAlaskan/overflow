@@ -15,6 +15,12 @@ void Application::Run()
 	// Create Terrain
 	auto vertices = TerrainGenerator::GenerateVertices();
 	m_Scene->SetTerrain(vertices);
+	auto positions = std::vector<glm::vec3>();
+	for (const auto& vertex : vertices)
+	{
+		positions.push_back(vertex.Position);
+	}
+	m_Simulator->SetTerrain(positions);
 
 	// Create Terrain Shader
 	std::shared_ptr<ShaderProgram> terrainShader = m_Renderer->AddShaderProgram(
@@ -26,6 +32,12 @@ void Application::Run()
 	);
 
 	m_Scene->CreateDroplets(0.1f);
+	std::vector<glm::vec3> centers = std::vector<glm::vec3>();
+	for (const auto& droplet : m_Scene->m_Droplets->GetDroplets())
+	{
+		centers.push_back(droplet.GetPosition());
+	}
+	m_Simulator->RegisterParticles(centers, 0.1f);
 
 	// Create Droplets shader
 	std::shared_ptr<ShaderProgram> dropletShader = m_Renderer->AddShaderProgram(
@@ -127,11 +139,13 @@ void Application::Init()
 
 	m_Renderer = std::make_unique<Renderer>();
 	m_Scene = std::make_unique<Scene>();
-	m_Simulator = std::make_unique<Simulator>();
+	m_Simulator = std::make_unique<Simulator>(100U, 100U, 100U);
 
 	m_Scene->m_Camera->m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
 	m_Scene->m_Camera->m_ViewProjMatrices.SetEmptyBuffer(2 * sizeof(glm::mat4));
 	g_ActiveCamera = m_Scene->m_Camera;
+
+	m_Simulator->SetDeltaTime(1.0f);
 }
 
 // Sets up start of new frame
@@ -160,7 +174,46 @@ void Application::OnFrameEnd()
 
 void Application::SetImGuiWindows() const
 {
-	// Nothing so far...
+	ImGui::Begin("Droplet Spawner");
+
+	if (ImGui::DragFloat("Particle Radius", &g_ParticleRadius, 0.01f, 0.0f, 5.0f))
+	{
+		m_Scene->m_Droplets->UpdateVertexVBO(g_ParticleRadius);
+
+		m_Scene->m_Droplets->ClearDroplets();
+		m_Scene->m_Droplets->UpdateInstanceVBO();
+		m_Simulator->ClearParticles();
+		m_Simulator->ClearParticleGrid();
+	}
+
+	static int count = 1;
+
+	if (ImGui::InputInt("Droplet Count", &count))
+	{
+		if (count < 0)
+			count = 0;
+	}
+
+	ImGui::SameLine();
+
+	if (ImGui::Button("Spawn Droplet"))
+	{
+		std::vector<glm::vec3> centers = std::vector<glm::vec3>(count);
+		std::vector<Droplet> droplets = std::vector<Droplet>(count);
+		for (int i = 0; i < count; i++)
+		{
+			float x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
+			float y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5.0f))) + 25.0f;
+			float z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
+			centers.emplace_back(x, y, z);
+			droplets.emplace_back(glm::vec3(x, y, z));
+		}
+		m_Simulator->RegisterParticles(centers, g_ParticleRadius);
+		m_Scene->m_Droplets->AddDroplets(droplets);
+		m_Scene->m_Droplets->UpdateInstanceVBO();
+	}
+
+	ImGui::End();
 }
 
 void Application::Render()
