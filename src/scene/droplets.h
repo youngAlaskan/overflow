@@ -4,62 +4,48 @@
 #include <glm/glm.hpp>
 
 #include <vector>
+#include <unordered_map>
 #include <memory>
 
 #include "../glObjects.h"
 
 constexpr float TAU = 6.283185307179586f; // 2 * pi
 
-class Droplet
-{
-public:
-	Droplet() : m_Position(0.0f) {}
-	Droplet(const glm::vec3& position) : m_Position(position) {}
-
-	void SetPosition(const glm::vec3& position) { m_Position = position; }
-	glm::vec3 GetPosition() const { return m_Position; }
-
-	static void SetMass(const float mass) { m_Mass = mass; }
-	static float GetMass() { return m_Mass; }
-
-	bool operator==(const Droplet& other) const { return m_Position == other.GetPosition(); }
-private:
-	glm::vec3 m_Position;
-	static float m_Mass;
-};
-
 class Droplets
 {
 public:
 	Droplets() { Init(); }
-	Droplets(float radius) : m_Radius(radius) { Init(); }
-	Droplets(std::vector<Droplet> droplets) : m_Droplets(droplets) { Init(); }
-	Droplets(std::vector<Droplet> droplets, float radius) : m_Droplets(droplets), m_Radius(radius) { Init(); }
-	Droplets(const int subdivisions, std::vector<Droplet> droplets)
-		: m_Subdivisions(subdivisions), m_Droplets(droplets) { Init(); }
-	Droplets(const int subdivisions, std::vector<Droplet> droplets, float radius)
-		: m_Subdivisions(subdivisions), m_Droplets(droplets), m_Radius(radius) { Init(); }
+	Droplets(const float radius) : m_Radius(radius) { Init(); }
+	Droplets(const int subdivisions) : m_Subdivisions(subdivisions) { Init(); }
+	Droplets(const int subdivisions, const float radius) : m_Subdivisions(subdivisions), m_Radius(radius) { Init(); }
 
-	void AddDroplets(const std::vector<Droplet>& droplets) { m_Droplets.insert(m_Droplets.end(), droplets.begin(), droplets.end()); }
-	void AddDroplet(const Droplet& droplet) { m_Droplets.push_back(droplet); }
-	void RemoveDroplet(const Droplet& droplet)
+	std::shared_ptr<std::unordered_map<uint64_t, glm::vec3>> GetIDsToCenters() { return m_IDstoCenters; }
+
+	void AddDroplets(const std::vector<std::pair<uint64_t, glm::vec3>>& data)
 	{
-		auto iter = std::find(m_Droplets.begin(), m_Droplets.end(), droplet);
-
-		if (iter == m_Droplets.end()) return;
-		m_Droplets.erase(iter);
+		for (const auto& [id, center] : data)
+		{
+			m_IDstoCenters->at(id) = center;
+		}
+	}
+	void AddDroplet(const std::pair<uint64_t, glm::vec3>& IDAndCenter)
+	{
+		const auto& [id, center] = IDAndCenter;
+		m_IDstoCenters->at(id) = center;
+	}
+	void RemoveDroplet(const uint64_t& id)
+	{
+		m_IDstoCenters->erase(id);
 	}
 
-	std::vector<Droplet> GetDroplets() const { return m_Droplets; }
-
-	void ClearDroplets() { m_Droplets.clear(); }
+	void ClearDroplets() { m_IDstoCenters->clear(); }
 
 	std::shared_ptr<VAO> GetVAO() { return m_VAO; }
 
 	void SetRadius(float radius) { m_Radius = radius; }
 
-	void SetInstanceVBO(std::vector<Droplet> droplets);
-	void UpdateInstanceVBO() const;
+	void SetInstanceVBO(const std::vector<uint64_t>& IDs);
+	void UpdateInstanceVBO(const std::vector<uint64_t>& IDs) const;
 
 	void UpdateVertexVBO(float radius);
 
@@ -67,7 +53,7 @@ private:
 	void Init()
 	{
 		SetSphereVBO();
-		SetInstanceVBO(m_Droplets);
+		SetInstanceVBO({});
 	}
 
 	glm::vec3 SphereS(GLfloat u, GLfloat v) const;
@@ -76,7 +62,7 @@ private:
 	void SetSphereVBO();
 
 private:
-	std::vector<Droplet> m_Droplets = std::vector<Droplet>();
+	std::shared_ptr<std::unordered_map<uint64_t, glm::vec3>> m_IDstoCenters = std::make_shared<std::unordered_map<uint64_t, glm::vec3>>();
 	std::shared_ptr<VAO> m_VAO = std::make_shared<VAO>();
 	VBO m_SphereVBO = VBO();
 	VBO m_InstanceVBO = VBO();

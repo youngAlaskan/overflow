@@ -32,12 +32,9 @@ void Application::Run()
 	);
 
 	m_Scene->CreateDroplets(0.1f);
-	std::vector<glm::vec3> centers = std::vector<glm::vec3>();
-	for (const auto& droplet : m_Scene->m_Droplets->GetDroplets())
-	{
-		centers.push_back(droplet.GetPosition());
-	}
-	m_Simulator->RegisterParticles(centers, 0.1f);
+
+	m_Simulator->SetIDs(m_Scene->m_IDs);
+	m_Simulator->SetIDsToCenters(m_Scene->m_Droplets->GetIDsToCenters());
 
 	// Create Droplets shader
 	std::shared_ptr<ShaderProgram> dropletShader = m_Renderer->AddShaderProgram(
@@ -181,7 +178,7 @@ void Application::SetImGuiWindows() const
 		m_Scene->m_Droplets->UpdateVertexVBO(g_ParticleRadius);
 
 		m_Scene->m_Droplets->ClearDroplets();
-		m_Scene->m_Droplets->UpdateInstanceVBO();
+		m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
 		m_Simulator->ClearParticles();
 		m_Simulator->ClearParticleGrid();
 	}
@@ -198,19 +195,21 @@ void Application::SetImGuiWindows() const
 
 	if (ImGui::Button("Spawn Droplet"))
 	{
-		std::vector<glm::vec3> centers = std::vector<glm::vec3>(count);
-		std::vector<Droplet> droplets = std::vector<Droplet>(count);
+		auto IDsAndSpheres = std::vector<std::pair<uint64_t, DynamicSphere>>(count);
 		for (int i = 0; i < count; i++)
 		{
+			uint64_t id = Scene::GetFreshUUID();
+
 			float x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
 			float y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5.0f))) + 25.0f;
 			float z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
-			centers.emplace_back(x, y, z);
-			droplets.emplace_back(glm::vec3(x, y, z));
+			glm::vec3 center = { x, y, z };
+			m_Simulator->RegisterParticle(id, { center, g_ParticleRadius });
+			m_Scene->m_Droplets->AddDroplet({ id, center });
+			m_Scene->m_IDs->push_back(id);
 		}
-		m_Simulator->RegisterParticles(centers, g_ParticleRadius);
-		m_Scene->m_Droplets->AddDroplets(droplets);
-		m_Scene->m_Droplets->UpdateInstanceVBO();
+
+		m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
 	}
 
 	ImGui::End();

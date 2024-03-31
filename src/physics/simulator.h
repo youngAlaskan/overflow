@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 #include "primitives/sphere.h"
 #include "primitives/heightfield.h"
@@ -42,21 +43,30 @@ public:
 		m_TerrainGeometry->SetHeightsFromTraingleMesh(vertices);
 	}
 
-	void RegisterParticles(const std::vector<glm::vec3>& centers, float radius)
+	void SetIDs(const std::shared_ptr<std::vector<uint64_t>>& IDs) { m_IDs = IDs; }
+	std::shared_ptr<std::vector<uint64_t>> GetIDs() const { return m_IDs; }
+
+	void SetIDsToCenters(const std::shared_ptr<std::unordered_map<uint64_t, glm::vec3>>& IDsToCenters) { m_IDsToCenters = IDsToCenters; }
+	std::shared_ptr<std::unordered_map<uint64_t, glm::vec3>> GetIDsToCenters() const { return m_IDsToCenters; }
+
+	DynamicSphere& GetParticle(const uint64_t id) { return m_IDsToParticles[id]; }
+	glm::vec3& GetCenter(const uint64_t id) { return m_IDsToCenters->at(id); }
+
+	void RegisterParticles(const std::vector<std::pair<uint64_t, DynamicSphere>>& IDsToSpheres, float radius)
 	{
-		for (const auto& center : centers)
+		for (const auto& [id, sphere] : IDsToSpheres)
 		{
-			RegisterParticle({ center, radius });
+			RegisterParticle(id, sphere);
 		}
 	}
 
-	void RegisterParticle(const DynamicSphere& particle)
+	void RegisterParticle(const uint64_t ID, const DynamicSphere& particle)
 	{
-		m_Particles.push_back(particle);
+		m_IDsToParticles[ID] = particle;
 		GetParticleBlock(particle).push_back(particle);
 	}
 
-	void ClearParticles() { m_Particles.clear(); }
+	void ClearParticles() { m_IDsToParticles.clear(); }
 	void ClearParticleGrid()
 	{
 		for (auto& row : m_ParticleGrid)
@@ -125,7 +135,9 @@ private:
 
 private:
 	std::unique_ptr<Heightfield> m_TerrainGeometry = nullptr;
-	std::vector<DynamicSphere> m_Particles = std::vector<DynamicSphere>();
+	std::shared_ptr<std::vector<uint64_t>> m_IDs = nullptr;
+	std::shared_ptr<std::unordered_map<uint64_t, glm::vec3>> m_IDsToCenters = nullptr;
+	std::unordered_map<uint64_t, DynamicSphere> m_IDsToParticles = std::unordered_map<uint64_t, DynamicSphere>();
 	std::vector<std::vector<std::vector<std::vector<DynamicSphere>>>> m_ParticleGrid = std::vector<std::vector<std::vector<std::vector<DynamicSphere>>>>();
 	uint32_t m_WorldLength = 0U;
 	uint32_t m_WorldWidth  = 0U;

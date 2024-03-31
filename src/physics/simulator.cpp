@@ -28,15 +28,16 @@ inline std::vector<DynamicSphere> Simulator::GetParticleNeighbors(const DynamicS
 
 void Simulator::HandleCollisions()
 {
-	if (!m_TerrainGeometry) return;
+	if (!m_TerrainGeometry || !m_IDs) return;
 
 	const float maxX = static_cast<float>(m_TerrainGeometry->GetWidth() / 2U);
 	const float minX = -maxX;
 	const float maxZ = static_cast<float>(m_TerrainGeometry->GetLength() / 2U);
 	const float minZ = -maxZ;
 
-	for (auto& particle : m_Particles)
+	for (const auto& id : *m_IDs)
 	{
+		DynamicSphere particle = GetParticle(id);
 		glm::vec3 center = particle.GetPosition();
 		// Check that center is within height field bounds
 		if (center.x >= minX && center.x <= maxX && center.z >= minZ && center.z <= maxZ)
@@ -51,21 +52,23 @@ void Simulator::HandleCollisions()
 
 void Simulator::ApplySPH()
 {
-	std::vector<std::vector<DynamicSphere>> neighbors = std::vector<std::vector<DynamicSphere>>(m_Particles.size());
+	std::vector<std::vector<DynamicSphere>> neighbors = std::vector<std::vector<DynamicSphere>>(m_IDs->size());
 
 	// Set densities
-	for (uint32_t i = 0; i < m_Particles.size(); i++)
+	for (uint32_t i = 0; i < m_IDs->size(); i++)
 	{
-		neighbors[i] = GetParticleNeighbors(m_Particles[i]);
-		m_Particles[i].SetDensity(GetDensity(m_Particles[i], neighbors[i]));
+		DynamicSphere particle = GetParticle(m_IDs->at(i));
+		neighbors[i] = GetParticleNeighbors(particle);
+		particle.SetDensity(GetDensity(particle, neighbors[i]));
 	}
 
 	// Update based on calculated forces
-	for (uint32_t i = 0; i < m_Particles.size(); i++)
+	for (uint32_t i = 0; i < m_IDs->size(); i++)
 	{
-		ApplyForces(m_Particles[i], neighbors[i]);
-		m_Particles[i].Update(m_DeltaTime);
-		m_Particles[i].ClearForces();
+		DynamicSphere particle = GetParticle(m_IDs->at(i));
+		ApplyForces(particle, neighbors[i]);
+		particle.Update(m_DeltaTime);
+		particle.ClearForces();
 	}
 }
 
@@ -77,9 +80,11 @@ void Simulator::ApplyForces(DynamicSphere& particle, const std::vector<DynamicSp
 	ApplyViscosityForce(particle, neighbors);
 }
 
-// p_i = \sum_j m_j * W_{poly}(r - r_j, h)
 float Simulator::GetDensity(const DynamicSphere& particle, const std::vector<DynamicSphere>& neighbors)
 {
+	if (neighbors.empty())
+		return 1.0f;
+
 	float density = 0.0f;
 
 	for (const auto& neighbor : neighbors)
