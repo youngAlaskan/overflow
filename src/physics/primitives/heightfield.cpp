@@ -1,11 +1,15 @@
 #include "heightfield.h"
 
 // Get the height at (s, t) using bilinear interpolation
-float Heightfield::GetHieght(float s, float t)
+float Heightfield::GetHieght(float x, float z)
 {
+	float s = x + static_cast<float>(m_Width / 2U);
+	float t = z + static_cast<float>(m_Length / 2U);
 	uint32_t sLow = static_cast<uint32_t>(s);
+	if (sLow >= m_Width) sLow = m_Width - 1U;
 	float sOffset = s - static_cast<float>(sLow);
 	uint32_t tLow = static_cast<uint32_t>(t);
+	if (tLow >= m_Length) tLow = m_Length - 1U;
 	float tOffset = t - static_cast<float>(tLow);
 
 	// Calculate the height values at the four neighboring points
@@ -43,12 +47,17 @@ float Heightfield::GetHieght(float s, float t)
 	return leftLerp + sOffset * (rightLerp - leftLerp);
 }
 
-glm::vec3 Heightfield::GetNormal(float s, float t)
+glm::vec3 Heightfield::GetNormal(float x, float z)
 {
+	float s = x + static_cast<float>(m_Width / 2U);
+	float t = z + static_cast<float>(m_Length / 2U);
+
 	uint32_t sLow = static_cast<uint32_t>(s);
+	if (sLow >= m_Width) sLow = m_Width - 1U;
 	float sOffset = s - static_cast<float>(sLow);
 	uint32_t tLow = static_cast<uint32_t>(t);
-	float tOffset = t - static_cast<float>(tLow);
+	if (tLow >= m_Length) tLow = m_Length - 1U;
+	float tOffset = t- static_cast<float>(tLow);
 
 	// Calculate the height values at three of the neighboring points
 	float TL, TR, BL;

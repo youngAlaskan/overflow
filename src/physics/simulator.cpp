@@ -1,8 +1,28 @@
 #include "simulator.h"
 
-inline std::vector<DynamicSphere> Simulator::GetParticleNeighbors(const DynamicSphere& particle)
+void Simulator::SetParticleGrid()
 {
-	std::vector<DynamicSphere> neighbors = std::vector<DynamicSphere>();
+	for (const auto& id : *m_IDs)
+	{
+		DynamicSphere& particle = GetParticle(id);
+		uint32_t lengthIndex = GetParticleLengthIndex(particle);
+		uint32_t widthIndex = GetParticleWidthIndex(particle);
+		uint32_t depthIndex = GetParticleDepthIndex(particle);
+
+		m_ParticleGrid[depthIndex][widthIndex][lengthIndex].push_back(id);
+	}
+}
+
+void Simulator::UpdateParticleGrid()
+{
+	ClearParticleGrid();
+	SetParticleGrid();
+}
+
+inline std::vector<uint64_t> Simulator::GetParticleNeighbors(const uint64_t id)
+{
+	std::vector<uint64_t> neighbors = std::vector<uint64_t>();
+	DynamicSphere& particle = GetParticle(id);
 	uint32_t lengthIndex = GetParticleLengthIndex(particle);
 	uint32_t widthIndex = GetParticleWidthIndex(particle);
 	uint32_t depthIndex = GetParticleDepthIndex(particle);
@@ -11,7 +31,7 @@ inline std::vector<DynamicSphere> Simulator::GetParticleNeighbors(const DynamicS
 		for (uint32_t x = widthIndex >= 1U ? widthIndex - 1 : widthIndex; x <= widthIndex + 1; x++) {
 			for (uint32_t z = lengthIndex >= 1U ? lengthIndex - 1 : lengthIndex; z <= lengthIndex + 1; z++) {
 				if (z < m_WorldLength && x < m_WorldWidth && y < m_WorldDepth) {
-					std::vector<DynamicSphere>& block = m_ParticleGrid[z][x][y];
+					std::vector<uint64_t>& block = m_ParticleGrid[y][x][z];
 					if (block.empty()) continue;
 					neighbors.insert(neighbors.end(), block.begin(), block.end()); // Append vector
 				}
@@ -19,11 +39,26 @@ inline std::vector<DynamicSphere> Simulator::GetParticleNeighbors(const DynamicS
 		}
 	}
 
-	auto iter = find(neighbors.begin(), neighbors.end(), particle);
+	auto iter = find(neighbors.begin(), neighbors.end(), id);
 	if (iter != neighbors.end())
 		neighbors.erase(iter);
 
 	return neighbors;
+}
+
+inline bool Simulator::IsParticleInWorldBounds(const DynamicSphere& particle) const
+{
+	const float maxX = static_cast<float>(m_WorldWidth / 2U);
+	const float minX = -maxX;
+	const float maxZ = static_cast<float>(m_WorldLength / 2U);
+	const float minZ = -maxZ;
+	const float maxY = static_cast<float>(m_WorldDepth / 2U);
+	const float minY = -maxY;
+
+	glm::vec3 center = particle.GetPosition();
+	return center.x >= minX && center.x <= maxX &&
+		center.y >= minY && center.y <= maxY &&
+		center.z >= minZ && center.z <= maxZ;
 }
 
 void Simulator::HandleCollisions()
@@ -37,42 +72,92 @@ void Simulator::HandleCollisions()
 
 	for (const auto& id : *m_IDs)
 	{
-		DynamicSphere particle = GetParticle(id);
+		DynamicSphere& particle = GetParticle(id);
 		glm::vec3 center = particle.GetPosition();
 		// Check that center is within height field bounds
 		if (center.x >= minX && center.x <= maxX && center.z >= minZ && center.z <= maxZ)
 		{
-			float offset = abs(m_TerrainGeometry->GetHeight(GetParticleWidthIndex(center.x), GetParticleLengthIndex(center.z)) - center.y);
-			// Check that sphere is intersecting height field
-			if (offset < particle.GetRadius())
-				particle.SetPosition(center + m_TerrainGeometry->GetNormal(center.x, center.z) * offset); // Push sphere outwards
+			// Get vertical offset from terrain
+			float offset = m_TerrainGeometry->GetHieght(center.x, center.z) - center.y;
+			
+			// Check if sphere is intersecting height field
+			if (offset >= 0.0f || abs(offset) < particle.GetRadius())
+			{
+				particle.SetPosition(center + glm::vec3(0.0f, offset + particle.GetRadius(), 0.0f)); // Push sphere outwards
+				glm::vec3 normal = m_TerrainGeometry->GetNormal(center.x, center.z);
+				glm::vec3 incoming = particle.GetVelocity();
+				glm::vec3 projection = glm::dot(incoming, normal) / glm::length(normal) * normal;
+				glm::vec3 perp = incoming - projection;
+				particle.SetVelocity(perp * 0.9f);
+			}
+		}
+
+		float minDistance = 2.0f * particle.GetRadius();
+
+		// TODO: Create data structure to prevent double checking
+		std::vector<uint64_t> neighborIDs = GetParticleNeighbors(id);
+		for (const auto neighborID : neighborIDs)
+		{
+			DynamicSphere& neighbor = GetParticle(neighborID);
+			glm::vec3 toNeighbor = neighbor.GetPosition() - center;
+			glm::vec3 toParticle = -1.0f * toNeighbor;
+			if (glm::length(toNeighbor) <= minDistance)
+			{
+				particle.SetPosition(particle.GetPosition() + toParticle * (minDistance - glm::length(toParticle)) * 0.5f);
+				neighbor.SetPosition(neighbor.GetPosition() + toNeighbor * (minDistance - glm::length(toNeighbor)) * 0.5f);
+			}
 		}
 	}
 }
 
 void Simulator::ApplySPH()
 {
-	std::vector<std::vector<DynamicSphere>> neighbors = std::vector<std::vector<DynamicSphere>>(m_IDs->size());
+	size_t limit = m_IDs->size();
+
+	std::vector<std::vector<uint64_t>> neighbors = std::vector<std::vector<uint64_t>>(limit, std::vector<uint64_t>());
 
 	// Set densities
-	for (uint32_t i = 0; i < m_IDs->size(); i++)
+	for (uint32_t i = 0; i < limit; i++)
 	{
-		DynamicSphere particle = GetParticle(m_IDs->at(i));
-		neighbors[i] = GetParticleNeighbors(particle);
+		DynamicSphere& particle = GetParticle(m_IDs->at(i));
+		auto neighborIDs = GetParticleNeighbors(m_IDs->at(i));
+		for (const auto& neighborID : neighborIDs)
+		{
+			neighbors[i].push_back(neighborID);
+		}
 		particle.SetDensity(GetDensity(particle, neighbors[i]));
 	}
 
+	std::vector<uint64_t> deadIDs = std::vector<uint64_t>();
+
 	// Update based on calculated forces
-	for (uint32_t i = 0; i < m_IDs->size(); i++)
+	for (uint32_t i = 0; i < limit; i++)
 	{
-		DynamicSphere particle = GetParticle(m_IDs->at(i));
+		DynamicSphere& particle = GetParticle(m_IDs->at(i));
+
 		ApplyForces(particle, neighbors[i]);
 		particle.Update(m_DeltaTime);
-		particle.ClearForces();
+		if (IsParticleInWorldBounds(particle))
+		{
+			particle.ClearForces();
+			m_IDsToCenters->at(m_IDs->at(i)) = particle.GetPosition();
+		}
+		else
+		{
+			RemoveParticle(m_IDs->at(i));
+			deadIDs.push_back(m_IDs->at(i));
+		}
+	}
+
+	for (auto id : deadIDs)
+	{
+		auto iter = find(m_IDs->begin(), m_IDs->end(), id);
+		if (iter != m_IDs->end())
+			m_IDs->erase(iter);
 	}
 }
 
-void Simulator::ApplyForces(DynamicSphere& particle, const std::vector<DynamicSphere>& neighbors)
+void Simulator::ApplyForces(DynamicSphere& particle, const std::vector<uint64_t>& neighbors)
 {
 	ApplyPreassureForce(particle, neighbors);
 	ApplyExternalForce(particle, neighbors);
@@ -80,32 +165,32 @@ void Simulator::ApplyForces(DynamicSphere& particle, const std::vector<DynamicSp
 	ApplyViscosityForce(particle, neighbors);
 }
 
-float Simulator::GetDensity(const DynamicSphere& particle, const std::vector<DynamicSphere>& neighbors)
+float Simulator::GetDensity(const DynamicSphere& particle, const std::vector<uint64_t>& neighborIDs)
 {
-	if (neighbors.empty())
-		return 1.0f;
-
 	float density = 0.0f;
 
-	for (const auto& neighbor : neighbors)
+	for (const auto& neighborID : neighborIDs)
 	{
-		density += Wpoly(glm::length(particle.GetPosition() - neighbor.GetPosition()));
+		glm::vec3 toParticle = particle.GetPosition() - m_IDsToCenters->at(neighborID);
+		float distance = glm::length(toParticle);
+		density += Wpoly(distance);
 	}
 
 	density *= particle.GetMass();
 
-	return density;
+	return density == 0.0f ? 1.0f : density;
 }
 
-void Simulator::ApplyPreassureForce(DynamicSphere& particle, const std::vector<DynamicSphere>& neighbors)
+void Simulator::ApplyPreassureForce(DynamicSphere& particle, const std::vector<uint64_t>& neighborIDs)
 {
 	glm::vec3 force = glm::vec3(0.0f);
 
 	static double gasConstant = 0.0; // TODO
 	static double restDensity = 1000;
 
-	for (const auto& neighbor : neighbors)
+	for (const auto& neighborID : neighborIDs)
 	{
+		DynamicSphere& neighbor = GetParticle(neighborID);
 		force += (neighbor.GetDensity() - 2 * restDensity + particle.GetDensity()) / (2 * neighbor.GetDensity()) * Wspiky1stOrder(glm::length(particle.GetPosition() - neighbor.GetPosition()));
 	}
 
@@ -114,22 +199,17 @@ void Simulator::ApplyPreassureForce(DynamicSphere& particle, const std::vector<D
 	particle.ApplyForce(force);
 }
 
-void Simulator::ApplyExternalForce(DynamicSphere& particle, const std::vector<DynamicSphere>& neighbors)
+void Simulator::ApplyExternalForce(DynamicSphere& particle, const std::vector<uint64_t>& neighbors)
 {
 	particle.ApplyForce(particle.GetDensity() * GRAVITY);
 }
 
 // TODO
-void Simulator::ApplySurfaceForce(DynamicSphere& particle, const std::vector<DynamicSphere>& neighbors)
+void Simulator::ApplySurfaceForce(DynamicSphere& particle, const std::vector<uint64_t>& neighborIDs)
 {
-	glm::vec3 force = glm::vec3(0.0f);
-
-
-
-	particle.ApplyForce(force);
 }
 
-void Simulator::ApplyViscosityForce(DynamicSphere& particle, const std::vector<DynamicSphere>& neighbors)
+void Simulator::ApplyViscosityForce(DynamicSphere& particle, const std::vector<uint64_t>& neighborIDs)
 {
 	glm::vec3 force = glm::vec3(0.0f);
 
@@ -137,8 +217,9 @@ void Simulator::ApplyViscosityForce(DynamicSphere& particle, const std::vector<D
 
 	const glm::vec3 velocity = particle.GetVelocity();
 
-	for (const auto& neighbor : neighbors)
+	for (const auto& neighborID : neighborIDs)
 	{
+		DynamicSphere& neighbor = GetParticle(neighborID);
 		force += (neighbor.GetVelocity() - velocity) / neighbor.GetDensity() * Wviscosity2ndOrder(glm::length(particle.GetPosition() - neighbor.GetPosition()));
 	}
 

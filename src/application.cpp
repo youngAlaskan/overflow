@@ -31,7 +31,7 @@ void Application::Run()
 		}
 	);
 
-	m_Scene->CreateDroplets(0.1f);
+	m_Scene->CreateDroplets(g_ParticleRadius);
 
 	m_Simulator->SetIDs(m_Scene->m_IDs);
 	m_Simulator->SetIDsToCenters(m_Scene->m_Droplets->GetIDsToCenters());
@@ -142,7 +142,7 @@ void Application::Init()
 	m_Scene->m_Camera->m_ViewProjMatrices.SetEmptyBuffer(2 * sizeof(glm::mat4));
 	g_ActiveCamera = m_Scene->m_Camera;
 
-	m_Simulator->SetDeltaTime(1.0f);
+	m_Simulator->SetDeltaTime(0.01f);
 }
 
 // Sets up start of new frame
@@ -171,48 +171,74 @@ void Application::OnFrameEnd()
 
 void Application::SetImGuiWindows() const
 {
-	ImGui::Begin("Droplet Spawner");
-
-	if (ImGui::DragFloat("Particle Radius", &g_ParticleRadius, 0.01f, 0.0f, 5.0f))
 	{
-		m_Scene->m_Droplets->UpdateVertexVBO(g_ParticleRadius);
+		ImGui::Begin("Droplet Spawner");
 
-		m_Scene->m_Droplets->ClearDroplets();
-		m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
-		m_Simulator->ClearParticles();
-		m_Simulator->ClearParticleGrid();
-	}
-
-	static int count = 1;
-
-	if (ImGui::InputInt("Droplet Count", &count))
-	{
-		if (count < 0)
-			count = 0;
-	}
-
-	ImGui::SameLine();
-
-	if (ImGui::Button("Spawn Droplet"))
-	{
-		auto IDsAndSpheres = std::vector<std::pair<uint64_t, DynamicSphere>>(count);
-		for (int i = 0; i < count; i++)
+		if (ImGui::DragFloat("Particle Radius", &g_ParticleRadius, 0.001f, 0.01f, 1.0f))
 		{
-			uint64_t id = Scene::GetFreshUUID();
+			m_Scene->m_Droplets->UpdateVertexVBO(g_ParticleRadius);
 
-			float x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
-			float y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5.0f))) + 25.0f;
-			float z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
-			glm::vec3 center = { x, y, z };
-			m_Simulator->RegisterParticle(id, { center, g_ParticleRadius });
-			m_Scene->m_Droplets->AddDroplet({ id, center });
-			m_Scene->m_IDs->push_back(id);
+			m_Scene->m_Droplets->ClearDroplets();
+			m_Simulator->ClearParticles();
+			m_Simulator->ClearParticleGrid();
+			m_Scene->m_IDs->clear();
+			m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
 		}
 
-		m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
+		static int count = 1;
+
+		if (ImGui::InputInt("Droplet Count", &count))
+		{
+			if (count < 0)
+				count = 0;
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Spawn Droplet"))
+		{
+			auto IDsAndSpheres = std::vector<std::pair<uint64_t, DynamicSphere>>(count);
+			for (int i = 0; i < count; i++)
+			{
+				uint64_t id = Scene::GetFreshUUID();
+
+				float x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
+				float y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5.0f))) + 25.0f;
+				float z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
+				glm::vec3 center = { x, y, z };
+				m_Simulator->RegisterParticle(id, { center, g_ParticleRadius });
+				m_Scene->m_Droplets->AddDroplet({ id, center });
+				m_Scene->m_IDs->push_back(id);
+			}
+
+			m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
+		}
+
+		ImGui::End();
 	}
 
-	ImGui::End();
+	{
+		ImGui::Begin("Simulation Parameters");
+
+		static float deltaTime = 0.01f;
+
+		if (ImGui::InputFloat("Delta Time", &deltaTime))
+		{
+			if (deltaTime < 0.0f)
+				deltaTime = 0.0f;
+			m_Simulator->SetDeltaTime(deltaTime);
+		}
+
+		static bool isStopped = false;
+
+		if (ImGui::Button("Stop Simulation"))
+		{
+			isStopped = !isStopped;
+			m_Simulator->SetDeltaTime(isStopped ? 0.0f : deltaTime);
+		}
+
+		ImGui::End();
+	}
 }
 
 void Application::Render()

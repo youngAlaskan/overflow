@@ -20,18 +20,28 @@ public:
 	Droplets(const int subdivisions, const float radius) : m_Subdivisions(subdivisions), m_Radius(radius) { Init(); }
 
 	std::shared_ptr<std::unordered_map<uint64_t, glm::vec3>> GetIDsToCenters() { return m_IDstoCenters; }
-
-	void AddDroplets(const std::vector<std::pair<uint64_t, glm::vec3>>& data)
+	std::vector<glm::vec3> GetCenters(const std::vector<uint64_t>& IDs) const
 	{
-		for (const auto& [id, center] : data)
+		std::vector<glm::vec3> centers = std::vector<glm::vec3>(IDs.size());
+
+		for (int i = 0; i < IDs.size(); i++)
 		{
-			m_IDstoCenters->at(id) = center;
+			centers[i] = m_IDstoCenters->at(IDs[i]);
+		}
+
+		return centers;
+	}
+
+	void AddDroplets(const std::vector<std::pair<uint64_t, glm::vec3>>& IDsAndCenters)
+	{
+		for (const auto& IDAndCenter : IDsAndCenters)
+		{
+			AddDroplet(IDAndCenter);
 		}
 	}
 	void AddDroplet(const std::pair<uint64_t, glm::vec3>& IDAndCenter)
 	{
-		const auto& [id, center] = IDAndCenter;
-		m_IDstoCenters->at(id) = center;
+		m_IDstoCenters->insert(IDAndCenter);
 	}
 	void RemoveDroplet(const uint64_t& id)
 	{

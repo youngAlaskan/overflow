@@ -63,10 +63,21 @@ public:
 	void RegisterParticle(const uint64_t ID, const DynamicSphere& particle)
 	{
 		m_IDsToParticles[ID] = particle;
-		GetParticleBlock(particle).push_back(particle);
+		GetParticleBlock(particle).push_back(ID);
+	}
+
+	void RemoveParticle(const uint64_t ID)
+	{
+		DynamicSphere& particle = m_IDsToParticles[ID];
+
+		m_IDsToCenters->erase(ID);
+		m_IDsToParticles.erase(ID);
 	}
 
 	void ClearParticles() { m_IDsToParticles.clear(); }
+
+	void SetParticleGrid();
+	void UpdateParticleGrid();
 	void ClearParticleGrid()
 	{
 		for (auto& row : m_ParticleGrid)
@@ -83,36 +94,46 @@ public:
 
 	void Step()
 	{
+		if (m_IDs->empty() || m_DeltaTime == 0.0f)
+			return;
 		HandleCollisions();
 		ApplySPH();
+		UpdateParticleGrid();
 	}
 
 private:
 	void Init()
 	{
-		m_ParticleGrid = std::vector<std::vector<std::vector<std::vector<DynamicSphere>>>>(m_WorldDepth, std::vector<std::vector<std::vector<DynamicSphere>>>(m_WorldLength, std::vector<std::vector<DynamicSphere>>(m_WorldWidth)));
+		m_ParticleGrid = std::vector<std::vector<std::vector<std::vector<uint64_t>>>>(m_WorldDepth, std::vector<std::vector<std::vector<uint64_t>>>(m_WorldWidth, std::vector<std::vector<uint64_t>>(m_WorldLength)));
 	}
 
-	uint32_t GetParticleLengthIndex(const DynamicSphere& particle) const { return static_cast<uint32_t>(particle.GetPosition().z) + m_WorldLength / 2U; }
-	uint32_t GetParticleWidthIndex(const DynamicSphere& particle) const { return static_cast<uint32_t>(particle.GetPosition().x) + m_WorldWidth / 2U; }
-	uint32_t GetParticleDepthIndex(const DynamicSphere& particle) const { return static_cast<uint32_t>(particle.GetPosition().y) + m_WorldDepth / 2U; }
+	uint32_t GetParticleLengthIndex(const DynamicSphere& particle) const { return static_cast<uint32_t>(particle.GetPosition().z + m_WorldLength / 2.0f); }
+	uint32_t GetParticleWidthIndex(const DynamicSphere& particle) const { return static_cast<uint32_t>(particle.GetPosition().x + m_WorldWidth / 2.0f); }
+	uint32_t GetParticleDepthIndex(const DynamicSphere& particle) const { return static_cast<uint32_t>(particle.GetPosition().y + m_WorldDepth / 2.0f); }
 
-	std::vector<DynamicSphere>& GetParticleBlock(const DynamicSphere& particle) { return m_ParticleGrid[GetParticleDepthIndex(particle)][GetParticleWidthIndex(particle)][GetParticleLengthIndex(particle)]; }
+	std::vector<uint64_t>& GetParticleBlock(const DynamicSphere& particle) { return m_ParticleGrid[GetParticleDepthIndex(particle)][GetParticleWidthIndex(particle)][GetParticleLengthIndex(particle)]; }
+	std::vector<uint64_t>& GetParticleBlock(const uint64_t id)
+	{
+		DynamicSphere& particle = GetParticle(id);
+		return m_ParticleGrid[GetParticleDepthIndex(particle)][GetParticleWidthIndex(particle)][GetParticleLengthIndex(particle)];
+	}
 
-	std::vector<DynamicSphere> GetParticleNeighbors(const DynamicSphere& particle);
+	std::vector<uint64_t> GetParticleNeighbors(const uint64_t id);
+
+	bool IsParticleInWorldBounds(const DynamicSphere& particle) const;
 
 	void HandleCollisions();
 	void ApplySPH();
 
-	void ApplyForces(DynamicSphere& particle, const std::vector<DynamicSphere>& neighbors);
+	void ApplyForces(DynamicSphere& particle, const std::vector<uint64_t>& neighbors);
 
-	float GetDensity(const DynamicSphere& particle, const std::vector<DynamicSphere>& neighbors);
+	float GetDensity(const DynamicSphere& particle, const std::vector<uint64_t>& neighbors);
 
-	void ApplyPreassureForce(DynamicSphere& particle, const std::vector<DynamicSphere>& neighbors);
-	void ApplyExternalForce(DynamicSphere& particle, const std::vector<DynamicSphere>& neighbors);
+	void ApplyPreassureForce(DynamicSphere& particle, const std::vector<uint64_t>& neighbors);
+	void ApplyExternalForce(DynamicSphere& particle, const std::vector<uint64_t>& neighbors);
 	// TODO
-	void ApplySurfaceForce(DynamicSphere& particle, const std::vector<DynamicSphere>& neighbors);
-	void ApplyViscosityForce(DynamicSphere& particle, const std::vector<DynamicSphere>& neighbors);
+	void ApplySurfaceForce(DynamicSphere& particle, const std::vector<uint64_t>& neighbors);
+	void ApplyViscosityForce(DynamicSphere& particle, const std::vector<uint64_t>& neighbors);
 
 	float Wpoly(float distance)
 	{
@@ -133,12 +154,14 @@ private:
 		return static_cast<float>(14.32394488 * (1.0 - distance));
 	}
 
+	std::vector<glm::vec3> GetWaterHeightfield() const;
+
 private:
 	std::unique_ptr<Heightfield> m_TerrainGeometry = nullptr;
 	std::shared_ptr<std::vector<uint64_t>> m_IDs = nullptr;
 	std::shared_ptr<std::unordered_map<uint64_t, glm::vec3>> m_IDsToCenters = nullptr;
 	std::unordered_map<uint64_t, DynamicSphere> m_IDsToParticles = std::unordered_map<uint64_t, DynamicSphere>();
-	std::vector<std::vector<std::vector<std::vector<DynamicSphere>>>> m_ParticleGrid = std::vector<std::vector<std::vector<std::vector<DynamicSphere>>>>();
+	std::vector<std::vector<std::vector<std::vector<uint64_t>>>> m_ParticleGrid = std::vector<std::vector<std::vector<std::vector<uint64_t>>>>();
 	uint32_t m_WorldLength = 0U;
 	uint32_t m_WorldWidth  = 0U;
 	uint32_t m_WorldDepth  = 0U;

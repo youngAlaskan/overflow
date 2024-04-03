@@ -63,11 +63,10 @@ public:
 	// Update velocity and position using leap frog scheme
 	void Update(const float deltaTime)
 	{
-		UpdatePosition(deltaTime);
-
 		glm::vec3 prevAcceleration = GetAcceleration();
 		UpdateAcceleration();
 		UpdateVelocity(prevAcceleration, deltaTime);
+		UpdatePosition(deltaTime);
 	}
 
 	bool operator==(const DynamicSphere& other) const
@@ -83,6 +82,6 @@ private:
 	glm::vec3 m_ActiveForces = glm::vec3(0.0f);
 	glm::vec3 m_Acceleration = glm::vec3(0.0f);
 	glm::vec3 m_Velocity = glm::vec3(0.0f);
-	float m_Density = 0.0f;
+	float m_Density = 1.0f;
 	inline static float m_Mass;
 };
