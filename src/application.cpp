@@ -256,17 +256,22 @@ void Application::SetImGuiWindows() const
 	{
 		ImGui::Begin("Terrain Parameters");
 
-		static float size[2] = { m_TerrainGenerator->GetWidth(), m_TerrainGenerator->GetLength() };
-		if (ImGui::InputFloat2("Size", size))
-		{
-			if (size[0] < 0.01f)
-				size[0] = 0.01f;
+		/*
+		* THIS CRASHES THE PROGRAM
+		* The simulation can't be resized currently
+		*/
 
-			if (size[1] < 0.01f)
-				size[1] = 0.01f;
-			m_TerrainGenerator->SetWidth(size[0]);
-			m_TerrainGenerator->SetLength(size[1]);
-		}
+		//static float size[2] = { m_TerrainGenerator->GetWidth(), m_TerrainGenerator->GetLength() };
+		//if (ImGui::InputFloat2("Size", size))
+		//{
+		//	if (size[0] < 0.01f)
+		//		size[0] = 0.01f;
+		//
+		//	if (size[1] < 0.01f)
+		//		size[1] = 0.01f;
+		//	m_TerrainGenerator->SetWidth(size[0]);
+		//	m_TerrainGenerator->SetLength(size[1]);
+		//}
 
 		static int resolution[2] = { m_TerrainGenerator->GetResX(), m_TerrainGenerator->GetResZ()};
 		if (ImGui::InputInt2("Mesh Detail", resolution))
