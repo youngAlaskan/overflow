@@ -429,10 +429,6 @@
     <None Include="src\shaders\fragment\terrain.frag" />
     <None Include="src\shaders\vertex\droplets.vert" />
     <None Include="src\shaders\fragment\droplets.frag" />
-    <None Include="vendor\lib\physx\PhysXFoundation_64.exp" />
-    <None Include="vendor\lib\physx\PhysXCooking_64.exp" />
-    <None Include="vendor\lib\physx\PhysXCommon_64.exp" />
-    <None Include="vendor\lib\physx\PhysX_64.exp" />
     <None Include="bin\x64\Debug\PhysXGpu_64.dll" />
     <None Include="bin\x64\Debug\PhysXFoundation_64.dll" />
     <None Include="bin\x64\Debug\PhysXDevice64.dll" />
@@ -442,6 +438,14 @@
     <None Include="bin\x64\Debug\PhysX_64.map" />
     <None Include="bin\x64\Debug\PhysXCommon_64.map" />
     <None Include="bin\x64\Debug\PhysXCooking_64.map" />
+    <None Include="vendor\lib\physx\PhysX_64.exp" />
+    <None Include="vendor\lib\physx\PhysXCommon_64.exp" />
+    <None Include="vendor\lib\physx\PhysXCooking_64.exp" />
+    <None Include="vendor\lib\physx\PhysXFoundation_64.exp" />
+    <None Include="vendor\bin\FastNoise\FastNoise.dll" />
+    <None Include="vendor\bin\FastNoise\FastNoiseD.dll" />
+    <None Include="vendor\bin\FastNoise\FastNoiseD.pdb" />
+    <None Include="vendor\bin\FastNoise\NoiseTool.exe" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vendor\include\glad\glad.h">
@@ -2478,6 +2482,174 @@
     <ClInclude Include="src\physics\primitives\heightfield.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="vendor\include\noise\model\cylinder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\model\line.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\model\model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\model\plane.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\model\sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\abs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\add.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\billow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\blend.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\cache.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\checkerboard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\clamp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\const.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\curve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\cylinders.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\displace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\exponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\invert.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\max.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\min.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\module.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\modulebase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\multiply.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\perlin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\power.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\ridgedmulti.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\rotatepoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\scalebias.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\scalepoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\select.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\spheres.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\terrace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\translatepoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\turbulence.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\module\voronoi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\basictypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\exception.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\interp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\latlon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\mathconsts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\misc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\noise.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\noisegen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\noise\vectortable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\FastNoise.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\FastNoise_C.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\FastNoise_Config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\FastNoise_Export.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\Metadata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\SmartNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastSIMD\FastSIMD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastSIMD\FastSIMD_Config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastSIMD\FastSIMD_Export.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastSIMD\FunctionList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastSIMD\InlInclude.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastSIMD\SIMDTypeList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -2554,21 +2726,31 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="vendor\lib\GLFW\glfw3.lib" />
-    <Library Include="vendor\lib\physx\SimulationController_static_64.lib" />
+    <Library Include="vendor\lib\physx\LowLevel_static_64.lib" />
+    <Library Include="vendor\lib\physx\LowLevelAABB_static_64.lib" />
+    <Library Include="vendor\lib\physx\LowLevelDynamics_static_64.lib" />
+    <Library Include="vendor\lib\physx\PhysX_64.lib" />
+    <Library Include="vendor\lib\physx\PhysXCharacterKinematic_static_64.lib" />
+    <Library Include="vendor\lib\physx\PhysXCommon_64.lib" />
+    <Library Include="vendor\lib\physx\PhysXCooking_64.lib" />
+    <Library Include="vendor\lib\physx\PhysXExtensions_static_64.lib" />
+    <Library Include="vendor\lib\physx\PhysXFoundation_64.lib" />
+    <Library Include="vendor\lib\physx\PhysXPvdSDK_static_64.lib" />
+    <Library Include="vendor\lib\physx\PhysXTask_static_64.lib" />
+    <Library Include="vendor\lib\physx\PhysXVehicle_static_64.lib" />
     <Library Include="vendor\lib\physx\PhysXVehicle2_static_64.lib" />
     <Library Include="vendor\lib\physx\SceneQuery_static_64.lib" />
-    <Library Include="vendor\lib\physx\PhysXVehicle_static_64.lib" />
-    <Library Include="vendor\lib\physx\PhysXTask_static_64.lib" />
-    <Library Include="vendor\lib\physx\PhysXPvdSDK_static_64.lib" />
-    <Library Include="vendor\lib\physx\PhysXFoundation_64.lib" />
-    <Library Include="vendor\lib\physx\PhysXExtensions_static_64.lib" />
-    <Library Include="vendor\lib\physx\PhysXCooking_64.lib" />
-    <Library Include="vendor\lib\physx\PhysXCommon_64.lib" />
-    <Library Include="vendor\lib\physx\PhysXCharacterKinematic_static_64.lib" />
-    <Library Include="vendor\lib\physx\PhysX_64.lib" />
-    <Library Include="vendor\lib\physx\LowLevelDynamics_static_64.lib" />
-    <Library Include="vendor\lib\physx\LowLevelAABB_static_64.lib" />
-    <Library Include="vendor\lib\physx\LowLevel_static_64.lib" />
+    <Library Include="vendor\lib\physx\SimulationController_static_64.lib" />
+    <Library Include="vendor\lib\GLFW\glfw3.lib" />
+    <Library Include="vendor\lib\FastNoise\FastNoise.lib" />
+    <Library Include="vendor\lib\FastNoise\FastNoiseD.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="vendor\bin\FastNoise2\FastNoise.dll">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="vendor\bin\FastNoise2\FastNoiseD.dll">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

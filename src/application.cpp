@@ -2,6 +2,7 @@
 
 #include <thread>
 
+#include <FastNoise/FastNoise.h>
 #include "generators/terrainGenerator.h"
 
 // #include "glErrors.h"
@@ -13,14 +14,14 @@ void Application::Run()
 	m_Renderer->SetVAOs(m_Scene->m_VAOs);
 
 	// Create Terrain
-	auto vertices = TerrainGenerator::GenerateVertices();
+	auto generator = FastNoise::New<FastNoise::FractalFBm>();
+	generator->SetSource(FastNoise::New<FastNoise::Simplex>());
+	generator->SetOctaveCount(15);
+	generator->SetGain(0.5f);
+	generator->SetLacunarity(2.0f);
+
+	auto vertices = TerrainGenerator::GenerateVertices(generator, 1000, 1000, 100.0f, 100.0f);
 	m_Scene->SetTerrain(vertices);
-	auto positions = std::vector<glm::vec3>();
-	for (const auto& vertex : vertices)
-	{
-		positions.push_back(vertex.Position);
-	}
-	m_Simulator->SetTerrain(positions);
 
 	// Create Terrain Shader
 	std::shared_ptr<ShaderProgram> terrainShader = m_Renderer->AddShaderProgram(

@@ -26,6 +26,7 @@ inline float g_LastY = SCR_HEIGHT / 2.0f;
 inline bool g_IsFirstMouse = true;
 
 inline bool g_IsMouseDisabled = true;
+inline bool g_IsMouse2JustPressed = false;
 
 inline float g_ParticleRadius = 1.0f;
 
@@ -107,11 +108,15 @@ inline void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS)
+	bool isMouse2Pressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
+
+	if (isMouse2Pressed == GLFW_RELEASE && g_IsMouse2JustPressed == GLFW_PRESS)
 	{
 		glfwSetInputMode(window, GLFW_CURSOR, g_IsMouseDisabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 		g_IsMouseDisabled = !g_IsMouseDisabled;
 	}
+
+	g_IsMouse2JustPressed = isMouse2Pressed;
 
 	if (!g_ActiveCamera)
 		return;
