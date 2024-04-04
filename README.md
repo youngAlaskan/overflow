@@ -6,7 +6,7 @@ The primary control flow is the following:
 > main() -> Application\:\:Run() -> Renderer\:\:Render()
 
 ## TODO
-- [ ] Terrain Generation
+- [X] Terrain Generation
 - [X] Textures
 - [ ] Terrain Shader
 - [ ] Physics Engine
