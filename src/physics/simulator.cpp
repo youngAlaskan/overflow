@@ -78,7 +78,7 @@ void Simulator::HandleCollisions()
 		if (center.x >= minX && center.x <= maxX && center.z >= minZ && center.z <= maxZ)
 		{
 			// Get vertical offset from terrain
-			float offset = m_TerrainGeometry->GetHieght(center.x, center.z) - center.y;
+			float offset = m_TerrainGeometry->GetHeight(center.x, center.z) - center.y;
 			
 			// Check if sphere is intersecting height field
 			if (offset >= 0.0f || abs(offset) < particle.GetRadius())

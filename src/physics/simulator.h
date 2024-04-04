@@ -30,17 +30,21 @@ public:
 	uint32_t GetWorldWidth() const { return m_WorldWidth; }
 
 	void SetWorldLength(uint32_t length) { m_WorldLength = length; }
-	uint32_t SetWorldLength() const { return m_WorldLength; }
+	uint32_t GetWorldLength() const { return m_WorldLength; }
 
 	void SetWorldDepth(uint32_t depth) { m_WorldDepth = depth; }
-	uint32_t SetWorldDepth() const { return m_WorldDepth; }
+	uint32_t GetWorldDepth() const { return m_WorldDepth; }
 
 	void SetTerrain(std::vector<glm::vec3> vertices)
 	{
-		if (!m_TerrainGeometry)
-			m_TerrainGeometry = std::make_unique<Heightfield>(m_WorldLength + 1U, m_WorldWidth + 1U);
-
-		m_TerrainGeometry->SetHeightsFromTraingleMesh(vertices);
+		if (m_TerrainGeometry) {
+			Heightfield* terrainGeometry = m_TerrainGeometry.release();
+			delete terrainGeometry;
+		}
+		
+		m_TerrainGeometry = std::make_unique<Heightfield>(m_WorldLength + 1U, m_WorldWidth + 1U);
+		m_TerrainGeometry->SetHeightsFromTriangleMesh(vertices);
+		Init();
 	}
 
 	void SetIDs(const std::shared_ptr<std::vector<uint64_t>>& IDs) { m_IDs = IDs; }
@@ -162,8 +166,8 @@ private:
 	std::shared_ptr<std::unordered_map<uint64_t, glm::vec3>> m_IDsToCenters = nullptr;
 	std::unordered_map<uint64_t, DynamicSphere> m_IDsToParticles = std::unordered_map<uint64_t, DynamicSphere>();
 	std::vector<std::vector<std::vector<std::vector<uint64_t>>>> m_ParticleGrid = std::vector<std::vector<std::vector<std::vector<uint64_t>>>>();
-	uint32_t m_WorldLength = 0U;
-	uint32_t m_WorldWidth  = 0U;
-	uint32_t m_WorldDepth  = 0U;
+	uint32_t m_WorldLength = 10U;
+	uint32_t m_WorldWidth  = 10U;
+	uint32_t m_WorldDepth  = 10U;
 	float m_DeltaTime      = 0.0f;
 };

@@ -13,7 +13,7 @@ public:
 	Heightfield(uint32_t dimension) : m_Length(dimension), m_Width(dimension) {}
 	Heightfield(uint32_t length, uint32_t width) : m_Length(length), m_Width(width) { m_Heights = std::vector<std::vector<float>>(m_Length, std::vector<float>(m_Width)); }
 
-	void SetHeightsFromTraingleMesh(const std::vector<glm::vec3>& vertices)
+	void SetHeightsFromTriangleMesh(const std::vector<glm::vec3>& vertices)
 	{
 		for (const auto& vertex : vertices)
 		{
@@ -36,7 +36,7 @@ public:
 	float GetHeight(uint32_t s, uint32_t t) { return m_Heights[t][s]; }
 
 	// Get the height at (s, t) using bilinear interpolation
-	float GetHieght(float s, float t);
+	float GetHeight(float s, float t);
 
 	glm::vec3 GetNormal(float s, float t);
 
