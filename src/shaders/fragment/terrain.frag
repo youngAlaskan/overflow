@@ -11,6 +11,8 @@ in VertexData
 vec3 green = vec3(0.3f, 0.9f, 0.1f);
 vec3 blue = vec3(0.1f, 0.5f, 0.4f);
 
+uniform vec3 viewPos;
+
 void main()
 {
   vec3 N = normalize(iVertexData.Normal);
