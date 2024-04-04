@@ -33,6 +33,7 @@ void Application::Run()
 		positions.push_back(vertex.Position);
 	}
 	m_Simulator->SetTerrain(positions);
+	m_Scene->m_WaterLevels = m_Simulator->GetWaterLevels();
 
 	// Create Terrain Shader
 	std::shared_ptr<ShaderProgram> terrainShader = m_Renderer->AddShaderProgram(
@@ -47,6 +48,7 @@ void Application::Run()
 
 	m_Simulator->SetIDs(m_Scene->m_IDs);
 	m_Simulator->SetIDsToCenters(m_Scene->m_Droplets->GetIDsToCenters());
+	m_Simulator->SetRenderDroplets(m_Scene->m_Droplets->GetRenderDroplet());
 
 	// Create Droplets shader
 	std::shared_ptr<ShaderProgram> dropletShader = m_Renderer->AddShaderProgram(
