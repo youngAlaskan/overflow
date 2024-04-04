@@ -17,7 +17,15 @@ void Droplets::SetInstanceVBO(const std::vector<uint64_t>& IDs)
 
 void Droplets::UpdateInstanceVBO(const std::vector<uint64_t>& IDs) const
 {
-	std::vector<glm::vec3> centers = GetCenters(IDs);
+	std::vector<uint64_t> renderableIDs;
+	for (auto id : IDs)
+	{
+		if (m_RenderDroplet->at(id))
+		{
+			renderableIDs.push_back(id);
+		}
+	}
+	std::vector<glm::vec3> centers = GetCenters(renderableIDs);
 
 	m_VAO->isInstanced = true;
 	m_VAO->instanceCount = static_cast<GLsizei>(centers.size());
