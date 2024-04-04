@@ -73,6 +73,8 @@ void Application::Run()
 		m_Simulator->Step();
 
 		m_Scene->OnUpdate();
+		terrainShader->Use();
+		terrainShader->SetVec3("viewPos", g_ActiveCamera->m_Position);
 
 		m_Renderer->Render();
 
