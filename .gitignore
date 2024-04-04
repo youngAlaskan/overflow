@@ -32,6 +32,7 @@ bld/
 
 # Visual Studio cache/options directory
 .vs/
+.vscode/
 
 # Files built by Visual Studio
 *_i.c
