@@ -59,7 +59,7 @@ public:
     
     // Camera options
     
-    float m_MovementSpeed    = 0.05f;
+    float m_MovementSpeed    = 0.1f;
     float m_MouseSensitivity = 0.1f;
     bool m_CanFly            = true;
 

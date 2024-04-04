@@ -8,12 +8,12 @@ struct Vertex
 	glm::vec3 Position; // Position in model space 
 	glm::vec3 Normal; // Outward facing normal
 	glm::vec2 TexCoord; // Texture Coordinate
-	GLuint WaterLevel; // Water level at vertex [0, Inf]
+	GLfloat WaterLevel; // Water level at vertex [0, Inf]
 
 	Vertex() = default;
 	~Vertex() = default;
 
-	Vertex(const glm::vec3& pos, const glm::vec3& norm, const glm::vec2& texCoord, const GLuint waterLevel = 0)
+	Vertex(const glm::vec3& pos, const glm::vec3& norm, const glm::vec2& texCoord, const GLfloat waterLevel = 0)
 		: Position(pos), Normal(norm), TexCoord(texCoord), WaterLevel(waterLevel) {}
 
 	bool operator==(const Vertex& other) const
@@ -36,6 +36,6 @@ inline void SetVertexAttributesPointers()
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, TexCoord))); // NOLINT(performance-no-int-to-ptr)
 	glEnableVertexAttribArray(2);
 
-	glVertexAttribPointer(3, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, WaterLevel))); // NOLINT(performance-no-int-to-ptr)
+	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, WaterLevel))); // NOLINT(performance-no-int-to-ptr)
 	glEnableVertexAttribArray(3);
 }

@@ -40,7 +40,10 @@ public:
 		if (!m_TerrainGeometry)
 			m_TerrainGeometry = std::make_unique<Heightfield>(m_WorldLength + 1U, m_WorldWidth + 1U);
 
-		m_TerrainGeometry->SetHeightsFromTraingleMesh(vertices);
+		if (!m_WaterLevels)
+			m_WaterLevels = std::make_shared<Heightfield>(m_WorldLength + 1U, m_WorldWidth + 1U, 0.0f);
+
+		m_TerrainGeometry->SetHeightsFromTriangleMesh(vertices);
 	}
 
 	void SetIDs(const std::shared_ptr<std::vector<uint64_t>>& IDs) { m_IDs = IDs; }
@@ -74,6 +77,11 @@ public:
 		m_IDsToParticles.erase(ID);
 	}
 
+	void SetRenderDroplets(std::shared_ptr<std::unordered_map<uint64_t, bool>> renderDroplets)
+	{
+		m_RenderDroplet = renderDroplets;
+	}
+
 	void ClearParticles() { m_IDsToParticles.clear(); }
 
 	void SetParticleGrid();
@@ -91,6 +99,8 @@ public:
 			}
 		}
 	}
+
+	std::shared_ptr<Heightfield> GetWaterLevels() const { return m_WaterLevels; }
 
 	void Step()
 	{
@@ -154,14 +164,14 @@ private:
 		return static_cast<float>(14.32394488 * (1.0 - distance));
 	}
 
-	std::vector<glm::vec3> GetWaterHeightfield() const;
-
 private:
 	std::unique_ptr<Heightfield> m_TerrainGeometry = nullptr;
 	std::shared_ptr<std::vector<uint64_t>> m_IDs = nullptr;
 	std::shared_ptr<std::unordered_map<uint64_t, glm::vec3>> m_IDsToCenters = nullptr;
 	std::unordered_map<uint64_t, DynamicSphere> m_IDsToParticles = std::unordered_map<uint64_t, DynamicSphere>();
+	std::shared_ptr<std::unordered_map<uint64_t, bool>> m_RenderDroplet = nullptr;
 	std::vector<std::vector<std::vector<std::vector<uint64_t>>>> m_ParticleGrid = std::vector<std::vector<std::vector<std::vector<uint64_t>>>>();
+	std::shared_ptr<Heightfield> m_WaterLevels = nullptr;
 	uint32_t m_WorldLength = 0U;
 	uint32_t m_WorldWidth  = 0U;
 	uint32_t m_WorldDepth  = 0U;

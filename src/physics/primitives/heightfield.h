@@ -12,8 +12,9 @@ public:
 	Heightfield() = default;
 	Heightfield(uint32_t dimension) : m_Length(dimension), m_Width(dimension) {}
 	Heightfield(uint32_t length, uint32_t width) : m_Length(length), m_Width(width) { m_Heights = std::vector<std::vector<float>>(m_Length, std::vector<float>(m_Width)); }
+	Heightfield(uint32_t length, uint32_t width, float height) : m_Length(length), m_Width(width) { m_Heights = std::vector<std::vector<float>>(m_Length, std::vector<float>(m_Width, height)); }
 
-	void SetHeightsFromTraingleMesh(const std::vector<glm::vec3>& vertices)
+	void SetHeightsFromTriangleMesh(const std::vector<glm::vec3>& vertices)
 	{
 		for (const auto& vertex : vertices)
 		{
@@ -30,15 +31,38 @@ public:
 	uint32_t GetWidth() const { return m_Width; }
 
 	void SetHeights(std::vector<std::vector<float>> heights) { m_Heights = heights; }
-	std::vector<std::vector<float>> GetHeights() { return m_Heights; }
+	std::vector<std::vector<float>> GetHeights() const { return m_Heights; }
 
 	void SetHeight(const uint32_t s, const uint32_t t, const float height) { m_Heights[t][s] = height; }
-	float GetHeight(uint32_t s, uint32_t t) { return m_Heights[t][s]; }
+	float GetHeight(uint32_t s, uint32_t t) const { return m_Heights[t][s]; }
 
+	void SetHeight(float x, float z, const float height);
 	// Get the height at (s, t) using bilinear interpolation
-	float GetHieght(float s, float t);
+	float GetHeight(float x, float z) const;
 
-	glm::vec3 GetNormal(float s, float t);
+	glm::vec3 GetNormal(float s, float t) const;
+
+	void Copy(const Heightfield& other)
+	{
+		for (uint32_t i = 0; i < m_Length; i++)
+		{
+			for (uint32_t j = 0; j < m_Width; j++)
+			{
+				SetHeight(j, i, other.GetHeight(j, i));
+			}
+		}
+	}
+
+	void Clear()
+	{
+		for (uint32_t i = 0; i < m_Length; i++)
+		{
+			for (uint32_t j = 0; j < m_Width; j++)
+			{
+				SetHeight(j, i, 0.0f);
+			}
+		}
+	}
 
 private:
 	uint32_t m_Length = 0U;

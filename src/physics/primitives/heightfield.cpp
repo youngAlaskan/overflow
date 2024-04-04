@@ -1,7 +1,7 @@
 #include "heightfield.h"
 
 // Get the height at (s, t) using bilinear interpolation
-float Heightfield::GetHieght(float x, float z)
+float Heightfield::GetHeight(float x, float z) const
 {
 	float s = x + static_cast<float>(m_Width / 2U);
 	float t = z + static_cast<float>(m_Length / 2U);
@@ -47,7 +47,7 @@ float Heightfield::GetHieght(float x, float z)
 	return leftLerp + sOffset * (rightLerp - leftLerp);
 }
 
-glm::vec3 Heightfield::GetNormal(float x, float z)
+glm::vec3 Heightfield::GetNormal(float x, float z) const
 {
 	float s = x + static_cast<float>(m_Width / 2U);
 	float t = z + static_cast<float>(m_Length / 2U);

@@ -2,6 +2,7 @@
 
 void Simulator::SetParticleGrid()
 {
+	m_WaterLevels->Clear();
 	for (const auto& id : *m_IDs)
 	{
 		DynamicSphere& particle = GetParticle(id);
@@ -10,6 +11,10 @@ void Simulator::SetParticleGrid()
 		uint32_t depthIndex = GetParticleDepthIndex(particle);
 
 		m_ParticleGrid[depthIndex][widthIndex][lengthIndex].push_back(id);
+		auto currentWaterLevel = m_WaterLevels->GetHeight(particle.GetPosition().x, particle.GetPosition().z);
+		auto terrainHeight = m_TerrainGeometry->GetHeight(particle.GetPosition().x, particle.GetPosition().z);
+		if (particle.GetPosition().y - terrainHeight > currentWaterLevel && !m_RenderDroplet->at(id))
+			m_WaterLevels->SetHeight(widthIndex, lengthIndex, particle.GetPosition().y - terrainHeight + particle.GetRadius());
 	}
 }
 
@@ -78,7 +83,7 @@ void Simulator::HandleCollisions()
 		if (center.x >= minX && center.x <= maxX && center.z >= minZ && center.z <= maxZ)
 		{
 			// Get vertical offset from terrain
-			float offset = m_TerrainGeometry->GetHieght(center.x, center.z) - center.y;
+			float offset = m_TerrainGeometry->GetHeight(center.x, center.z) - center.y;
 			
 			// Check if sphere is intersecting height field
 			if (offset >= 0.0f || abs(offset) < particle.GetRadius())
@@ -89,6 +94,11 @@ void Simulator::HandleCollisions()
 				glm::vec3 projection = glm::dot(incoming, normal) / glm::length(normal) * normal;
 				glm::vec3 perp = incoming - projection;
 				particle.SetVelocity(perp * 0.9f);
+				m_RenderDroplet->at(id) = false;
+			}
+			else
+			{
+				m_RenderDroplet->at(id) = true;
 			}
 		}
 

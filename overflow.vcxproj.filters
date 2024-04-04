@@ -442,6 +442,7 @@
     <None Include="bin\x64\Debug\PhysX_64.map" />
     <None Include="bin\x64\Debug\PhysXCommon_64.map" />
     <None Include="bin\x64\Debug\PhysXCooking_64.map" />
+    <None Include="src\shaders\geometry\terrain.geom" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vendor\include\glad\glad.h">

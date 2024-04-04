@@ -19,7 +19,7 @@ public:
 	Droplets(const int subdivisions) : m_Subdivisions(subdivisions) { Init(); }
 	Droplets(const int subdivisions, const float radius) : m_Subdivisions(subdivisions), m_Radius(radius) { Init(); }
 
-	std::shared_ptr<std::unordered_map<uint64_t, glm::vec3>> GetIDsToCenters() { return m_IDstoCenters; }
+	std::shared_ptr<std::unordered_map<uint64_t, glm::vec3>> GetIDsToCenters() const { return m_IDstoCenters; }
 	std::vector<glm::vec3> GetCenters(const std::vector<uint64_t>& IDs) const
 	{
 		std::vector<glm::vec3> centers = std::vector<glm::vec3>(IDs.size());
@@ -32,6 +32,8 @@ public:
 		return centers;
 	}
 
+	std::shared_ptr<std::unordered_map<uint64_t, bool>> GetRenderDroplet() const { return m_RenderDroplet; }
+
 	void AddDroplets(const std::vector<std::pair<uint64_t, glm::vec3>>& IDsAndCenters)
 	{
 		for (const auto& IDAndCenter : IDsAndCenters)
@@ -42,13 +44,18 @@ public:
 	void AddDroplet(const std::pair<uint64_t, glm::vec3>& IDAndCenter)
 	{
 		m_IDstoCenters->insert(IDAndCenter);
+		m_RenderDroplet->insert({IDAndCenter.first, true});
 	}
 	void RemoveDroplet(const uint64_t& id)
 	{
 		m_IDstoCenters->erase(id);
 	}
 
-	void ClearDroplets() { m_IDstoCenters->clear(); }
+	void ClearDroplets()
+	{
+		m_IDstoCenters->clear();
+		m_RenderDroplet->clear();
+	}
 
 	std::shared_ptr<VAO> GetVAO() { return m_VAO; }
 
@@ -73,6 +80,7 @@ private:
 
 private:
 	std::shared_ptr<std::unordered_map<uint64_t, glm::vec3>> m_IDstoCenters = std::make_shared<std::unordered_map<uint64_t, glm::vec3>>();
+	std::shared_ptr<std::unordered_map<uint64_t, bool>> m_RenderDroplet = std::make_shared<std::unordered_map<uint64_t, bool>>();
 	std::shared_ptr<VAO> m_VAO = std::make_shared<VAO>();
 	VBO m_SphereVBO = VBO();
 	VBO m_InstanceVBO = VBO();
