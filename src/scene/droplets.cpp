@@ -1,26 +1,28 @@
 ﻿#include "droplets.h"
 
-void Droplets::SetInstanceVBO(std::vector<glm::vec3> centers)
+void Droplets::SetInstanceVBO(const std::vector<uint64_t>& IDs)
 {
-	m_Centers = centers;
+	std::vector<glm::vec3> centers = GetCenters(IDs);
 
 	// Set offset buffer
 	m_VAO->isInstanced = true;
-	m_VAO->instanceCount = static_cast<GLsizei>(m_Centers.size());
+	m_VAO->instanceCount = static_cast<GLsizei>(centers.size());
 
-	m_InstanceVBO.SetBufferData(m_Centers);
+	m_InstanceVBO.SetBufferData(centers);
 
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
 	glEnableVertexAttribArray(1);
 	glVertexAttribDivisor(1, 1);
 }
 
-void Droplets::UpdateInstanceVBO() const
+void Droplets::UpdateInstanceVBO(const std::vector<uint64_t>& IDs) const
 {
-	m_VAO->isInstanced = true;
-	m_VAO->instanceCount = static_cast<GLsizei>(m_Centers.size());
+	std::vector<glm::vec3> centers = GetCenters(IDs);
 
-	m_InstanceVBO.SetBufferData(m_Centers);
+	m_VAO->isInstanced = true;
+	m_VAO->instanceCount = static_cast<GLsizei>(centers.size());
+
+	m_InstanceVBO.SetBufferData(centers);
 }
 
 void Droplets::UpdateVertexVBO(float radius)
@@ -75,13 +77,13 @@ std::vector<glm::vec3> Droplets::CreateSphere() const
 		{
 			// Bottom Right Triangle
 			vertices.push_back(points[iNext][j    ]); // BL
-			vertices.push_back(points[i    ][jNext]); // TR
 			vertices.push_back(points[iNext][jNext]); // BR
+			vertices.push_back(points[i    ][jNext]); // TR
 			
 			// Top Left Triangle
 			vertices.push_back(points[iNext][j    ]); // BL
+			vertices.push_back(points[i][jNext]); // TR
 			vertices.push_back(points[i    ][j    ]); // TL
-			vertices.push_back(points[i    ][jNext]); // TR
 		}
 	}
 

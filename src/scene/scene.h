@@ -29,22 +29,46 @@ public:
 	void CreateDroplets(Args... args)
 	{
 		m_Droplets = std::make_unique<Droplets>(args...);
-		m_VAOs->push_back(m_Droplets->m_VAO);
+		m_VAOs->push_back(m_Droplets->GetVAO());
 	}
 
-	void UpdateDroplets(std::vector<glm::vec3> centers) const
+	void UpdateDroplets() const
 	{
-		m_Droplets->SetInstanceVBO(centers);
+		m_Droplets->UpdateInstanceVBO(*m_IDs);
 	}
 
 	void OnUpdate() const
 	{
 		m_Camera->OnUpdate();
+		UpdateDroplets();
+	}
+
+	void RegisterParticle(const std::pair<uint64_t, glm::vec3>& IDandCenter) const
+	{
+		m_Droplets->AddDroplet(IDandCenter);
+		const auto& [id, center] = IDandCenter;
+		m_IDs->push_back(id);
+	}
+
+	void RegisterParticles(const std::vector<std::pair<uint64_t, glm::vec3>>& IDandCenters) const
+	{
+		m_Droplets->AddDroplets(IDandCenters);
+		for (const auto& [id, center] : IDandCenters)
+		{
+			m_IDs->push_back(id);
+		}
+	}
+
+	static uint64_t GetFreshUUID()
+	{
+		static uint64_t uuid = 1ULL;
+		return uuid++;
 	}
 
 public:
 	std::shared_ptr<Camera> m_Camera = std::make_shared<Camera>();
 	std::unique_ptr<Terrain> m_Terrain = nullptr;
 	std::unique_ptr<Droplets> m_Droplets = nullptr;
+	std::shared_ptr<std::vector<uint64_t>> m_IDs = std::make_shared<std::vector<uint64_t>>();
 	std::shared_ptr<std::vector<std::shared_ptr<VAO>>> m_VAOs = std::make_shared<std::vector<std::shared_ptr<VAO>>>();
 };

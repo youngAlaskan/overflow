@@ -2,7 +2,7 @@
 
 #include <thread>
 
-#include "generators/terrainGenerator.h";
+#include "generators/terrainGenerator.h"
 
 // #include "glErrors.h"
 
@@ -15,6 +15,12 @@ void Application::Run()
 	// Create Terrain
 	auto vertices = TerrainGenerator::GenerateVertices();
 	m_Scene->SetTerrain(vertices);
+	auto positions = std::vector<glm::vec3>();
+	for (const auto& vertex : vertices)
+	{
+		positions.push_back(vertex.Position);
+	}
+	m_Simulator->SetTerrain(positions);
 
 	// Create Terrain Shader
 	std::shared_ptr<ShaderProgram> terrainShader = m_Renderer->AddShaderProgram(
@@ -25,9 +31,10 @@ void Application::Run()
 		}
 	);
 
-	// Create Droplets
-	std::vector<glm::vec3> centers = { glm::vec3(0.0f, 3.0f, -3.0f), glm::vec3(0.5f, 5.0f, -3.0f) };
-	m_Scene->CreateDroplets(10, centers);
+	m_Scene->CreateDroplets(g_ParticleRadius);
+
+	m_Simulator->SetIDs(m_Scene->m_IDs);
+	m_Simulator->SetIDsToCenters(m_Scene->m_Droplets->GetIDsToCenters());
 
 	// Create Droplets shader
 	std::shared_ptr<ShaderProgram> dropletShader = m_Renderer->AddShaderProgram(
@@ -40,33 +47,9 @@ void Application::Run()
 
 	// Register Shader ID with VAO ID
 	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Terrain->m_VAO->GetID(), terrainShader->GetID());
-	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Droplets->m_VAO->GetID(), dropletShader->GetID());
+	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Droplets->GetVAO()->GetID(), dropletShader->GetID());
 
 	m_Renderer->RegisterUniformBuffer(m_Scene->m_Camera->m_ViewProjMatrices);
-
-	for (const auto& pos : centers)
-	{
-		m_Simulator->AddDroplet(physx::PxVec3(pos.x, pos.y, pos.z), static_cast<physx::PxReal>(g_ParticleRadius));
-	}
-
-	std::vector<physx::PxVec3> terrainVertices = std::vector<physx::PxVec3>(m_Scene->m_Terrain->m_Vertices.size(), physx::PxVec3());
-
-	for (int i = 0; i < terrainVertices.size(); i++)
-	{
-		glm::vec3 pos = m_Scene->m_Terrain->m_Vertices.at(i).Position;
-		terrainVertices.at(i) = physx::PxVec3(pos.x, pos.y, pos.z);
-	}
-
-	std::vector<physx::PxU32> terrainIndices = std::vector<physx::PxU32>(terrainVertices.size(), 0);
-	for (int i = 0; i < terrainIndices.size(); i++)
-	{
-		terrainIndices.at(i) = i;
-	}
-
-	physx::PxMaterial* terrainMaterial = m_Simulator->CreateMaterial(0.6f, 0.5f, 0.1f);
-	physx::PxTriangleMesh* terrainMesh = m_Simulator->CreateTriangleMesh(terrainVertices, terrainIndices);
-	physx::PxTriangleMeshGeometry terrainGeometry = physx::PxTriangleMeshGeometry(terrainMesh);
-	m_Simulator->CreateStatic(physx::PxTransform(physx::PxVec3(0.0f)), terrainGeometry, *terrainMaterial);
 
 	// Main loop
 	while (WindowIsOpen())
@@ -78,16 +61,6 @@ void Application::Run()
 		m_Scene->OnUpdate();
 
 		m_Renderer->Render();
-
-		centers.clear();
-
-		for (auto droplet : m_Simulator->m_Droplets)
-		{
-			physx::PxTransform pose = droplet->getGlobalPose();
-			centers.push_back(glm::vec3(pose.p.x, pose.p.y, pose.p.z));
-		}
-
-		m_Scene->UpdateDroplets(centers);
 
 		OnFrameEnd();
 	}
@@ -163,11 +136,13 @@ void Application::Init()
 
 	m_Renderer = std::make_unique<Renderer>();
 	m_Scene = std::make_unique<Scene>();
-	m_Simulator = std::make_unique<Simulator>();
+	m_Simulator = std::make_unique<Simulator>(100U, 100U, 100U);
 
 	m_Scene->m_Camera->m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
 	m_Scene->m_Camera->m_ViewProjMatrices.SetEmptyBuffer(2 * sizeof(glm::mat4));
 	g_ActiveCamera = m_Scene->m_Camera;
+
+	m_Simulator->SetDeltaTime(0.01f);
 }
 
 // Sets up start of new frame
@@ -196,39 +171,74 @@ void Application::OnFrameEnd()
 
 void Application::SetImGuiWindows() const
 {
-	ImGui::Begin("Droplet Spawner");
-
-	if (ImGui::DragFloat("Particle Radius", &g_ParticleRadius, 0.01f, 0.0f, 5.0f))
 	{
-		m_Scene->m_Droplets->UpdateVertexVBO(g_ParticleRadius);
+		ImGui::Begin("Droplet Spawner");
 
-		m_Scene->m_Droplets->m_Centers.clear();
-		m_Scene->m_Droplets->UpdateInstanceVBO();
-		m_Simulator->ClearDroplets();
-	}
-
-	static int count = 1;
-
-	if (ImGui::InputInt("Droplet Count", &count))
-	{
-		if (count < 0)
-			count = 0;
-	}
-
-	ImGui::SameLine();
-
-	if (ImGui::Button("Spawn Droplet"))
-	{
-		for (int i = 0; i < count; i++)
+		if (ImGui::DragFloat("Particle Radius", &g_ParticleRadius, 0.001f, 0.01f, 1.0f))
 		{
-			float x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
-			float y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5.0f))) + 25.0f;
-			float z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
-			m_Simulator->AddDroplet({ x, y, z }, g_ParticleRadius);
+			m_Scene->m_Droplets->UpdateVertexVBO(g_ParticleRadius);
+
+			m_Scene->m_Droplets->ClearDroplets();
+			m_Simulator->ClearParticles();
+			m_Simulator->ClearParticleGrid();
+			m_Scene->m_IDs->clear();
+			m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
 		}
+
+		static int count = 1;
+
+		if (ImGui::InputInt("Droplet Count", &count))
+		{
+			if (count < 0)
+				count = 0;
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Spawn Droplet"))
+		{
+			auto IDsAndSpheres = std::vector<std::pair<uint64_t, DynamicSphere>>(count);
+			for (int i = 0; i < count; i++)
+			{
+				uint64_t id = Scene::GetFreshUUID();
+
+				float x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
+				float y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5.0f))) + 25.0f;
+				float z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
+				glm::vec3 center = { x, y, z };
+				m_Simulator->RegisterParticle(id, { center, g_ParticleRadius });
+				m_Scene->m_Droplets->AddDroplet({ id, center });
+				m_Scene->m_IDs->push_back(id);
+			}
+
+			m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
+		}
+
+		ImGui::End();
 	}
 
-	ImGui::End();
+	{
+		ImGui::Begin("Simulation Parameters");
+
+		static float deltaTime = 0.01f;
+
+		if (ImGui::InputFloat("Delta Time", &deltaTime))
+		{
+			if (deltaTime < 0.0f)
+				deltaTime = 0.0f;
+			m_Simulator->SetDeltaTime(deltaTime);
+		}
+
+		static bool isStopped = false;
+
+		if (ImGui::Button("Stop Simulation"))
+		{
+			isStopped = !isStopped;
+			m_Simulator->SetDeltaTime(isStopped ? 0.0f : deltaTime);
+		}
+
+		ImGui::End();
+	}
 }
 
 void Application::Render()

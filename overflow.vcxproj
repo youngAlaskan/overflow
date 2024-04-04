@@ -289,8 +289,10 @@
     <None Include="vendor\lib\physx\PhysX_64.exp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\physics\primitives\heightfield.h" />
     <ClInclude Include="src\physics\simulator.h" />
     <ClInclude Include="src\generators\noise.h" />
+    <ClInclude Include="src\physics\primitives\sphere.h" />
     <ClInclude Include="src\scene\camera.h" />
     <ClInclude Include="src\glErrors.h" />
     <ClInclude Include="src\rendering\renderer.h" />
@@ -967,6 +969,7 @@
     <ClInclude Include="vendor\include\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\physics\primitives\heightfield.cpp" />
     <ClCompile Include="src\physics\simulator.cpp" />
     <ClCompile Include="src\generators\noise.cpp" />
     <ClCompile Include="src\scene\camera.cpp" />
