@@ -68,8 +68,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>vendor\include\GLFW;vendor\include\glm;vendor\include\physx;src\imgui\backends;src\imgui;vendor\include;$(IncludePath)</IncludePath>
-    <LibraryPath>vendor\lib;vendor\lib\GLFW;vendor\lib\physx;$(LibraryPath)</LibraryPath>
+    <IncludePath>vendor\include\GLFW;vendor\include\glm;vendor\include\physx;vendor\include\FastNoise;src\imgui\backends;src\imgui;vendor\include;$(IncludePath)</IncludePath>
+    <LibraryPath>vendor\lib;vendor\lib\GLFW;vendor\lib\physx;vendor\lib\FastNoise;$(LibraryPath)</LibraryPath>
     <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>bin\$(Platform)\$(Configuration)\</IntDir>
     <ReferencePath>vendor\lib\physx;$(VC_ReferencesPath_x64);</ReferencePath>
@@ -79,8 +79,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>vendor\include\GLFW;vendor\include\glm;vendor\include\physx;src\imgui\backends;src\imgui;vendor\include;$(IncludePath)</IncludePath>
-    <LibraryPath>vendor\lib;vendor\lib\GLFW;vendor\lib\physx;$(LibraryPath)</LibraryPath>
+    <IncludePath>vendor\include\GLFW;vendor\include\glm;vendor\include\physx;vendor\include\FastNoise;src\imgui\backends;src\imgui;vendor\include;$(IncludePath)</IncludePath>
+    <LibraryPath>vendor\lib;vendor\lib\GLFW;vendor\lib\physx;vendor\lib\FastNoise;$(LibraryPath)</LibraryPath>
     <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>bin\$(Platform)\$(Configuration)\</IntDir>
     <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
@@ -147,6 +147,16 @@
     <None Include="src\shaders\fragment\terrain.frag" />
     <None Include="src\shaders\vertex\droplets.vert" />
     <None Include="src\shaders\vertex\terrain.vert" />
+    <CopyFileToFolders Include="vendor\bin\FastNoise\FastNoise.dll">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="vendor\bin\FastNoise\FastNoiseD.dll">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <None Include="vendor\bin\FastNoise\FastNoiseD.pdb" />
+    <None Include="vendor\bin\FastNoise\NoiseTool.exe" />
     <None Include="vendor\include\glm\detail\func_common.inl" />
     <None Include="vendor\include\glm\detail\func_common_simd.inl" />
     <None Include="vendor\include\glm\detail\func_exponential.inl" />
@@ -291,7 +301,6 @@
   <ItemGroup>
     <ClInclude Include="src\physics\primitives\heightfield.h" />
     <ClInclude Include="src\physics\simulator.h" />
-    <ClInclude Include="src\generators\noise.h" />
     <ClInclude Include="src\physics\primitives\sphere.h" />
     <ClInclude Include="src\scene\camera.h" />
     <ClInclude Include="src\glErrors.h" />
@@ -315,6 +324,18 @@
     <ClInclude Include="src\scene\texture.h" />
     <ClInclude Include="src\scene\vertex.h" />
     <ClInclude Include="src\generators\terrainGenerator.h" />
+    <ClInclude Include="vendor\include\FastNoise\FastNoise.h" />
+    <ClInclude Include="vendor\include\FastNoise\FastNoise_C.h" />
+    <ClInclude Include="vendor\include\FastNoise\FastNoise_Config.h" />
+    <ClInclude Include="vendor\include\FastNoise\FastNoise_Export.h" />
+    <ClInclude Include="vendor\include\FastNoise\Metadata.h" />
+    <ClInclude Include="vendor\include\FastNoise\SmartNode.h" />
+    <ClInclude Include="vendor\include\FastSIMD\FastSIMD.h" />
+    <ClInclude Include="vendor\include\FastSIMD\FastSIMD_Config.h" />
+    <ClInclude Include="vendor\include\FastSIMD\FastSIMD_Export.h" />
+    <ClInclude Include="vendor\include\FastSIMD\FunctionList.h" />
+    <ClInclude Include="vendor\include\FastSIMD\InlInclude.h" />
+    <ClInclude Include="vendor\include\FastSIMD\SIMDTypeList.h" />
     <ClInclude Include="vendor\include\glad\glad.h" />
     <ClInclude Include="vendor\include\GLFW\glfw3.h" />
     <ClInclude Include="vendor\include\GLFW\glfw3native.h" />
@@ -601,6 +622,50 @@
     <ClInclude Include="vendor\include\glm\vec4.hpp" />
     <ClInclude Include="vendor\include\glm\vector_relational.hpp" />
     <ClInclude Include="vendor\include\KHR\khrplatform.h" />
+    <ClInclude Include="vendor\include\noise\basictypes.h" />
+    <ClInclude Include="vendor\include\noise\exception.h" />
+    <ClInclude Include="vendor\include\noise\interp.h" />
+    <ClInclude Include="vendor\include\noise\latlon.h" />
+    <ClInclude Include="vendor\include\noise\mathconsts.h" />
+    <ClInclude Include="vendor\include\noise\misc.h" />
+    <ClInclude Include="vendor\include\noise\model\cylinder.h" />
+    <ClInclude Include="vendor\include\noise\model\line.h" />
+    <ClInclude Include="vendor\include\noise\model\model.h" />
+    <ClInclude Include="vendor\include\noise\model\plane.h" />
+    <ClInclude Include="vendor\include\noise\model\sphere.h" />
+    <ClInclude Include="vendor\include\noise\module\abs.h" />
+    <ClInclude Include="vendor\include\noise\module\add.h" />
+    <ClInclude Include="vendor\include\noise\module\billow.h" />
+    <ClInclude Include="vendor\include\noise\module\blend.h" />
+    <ClInclude Include="vendor\include\noise\module\cache.h" />
+    <ClInclude Include="vendor\include\noise\module\checkerboard.h" />
+    <ClInclude Include="vendor\include\noise\module\clamp.h" />
+    <ClInclude Include="vendor\include\noise\module\const.h" />
+    <ClInclude Include="vendor\include\noise\module\curve.h" />
+    <ClInclude Include="vendor\include\noise\module\cylinders.h" />
+    <ClInclude Include="vendor\include\noise\module\displace.h" />
+    <ClInclude Include="vendor\include\noise\module\exponent.h" />
+    <ClInclude Include="vendor\include\noise\module\invert.h" />
+    <ClInclude Include="vendor\include\noise\module\max.h" />
+    <ClInclude Include="vendor\include\noise\module\min.h" />
+    <ClInclude Include="vendor\include\noise\module\module.h" />
+    <ClInclude Include="vendor\include\noise\module\modulebase.h" />
+    <ClInclude Include="vendor\include\noise\module\multiply.h" />
+    <ClInclude Include="vendor\include\noise\module\perlin.h" />
+    <ClInclude Include="vendor\include\noise\module\power.h" />
+    <ClInclude Include="vendor\include\noise\module\ridgedmulti.h" />
+    <ClInclude Include="vendor\include\noise\module\rotatepoint.h" />
+    <ClInclude Include="vendor\include\noise\module\scalebias.h" />
+    <ClInclude Include="vendor\include\noise\module\scalepoint.h" />
+    <ClInclude Include="vendor\include\noise\module\select.h" />
+    <ClInclude Include="vendor\include\noise\module\spheres.h" />
+    <ClInclude Include="vendor\include\noise\module\terrace.h" />
+    <ClInclude Include="vendor\include\noise\module\translatepoint.h" />
+    <ClInclude Include="vendor\include\noise\module\turbulence.h" />
+    <ClInclude Include="vendor\include\noise\module\voronoi.h" />
+    <ClInclude Include="vendor\include\noise\noise.h" />
+    <ClInclude Include="vendor\include\noise\noisegen.h" />
+    <ClInclude Include="vendor\include\noise\vectortable.h" />
     <ClInclude Include="vendor\include\physx\characterkinematic\PxBoxController.h" />
     <ClInclude Include="vendor\include\physx\characterkinematic\PxCapsuleController.h" />
     <ClInclude Include="vendor\include\physx\characterkinematic\PxController.h" />
@@ -971,7 +1036,6 @@
   <ItemGroup>
     <ClCompile Include="src\physics\primitives\heightfield.cpp" />
     <ClCompile Include="src\physics\simulator.cpp" />
-    <ClCompile Include="src\generators\noise.cpp" />
     <ClCompile Include="src\scene\camera.cpp" />
     <ClCompile Include="src\glObjects.h" />
     <ClCompile Include="src\rendering\renderer.cpp" />
@@ -995,6 +1059,8 @@
     <ClCompile Include="vendor\include\glm\detail\glm.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Library Include="vendor\lib\FastNoise\FastNoise.lib" />
+    <Library Include="vendor\lib\FastNoise\FastNoiseD.lib" />
     <Library Include="vendor\lib\GLFW\glfw3.lib" />
     <Library Include="vendor\lib\physx\LowLevelAABB_static_64.lib" />
     <Library Include="vendor\lib\physx\LowLevelDynamics_static_64.lib" />

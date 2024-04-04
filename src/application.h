@@ -13,6 +13,7 @@
 #include "rendering/renderer.h"
 #include "scene/scene.h"
 #include "physics/simulator.h"
+#include "generators/terrainGenerator.h"
 
 constexpr float DELTA_TIME = 1.0f;
 
@@ -26,8 +27,9 @@ inline float g_LastY = SCR_HEIGHT / 2.0f;
 inline bool g_IsFirstMouse = true;
 
 inline bool g_IsMouseDisabled = true;
+inline bool g_IsMouse2JustPressed = false;
 
-inline float g_ParticleRadius = 1.0f;
+inline float g_ParticleRadius = 0.5f;
 
 // Handles all GLFW and glad window management
 class Application
@@ -47,6 +49,7 @@ public:
 	std::unique_ptr<Renderer> m_Renderer = nullptr;
 	std::unique_ptr<Scene> m_Scene = nullptr;
 	std::unique_ptr<Simulator> m_Simulator = nullptr;
+	std::unique_ptr<TerrainGenerator> m_TerrainGenerator = nullptr;
 
 private:
 	void Init();
@@ -107,11 +110,15 @@ inline void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS)
+	bool isMouse2Pressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
+
+	if (isMouse2Pressed == GLFW_RELEASE && g_IsMouse2JustPressed == GLFW_PRESS)
 	{
 		glfwSetInputMode(window, GLFW_CURSOR, g_IsMouseDisabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 		g_IsMouseDisabled = !g_IsMouseDisabled;
 	}
+
+	g_IsMouse2JustPressed = isMouse2Pressed;
 
 	if (!g_ActiveCamera)
 		return;
