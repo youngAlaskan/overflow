@@ -20,8 +20,14 @@ void Application::Run()
 	generator->SetGain(0.5f);
 	generator->SetLacunarity(2.0f);
 
-	auto vertices = TerrainGenerator::GenerateVertices(generator, 1000, 1000, 100.0f, 100.0f);
+	auto vertices = TerrainGenerator().GenerateVertices(generator);
 	m_Scene->SetTerrain(vertices);
+	auto positions = std::vector<glm::vec3>();
+	for (const auto& vertex : vertices)
+	{
+		positions.push_back(vertex.Position);
+	}
+	m_Simulator->SetTerrain(positions);
 
 	// Create Terrain Shader
 	std::shared_ptr<ShaderProgram> terrainShader = m_Renderer->AddShaderProgram(
