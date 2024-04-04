@@ -16,9 +16,14 @@ void Application::Run()
 	// Create Terrain
 	auto generator = FastNoise::New<FastNoise::FractalFBm>();
 	generator->SetSource(FastNoise::New<FastNoise::Simplex>());
-	generator->SetOctaveCount(15);
-	generator->SetGain(0.5f);
-	generator->SetLacunarity(2.0f);
+
+	static int octaves = 12;
+	static float gain = 0.5f;
+	static float lacunarity = 1.5f;
+
+	generator->SetOctaveCount(octaves);
+	generator->SetGain(gain);
+	generator->SetLacunarity(lacunarity);
 
 	auto vertices = m_TerrainGenerator->GenerateVertices(generator);
 	m_Scene->SetTerrain(vertices);
@@ -251,8 +256,8 @@ void Application::SetImGuiWindows() const
 	{
 		ImGui::Begin("Terrain Parameters");
 
-		static int size[2] = { m_TerrainGenerator->GetWidth(), m_TerrainGenerator->GetLength() };
-		if (ImGui::InputInt2("Size", size))
+		static float size[2] = { m_TerrainGenerator->GetWidth(), m_TerrainGenerator->GetLength() };
+		if (ImGui::InputFloat2("Size", size))
 		{
 			if (size[0] < 0.01f)
 				size[0] = 0.01f;
@@ -307,7 +312,7 @@ void Application::SetImGuiWindows() const
 			m_TerrainGenerator->SetFreq(freq);
 		}
 
-		static int octaves = 15;
+		static int octaves = 12;
 		if (ImGui::InputInt("Octaves", &octaves))
 		{
 			if (octaves < 1)
@@ -318,7 +323,7 @@ void Application::SetImGuiWindows() const
 		{
 
 		}
-		static float lacunarity = 2.0f;
+		static float lacunarity = 1.5f;
 		if (ImGui::InputFloat("Lacunarity", &lacunarity))
 		{ }
 
@@ -335,7 +340,7 @@ void Application::SetImGuiWindows() const
 
 			auto vertices = m_TerrainGenerator->GenerateVertices(generator);
 
-			m_Scene->SetTerrain(std::vector<Vertex>());
+			m_Scene->UpdateTerrain(vertices);
 			auto positions = std::vector<glm::vec3>();
 			for (const auto& vertex : vertices)
 			{

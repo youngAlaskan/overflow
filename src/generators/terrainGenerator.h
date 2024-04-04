@@ -34,12 +34,12 @@ public:
 	std::vector<Vertex> GenerateVertices(FastNoise::SmartNode<FastNoise::Generator> generator);
 
 private:
-	uint32_t m_ResX = 100U;
-	uint32_t m_ResZ = 100U;
+	uint32_t m_ResX = 1000U;
+	uint32_t m_ResZ = 1000U;
 	float m_Width = 100.0f;
 	float m_Length = 100.0f;
-	float m_BaseElevation = -25.0f;
+	float m_BaseElevation = -10.0f;
 	uint32_t m_Seed = 1338U;
 	float m_Freq = 0.005f;
-	float m_HeightMul = 20.0f;
+	float m_HeightMul = 5.0f;
 };
