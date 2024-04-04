@@ -37,8 +37,7 @@ public:
 
 	void SetTerrain(std::vector<glm::vec3> vertices)
 	{
-		if (!m_WaterLevels)
-			m_WaterLevels = std::make_shared<Heightfield>(m_WorldLength + 1U, m_WorldWidth + 1U, 0.0f);
+		m_WaterLevels = std::make_shared<Heightfield>(m_WorldLength + 1U, m_WorldWidth + 1U, 0.0f);
 
 		if (m_TerrainGeometry) {
 			Heightfield* terrainGeometry = m_TerrainGeometry.release();

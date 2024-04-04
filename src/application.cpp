@@ -368,6 +368,7 @@ void Application::SetImGuiWindows() const
 			m_Simulator->SetWorldWidth(static_cast<uint32_t>(floorf(m_TerrainGenerator->GetWidth())));
 			m_Simulator->SetWorldLength(static_cast<uint32_t>(floorf(m_TerrainGenerator->GetLength())));
 			m_Simulator->SetTerrain(positions);
+			m_Scene->m_WaterLevels = m_Simulator->GetWaterLevels();
 		}
 
 		ImGui::End();

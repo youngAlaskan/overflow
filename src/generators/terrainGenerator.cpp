@@ -26,8 +26,9 @@ std::vector<Vertex> TerrainGenerator::GenerateVertices(FastNoise::SmartNode<Fast
 
 			vertexMap[vIdx].Position = glm::vec4(x, heightMap[hIdx] * m_HeightMul, z, 0.0f) + og;
 			vertexMap[vIdx].Normal = glm::normalize(
-				glm::vec3(2.0 * (heightMap[hIdx + 1] - heightMap[hIdx - 1]) * m_HeightMul, 
-					2.0 * (heightMap[hIdx + m_ResX] - heightMap[hIdx - m_ResX]) * m_HeightMul, -4.f)
+				glm::vec3(2.0 * (heightMap[hIdx + 1] - heightMap[hIdx - 1]) * m_HeightMul,
+					-4.f,
+					2.0 * (heightMap[hIdx + m_ResX] - heightMap[hIdx - m_ResX]) * m_HeightMul)
 			);
 			vertexMap[vIdx].TexCoord = glm::vec2(0.f);
 		}
