@@ -38,14 +38,14 @@ std::vector<Vertex> TerrainGenerator::GenerateVertices() { // TODO: Make heightm
 	GLfloat dz = size_z / (GLfloat)subd_z;
 
 	GLfloat height = 1.0f;
-	GLfloat** heightMap = GenerateHeightMap(subd_x, subd_z, 0.02f, 4);
+	GLfloat** heightMap = GenerateHeightMap(subd_x + 1, subd_z + 1, 0.02f, 4);
 
 	auto og = glm::vec4(-size_x / 2, -25.0f, -size_z / 2, 1.0f);
 
 	auto img = std::ofstream("test.pgm");
 	img << "P2\n" << subd_x + 1 << " " << subd_z + 1 << "\n255\n";
-	for (GLuint j = 0; j < subd_z - 1U; j++) {
-		for (GLuint i = 0; i < subd_x - 1U; i++) {
+	for (GLuint j = 0; j < subd_z; j++) {
+		for (GLuint i = 0; i < subd_x; i++) {
 			GLfloat x = i * dx;
 			GLfloat z = j * dz;
 

@@ -38,7 +38,7 @@ public:
 	void SetTerrain(std::vector<glm::vec3> vertices)
 	{
 		if (!m_TerrainGeometry)
-			m_TerrainGeometry = std::make_unique<Heightfield>(m_WorldLength, m_WorldWidth);
+			m_TerrainGeometry = std::make_unique<Heightfield>(m_WorldLength + 1U, m_WorldWidth + 1U);
 
 		m_TerrainGeometry->SetHeightsFromTraingleMesh(vertices);
 	}

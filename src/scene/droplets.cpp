@@ -77,13 +77,13 @@ std::vector<glm::vec3> Droplets::CreateSphere() const
 		{
 			// Bottom Right Triangle
 			vertices.push_back(points[iNext][j    ]); // BL
-			vertices.push_back(points[i    ][jNext]); // TR
 			vertices.push_back(points[iNext][jNext]); // BR
+			vertices.push_back(points[i    ][jNext]); // TR
 			
 			// Top Left Triangle
 			vertices.push_back(points[iNext][j    ]); // BL
+			vertices.push_back(points[i][jNext]); // TR
 			vertices.push_back(points[i    ][j    ]); // TL
-			vertices.push_back(points[i    ][jNext]); // TR
 		}
 	}
 
