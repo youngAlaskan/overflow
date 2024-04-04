@@ -7,9 +7,6 @@ class TerrainGenerator {
 public:
 	TerrainGenerator() = default;
 
-	std::vector<Vertex> GenerateVertices(FastNoise::SmartNode<FastNoise::Generator> generator);
-
-private:
 	void SetResX(uint32_t resX) { m_ResX = resX; }
 	uint32_t GetResX() const { return m_ResX; }
 
@@ -25,9 +22,24 @@ private:
 	void SetBaseElevation(float baseElevation) { m_BaseElevation = baseElevation; }
 	float GetBaseElevation() const { return m_BaseElevation; }
 
+	void SetSeed(uint32_t seed) { m_Seed = seed; }
+	uint32_t GetSeed() const { return m_Seed; }
+
+	void SetFreq(float freq) { m_Freq = freq; }
+	float GetFreq() const { return m_Freq; }
+
+	void SetHeightMul(float heightMul) { m_HeightMul = heightMul; }
+	float GetHeightMul() const { return m_HeightMul; }
+
+	std::vector<Vertex> GenerateVertices(FastNoise::SmartNode<FastNoise::Generator> generator);
+
+private:
 	uint32_t m_ResX = 100U;
 	uint32_t m_ResZ = 100U;
 	float m_Width = 100.0f;
 	float m_Length = 100.0f;
 	float m_BaseElevation = -25.0f;
+	uint32_t m_Seed = 1338U;
+	float m_Freq = 0.005f;
+	float m_HeightMul = 20.0f;
 };

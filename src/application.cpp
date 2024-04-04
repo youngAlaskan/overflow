@@ -20,7 +20,7 @@ void Application::Run()
 	generator->SetGain(0.5f);
 	generator->SetLacunarity(2.0f);
 
-	auto vertices = TerrainGenerator().GenerateVertices(generator);
+	auto vertices = m_TerrainGenerator->GenerateVertices(generator);
 	m_Scene->SetTerrain(vertices);
 	auto positions = std::vector<glm::vec3>();
 	for (const auto& vertex : vertices)
@@ -144,6 +144,7 @@ void Application::Init()
 	m_Renderer = std::make_unique<Renderer>();
 	m_Scene = std::make_unique<Scene>();
 	m_Simulator = std::make_unique<Simulator>(100U, 100U, 100U);
+	m_TerrainGenerator = std::make_unique<TerrainGenerator>();
 
 	m_Scene->m_Camera->m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
 	m_Scene->m_Camera->m_ViewProjMatrices.SetEmptyBuffer(2 * sizeof(glm::mat4));
@@ -242,6 +243,105 @@ void Application::SetImGuiWindows() const
 		{
 			isStopped = !isStopped;
 			m_Simulator->SetDeltaTime(isStopped ? 0.0f : deltaTime);
+		}
+
+		ImGui::End();
+	}
+
+	{
+		ImGui::Begin("Terrain Parameters");
+
+		static int size[2] = { m_TerrainGenerator->GetWidth(), m_TerrainGenerator->GetLength() };
+		if (ImGui::InputInt2("Size", size))
+		{
+			if (size[0] < 0.01f)
+				size[0] = 0.01f;
+
+			if (size[1] < 0.01f)
+				size[1] = 0.01f;
+			m_TerrainGenerator->SetWidth(size[0]);
+			m_TerrainGenerator->SetLength(size[1]);
+		}
+
+		static int resolution[2] = { m_TerrainGenerator->GetResX(), m_TerrainGenerator->GetResZ()};
+		if (ImGui::InputInt2("Mesh Detail", resolution))
+		{
+			if (resolution[0] < 2)
+				resolution[0] = 2;
+
+			if (resolution[1] < 2)
+				resolution[1] = 2;
+			m_TerrainGenerator->SetResX(resolution[0]);
+			m_TerrainGenerator->SetResZ(resolution[1]);
+		}
+
+		static float baseElevation = m_TerrainGenerator->GetBaseElevation();
+		if (ImGui::InputFloat("Base Elevation", &baseElevation))
+		{
+			m_TerrainGenerator->SetBaseElevation(baseElevation);
+		}
+
+		static float heightMul = m_TerrainGenerator->GetHeightMul();
+		if (ImGui::InputFloat("Height Multiplier", &heightMul))
+		{
+			if (heightMul < 0.0f)
+				heightMul = 0.0f;
+			m_TerrainGenerator->SetHeightMul(heightMul);
+		}
+
+		ImGui::Separator();
+
+		static int seed = m_TerrainGenerator->GetSeed();
+		if (ImGui::InputInt("Seed", &seed))
+		{
+			if (seed < 0)
+				seed = 0;
+			m_TerrainGenerator->SetSeed(seed);
+		}
+
+		static float freq = m_TerrainGenerator->GetFreq();
+		if (ImGui::InputFloat("Frequency", &freq))
+		{
+			if (freq < 0.00001f)
+				freq = 0.00001f;
+			m_TerrainGenerator->SetFreq(freq);
+		}
+
+		static int octaves = 15;
+		if (ImGui::InputInt("Octaves", &octaves))
+		{
+			if (octaves < 1)
+				octaves = 1;
+		}
+		static float gain = 0.5f;
+		if (ImGui::InputFloat("Gain", &gain))
+		{
+
+		}
+		static float lacunarity = 2.0f;
+		if (ImGui::InputFloat("Lacunarity", &lacunarity))
+		{ }
+
+		ImGui::Separator();
+
+		// Button: Reload
+		if (ImGui::Button("Regenerate Terrain"))
+		{
+			auto generator = FastNoise::New<FastNoise::FractalFBm>();
+			generator->SetSource(FastNoise::New<FastNoise::Simplex>());
+			generator->SetOctaveCount(octaves);
+			generator->SetGain(gain);
+			generator->SetLacunarity(lacunarity);
+
+			auto vertices = m_TerrainGenerator->GenerateVertices(generator);
+
+			m_Scene->SetTerrain(std::vector<Vertex>());
+			auto positions = std::vector<glm::vec3>();
+			for (const auto& vertex : vertices)
+			{
+				positions.push_back(vertex.Position);
+			}
+			m_Simulator->SetTerrain(positions);
 		}
 
 		ImGui::End();

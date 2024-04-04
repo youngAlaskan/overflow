@@ -13,6 +13,7 @@
 #include "rendering/renderer.h"
 #include "scene/scene.h"
 #include "physics/simulator.h"
+#include "generators/terrainGenerator.h"
 
 constexpr float DELTA_TIME = 1.0f;
 
@@ -48,6 +49,7 @@ public:
 	std::unique_ptr<Renderer> m_Renderer = nullptr;
 	std::unique_ptr<Scene> m_Scene = nullptr;
 	std::unique_ptr<Simulator> m_Simulator = nullptr;
+	std::unique_ptr<TerrainGenerator> m_TerrainGenerator = nullptr;
 
 private:
 	void Init();
