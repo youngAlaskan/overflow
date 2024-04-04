@@ -210,14 +210,17 @@ void Application::SetImGuiWindows() const
 
 		if (ImGui::Button("Spawn Droplet"))
 		{
+			float baseX = -static_cast<float>(m_Simulator->GetWorldWidth()) * 0.5 + 0.5f;
+			float baseZ = -static_cast<float>(m_Simulator->GetWorldLength()) * 0.5 + 0.5f;
+
 			auto IDsAndSpheres = std::vector<std::pair<uint64_t, DynamicSphere>>(count);
 			for (int i = 0; i < count; i++)
 			{
 				uint64_t id = Scene::GetFreshUUID();
 
-				float x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
+				float x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (m_Simulator->GetWorldWidth() - 1))) + baseX;
 				float y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5.0f))) + 25.0f;
-				float z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (100.0f))) - 50.0f;
+				float z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (m_Simulator->GetWorldLength() - 1))) + baseZ;
 				glm::vec3 center = { x, y, z };
 				m_Simulator->RegisterParticle(id, { center, g_ParticleRadius });
 				m_Scene->m_Droplets->AddDroplet({ id, center });
@@ -261,17 +264,17 @@ void Application::SetImGuiWindows() const
 		* The simulation can't be resized currently
 		*/
 
-		//static float size[2] = { m_TerrainGenerator->GetWidth(), m_TerrainGenerator->GetLength() };
-		//if (ImGui::InputFloat2("Size", size))
-		//{
-		//	if (size[0] < 0.01f)
-		//		size[0] = 0.01f;
-		//
-		//	if (size[1] < 0.01f)
-		//		size[1] = 0.01f;
-		//	m_TerrainGenerator->SetWidth(size[0]);
-		//	m_TerrainGenerator->SetLength(size[1]);
-		//}
+		static float size[2] = { m_TerrainGenerator->GetWidth(), m_TerrainGenerator->GetLength() };
+		if (ImGui::InputFloat2("Size", size))
+		{
+			if (size[0] < 0.01f)
+				size[0] = 0.01f;
+		
+			if (size[1] < 0.01f)
+				size[1] = 0.01f;
+			m_TerrainGenerator->SetWidth(size[0]);
+			m_TerrainGenerator->SetLength(size[1]);
+		}
 
 		static int resolution[2] = { m_TerrainGenerator->GetResX(), m_TerrainGenerator->GetResZ()};
 		if (ImGui::InputInt2("Mesh Detail", resolution))
@@ -337,6 +340,12 @@ void Application::SetImGuiWindows() const
 		// Button: Reload
 		if (ImGui::Button("Regenerate Terrain"))
 		{
+			m_Scene->m_Droplets->ClearDroplets();
+			m_Simulator->ClearParticles();
+			m_Simulator->ClearParticleGrid();
+			m_Scene->m_IDs->clear();
+			m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
+
 			auto generator = FastNoise::New<FastNoise::FractalFBm>();
 			generator->SetSource(FastNoise::New<FastNoise::Simplex>());
 			generator->SetOctaveCount(octaves);
@@ -351,6 +360,9 @@ void Application::SetImGuiWindows() const
 			{
 				positions.push_back(vertex.Position);
 			}
+
+			m_Simulator->SetWorldWidth(static_cast<uint32_t>(floorf(m_TerrainGenerator->GetWidth())));
+			m_Simulator->SetWorldLength(static_cast<uint32_t>(floorf(m_TerrainGenerator->GetLength())));
 			m_Simulator->SetTerrain(positions);
 		}
 
