@@ -135,7 +135,7 @@ void Application::Init()
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClearColor(0.44f, 0.76f, 1.0f, 1.0f);
 
 	// Initialize ImGui
 	// ----------------

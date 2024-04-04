@@ -46,8 +46,6 @@ std::vector<Vertex> TerrainGenerator::GenerateVertices(FastNoise::SmartNode<Fast
 			vertices.push_back(a);
 			vertices.push_back(c);
 			vertices.push_back(b);
-
-
 			vertices.push_back(b);
 			vertices.push_back(c);
 			vertices.push_back(d);
