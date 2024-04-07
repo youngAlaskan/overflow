@@ -1,22 +1,49 @@
 #include "simulator.h"
+#include <omp.h>
 
 void Simulator::SetParticleGrid()
 {
-	for (const auto& id : *m_IDs)
+	std::vector<std::vector<uint64_t>> particleIDs(m_IDs->size());
+
+	#pragma omp parallel for schedule(dynamic)
+	for (int i = 0; i < m_IDs->size(); i++)
 	{
+		const auto& id = (*m_IDs)[i];
 		DynamicSphere& particle = GetParticle(id);
 		uint32_t lengthIndex = GetParticleLengthIndex(particle);
 		uint32_t widthIndex = GetParticleWidthIndex(particle);
 		uint32_t depthIndex = GetParticleDepthIndex(particle);
 
-		m_ParticleGrid[depthIndex][widthIndex][lengthIndex].push_back(id);
+		#pragma omp critical
+		{
+			particleIDs[i].push_back(id);
+		}
+	}
+
+	// Merge the local vectors into m_ParticleGrid
+	for (size_t i = 0; i < particleIDs.size(); i++)
+	{
+		for (const auto& id : particleIDs[i])
+		{
+			uint32_t lengthIndex = GetParticleLengthIndex(GetParticle(id));
+			uint32_t widthIndex = GetParticleWidthIndex(GetParticle(id));
+			uint32_t depthIndex = GetParticleDepthIndex(GetParticle(id));
+
+			#pragma omp critical
+			{
+				m_ParticleGrid[depthIndex][widthIndex][lengthIndex].push_back(id);
+			}
+		}
 	}
 }
 
-void Simulator::UpdateParticleGrid()
+void Simulator::SetNeighbors()
 {
-	ClearParticleGrid();
-	SetParticleGrid();
+	for (int i = 0; i < m_IDs->size(); i++)
+	{
+		const auto& id = (*m_IDs)[i];
+		m_IDsToNeighbors[id] = GetParticleNeighbors(id);
+	}
 }
 
 inline std::vector<uint64_t> Simulator::GetParticleNeighbors(const uint64_t id)
@@ -70,20 +97,22 @@ void Simulator::HandleCollisions()
 	const float maxZ = static_cast<float>(m_TerrainGeometry->GetLength() / 2U);
 	const float minZ = -maxZ;
 
+
 	for (const auto& id : *m_IDs)
 	{
 		DynamicSphere& particle = GetParticle(id);
 		glm::vec3 center = particle.GetPosition();
-		// Check that center is within height field bounds
+
+		// Handle Terrain collision
 		if (center.x >= minX && center.x <= maxX && center.z >= minZ && center.z <= maxZ)
 		{
 			// Get vertical offset from terrain
-			float offset = m_TerrainGeometry->GetHeight(center.x, center.z) - center.y;
-			
+			float offset = center.y - m_TerrainGeometry->GetHeight(center.x, center.z);
+
 			// Check if sphere is intersecting height field
-			if (offset >= 0.0f || abs(offset) < particle.GetRadius())
+			if (particle.GetRadius() >= offset)
 			{
-				particle.SetPosition(center + glm::vec3(0.0f, offset + particle.GetRadius(), 0.0f)); // Push sphere outwards
+				particle.SetPosition(center + glm::vec3(0.0f, particle.GetRadius() - offset, 0.0f)); // Push sphere outwards
 				glm::vec3 normal = m_TerrainGeometry->GetNormal(center.x, center.z);
 				glm::vec3 incoming = particle.GetVelocity();
 				glm::vec3 projection = glm::dot(incoming, normal) / glm::length(normal) * normal;
@@ -94,8 +123,8 @@ void Simulator::HandleCollisions()
 
 		float minDistance = 2.0f * particle.GetRadius();
 
-		// TODO: Create data structure to prevent double checking
-		std::vector<uint64_t> neighborIDs = GetParticleNeighbors(id);
+		// Handle sphere-sphere collision
+		const std::vector<uint64_t>& neighborIDs = m_IDsToNeighbors.at(id);
 		for (const auto neighborID : neighborIDs)
 		{
 			DynamicSphere& neighbor = GetParticle(neighborID);
@@ -107,6 +136,7 @@ void Simulator::HandleCollisions()
 				neighbor.SetPosition(neighbor.GetPosition() + toNeighbor * (minDistance - glm::length(toNeighbor)) * 0.5f);
 			}
 		}
+
 	}
 }
 
@@ -117,10 +147,11 @@ void Simulator::ApplySPH()
 	std::vector<std::vector<uint64_t>> neighbors = std::vector<std::vector<uint64_t>>(limit, std::vector<uint64_t>());
 
 	// Set densities
-	for (uint32_t i = 0; i < limit; i++)
+	#pragma omp parallel for
+	for (int i = 0; i < limit; i++)
 	{
 		DynamicSphere& particle = GetParticle(m_IDs->at(i));
-		auto neighborIDs = GetParticleNeighbors(m_IDs->at(i));
+		const auto& neighborIDs = m_IDsToNeighbors.at(m_IDs->at(i));
 		for (const auto& neighborID : neighborIDs)
 		{
 			neighbors[i].push_back(neighborID);
@@ -131,7 +162,8 @@ void Simulator::ApplySPH()
 	std::vector<uint64_t> deadIDs = std::vector<uint64_t>();
 
 	// Update based on calculated forces
-	for (uint32_t i = 0; i < limit; i++)
+	#pragma omp parallel for
+	for (int i = 0; i < limit; i++)
 	{
 		DynamicSphere& particle = GetParticle(m_IDs->at(i));
 
@@ -139,13 +171,19 @@ void Simulator::ApplySPH()
 		particle.Update(m_DeltaTime);
 		if (IsParticleInWorldBounds(particle))
 		{
-			particle.ClearForces();
-			m_IDsToCenters->at(m_IDs->at(i)) = particle.GetPosition();
+			#pragma omp critical
+			{
+				particle.ClearForces();
+				m_IDsToCenters->at(m_IDs->at(i)) = particle.GetPosition();
+			}
 		}
 		else
 		{
-			RemoveParticle(m_IDs->at(i));
-			deadIDs.push_back(m_IDs->at(i));
+			#pragma omp critical
+			{
+				RemoveParticle(m_IDs->at(i));
+				deadIDs.push_back(m_IDs->at(i));
+			}
 		}
 	}
 

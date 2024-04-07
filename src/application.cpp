@@ -237,19 +237,18 @@ void Application::SetImGuiWindows() const
 		ImGui::Begin("Simulation Parameters");
 
 		static float deltaTime = 0.01f;
+		static bool isStopped = false;
 
 		if (ImGui::InputFloat("Delta Time", &deltaTime))
 		{
 			if (deltaTime < 0.0f)
 				deltaTime = 0.0f;
-			m_Simulator->SetDeltaTime(deltaTime);
+			if (!isStopped)
+				m_Simulator->SetDeltaTime(deltaTime);
 		}
 
-		static bool isStopped = false;
-
-		if (ImGui::Button("Stop Simulation"))
+		if (ImGui::Checkbox("Stop Simulation", &isStopped))
 		{
-			isStopped = !isStopped;
 			m_Simulator->SetDeltaTime(isStopped ? 0.0f : deltaTime);
 		}
 

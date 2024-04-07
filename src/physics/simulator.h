@@ -81,7 +81,6 @@ public:
 	void ClearParticles() { m_IDsToParticles.clear(); }
 
 	void SetParticleGrid();
-	void UpdateParticleGrid();
 	void ClearParticleGrid()
 	{
 		for (auto& row : m_ParticleGrid)
@@ -95,20 +94,38 @@ public:
 			}
 		}
 	}
+	void UpdateParticleGrid()
+	{
+		ClearParticleGrid();
+		SetParticleGrid();
+	}
+
+	void SetNeighbors();
+	void ClearNeighbors()
+	{
+		m_IDsToNeighbors.clear();
+	}
+	void UpdateNeighbors()
+	{
+		ClearNeighbors();
+		SetNeighbors();
+	}
 
 	void Step()
 	{
 		if (m_IDs->empty() || m_DeltaTime == 0.0f)
 			return;
+		UpdateParticleGrid();
+		UpdateNeighbors();
 		HandleCollisions();
 		ApplySPH();
-		UpdateParticleGrid();
+		ClearNeighbors();
 	}
 
 private:
 	void Init()
 	{
-		m_ParticleGrid = std::vector<std::vector<std::vector<std::vector<uint64_t>>>>(m_WorldDepth, std::vector<std::vector<std::vector<uint64_t>>>(m_WorldWidth, std::vector<std::vector<uint64_t>>(m_WorldLength)));
+		m_ParticleGrid = std::vector<std::vector<std::vector<std::vector<uint64_t>>>>(m_WorldDepth + 1U, std::vector<std::vector<std::vector<uint64_t>>>(m_WorldWidth + 1U, std::vector<std::vector<uint64_t>>(m_WorldLength + 1U)));
 	}
 
 	uint32_t GetParticleLengthIndex(const DynamicSphere& particle) const { return static_cast<uint32_t>(particle.GetPosition().z + m_WorldLength / 2.0f); }
@@ -158,13 +175,12 @@ private:
 		return static_cast<float>(14.32394488 * (1.0 - distance));
 	}
 
-	std::vector<glm::vec3> GetWaterHeightfield() const;
-
 private:
 	std::unique_ptr<Heightfield> m_TerrainGeometry = nullptr;
 	std::shared_ptr<std::vector<uint64_t>> m_IDs = nullptr;
 	std::shared_ptr<std::unordered_map<uint64_t, glm::vec3>> m_IDsToCenters = nullptr;
 	std::unordered_map<uint64_t, DynamicSphere> m_IDsToParticles = std::unordered_map<uint64_t, DynamicSphere>();
+	std::unordered_map<uint64_t, std::vector<uint64_t>> m_IDsToNeighbors = std::unordered_map<uint64_t, std::vector<uint64_t>>();
 	std::vector<std::vector<std::vector<std::vector<uint64_t>>>> m_ParticleGrid = std::vector<std::vector<std::vector<std::vector<uint64_t>>>>();
 	uint32_t m_WorldLength = 10U;
 	uint32_t m_WorldWidth  = 10U;
