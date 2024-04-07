@@ -94,3 +94,4 @@ ipch/
 # but keep track of directories ending in .cache
 !?*.[Cc]ache/
 
+imgui.ini
