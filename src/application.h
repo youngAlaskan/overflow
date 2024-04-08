@@ -31,6 +31,7 @@ inline bool g_IsMouseDisabled = true;
 
 inline float g_ParticleRadius = 0.5f;
 
+inline uint64_t g_FrameCount = 0;
 inline double g_LastFrameTime = 0.0f;
 
 // Handles all GLFW and glad window management
@@ -107,22 +108,43 @@ inline void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 		g_ActiveCamera->ProcessMouseScroll(static_cast<float>(yOffset));
 }
 
-inline void ProcessKeyInput(GLFWwindow* window, double deltaTime)
-{
-	InputKeyActions actions = PollKeyActions(window);
-	if (actions.closeWindow)
-		glfwSetWindowShouldClose(window, true);
+inline void SetMouseEnabled(GLFWwindow* window, bool enabled) {
+	if (!enabled) {
+		ImGui::SetWindowFocus(NULL);
+	}
+	g_IsMouseDisabled = !enabled;
+	glfwSetInputMode(window, GLFW_CURSOR, enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+}
 
-	if (actions.toggleMouse)
-	{
-		glfwSetInputMode(window, GLFW_CURSOR, g_IsMouseDisabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
-		g_IsMouseDisabled = !g_IsMouseDisabled;
+inline void ProcessInput(GLFWwindow* window, double deltaTime)
+{
+	auto& io = ImGui::GetIO();
+	if (io.WantCaptureMouse || io.WantCaptureKeyboard) {
+		return;
+	}
+
+
+	InputKeyActions keyActions = PollKeyActions(window);
+	if (keyActions.closeWindow) {
+		if (g_IsMouseDisabled) {
+			SetMouseEnabled(window, true);
+		}
+		else {
+			glfwSetWindowShouldClose(window, true);
+		}
+	}
+
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+		SetMouseEnabled(window, false);
+	} 
+	else if (keyActions.toggleMouse) {
+		SetMouseEnabled(window, g_IsMouseDisabled);
 	}
 
 	if (!g_ActiveCamera)
 		return;
 
-	g_ActiveCamera->ProcessKeyInput(actions, deltaTime);
+	g_ActiveCamera->ProcessKeyInput(keyActions, deltaTime);
 }
 
 // Exceptions

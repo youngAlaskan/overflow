@@ -50,9 +50,9 @@ void Camera::UpdateCameraVectors()
 {
     // calculate the new Front vector
     glm::vec3 front = glm::vec3(0.0f);
-    front.x = cos(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch + m_TiltPitch));
+    front.x = cos(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
     front.y = sin(glm::radians(m_Pitch));
-    front.z = sin(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch + m_TiltPitch));
+    front.z = sin(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
     m_Front = glm::normalize(front);
     // also re-calculate the Right and Up vector
     m_Right = glm::normalize(glm::cross(m_Front, m_WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.

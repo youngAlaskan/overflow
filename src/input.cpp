@@ -2,22 +2,14 @@
 
 struct InputKeyActions input_key_actions;
 
-constexpr int MOVE_LEFT		= GLFW_KEY_A;
-constexpr int MOVE_RIGHT	= GLFW_KEY_D;
-constexpr int MOVE_UP		= GLFW_KEY_W;
-constexpr int MOVE_DOWN		= GLFW_KEY_S;
-
-constexpr int TOGGLE_MOUSE	= GLFW_MOUSE_BUTTON_2;
-constexpr int TOGGLE_FLY	= GLFW_KEY_V;
-
-constexpr int CLOSE_WINDOW = GLFW_KEY_ESCAPE;
-
 bool g_WasToggleFlyJustPressed = false;
 bool g_WasToggleMouseJustPressed = false;
+bool g_WasCloseJustPressed = false;
 
 InputKeyActions PollKeyActions(GLFWwindow* window) {
 	bool isToggleFlyPressed = glfwGetKey(window, TOGGLE_FLY) == GLFW_PRESS;
-	bool isToggleMousePressed = glfwGetMouseButton(window, TOGGLE_MOUSE) == GLFW_PRESS;
+	bool isToggleMousePressed = glfwGetKey(window, TOGGLE_MOUSE) == GLFW_PRESS;
+	bool isClosePressed = glfwGetKey(window, CLOSE_WINDOW) == GLFW_PRESS;
 
 	InputKeyActions keyActions = {
 		glm::vec2(
@@ -26,11 +18,12 @@ InputKeyActions PollKeyActions(GLFWwindow* window) {
 		),
 		g_WasToggleFlyJustPressed && !isToggleFlyPressed,
 		g_WasToggleMouseJustPressed && !isToggleMousePressed,
-		glfwGetKey(window, CLOSE_WINDOW) == GLFW_PRESS,
+		g_WasCloseJustPressed && !isClosePressed,
 	};
 
 	g_WasToggleFlyJustPressed = isToggleFlyPressed;
 	g_WasToggleMouseJustPressed = isToggleMousePressed;
+	g_WasCloseJustPressed = isClosePressed;
 
 	return keyActions;
 }

@@ -22,8 +22,8 @@ public:
 	void SetBaseElevation(float baseElevation) { m_BaseElevation = baseElevation; }
 	float GetBaseElevation() const { return m_BaseElevation; }
 
-	void SetSeed(uint32_t seed) { m_Seed = seed; }
-	uint32_t GetSeed() const { return m_Seed; }
+	void SetSeed(int32_t seed) { m_Seed = seed; }
+	int32_t GetSeed() const { return m_Seed; }
 
 	void SetFreq(float freq) { m_Freq = freq; }
 	float GetFreq() const { return m_Freq; }
@@ -39,7 +39,7 @@ private:
 	float m_Width = 100.0f;
 	float m_Length = 100.0f;
 	float m_BaseElevation = -10.0f;
-	uint32_t m_Seed = 1338U;
+	int32_t m_Seed = 1338U;
 	float m_Freq = 0.005f;
 	float m_HeightMul = 5.0f;
 };

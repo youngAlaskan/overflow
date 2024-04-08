@@ -330,6 +330,17 @@
     <ClInclude Include="vendor\include\FastNoise\FastNoise_C.h" />
     <ClInclude Include="vendor\include\FastNoise\FastNoise_Config.h" />
     <ClInclude Include="vendor\include\FastNoise\FastNoise_Export.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\BasicGenerators.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\Blends.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\Cellular.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\DomainWarp.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\DomainWarpFractal.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\Fractal.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\Generator.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\Modifiers.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\Perlin.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\Simplex.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\Value.h" />
     <ClInclude Include="vendor\include\FastNoise\Metadata.h" />
     <ClInclude Include="vendor\include\FastNoise\SmartNode.h" />
     <ClInclude Include="vendor\include\FastSIMD\FastSIMD.h" />

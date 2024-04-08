@@ -163,7 +163,7 @@ void Application::Init()
 void Application::OnFrameStart()
 {
 	double currentTime = glfwGetTime();
-	ProcessKeyInput(m_Window, static_cast<float>(currentTime - g_LastFrameTime));
+	ProcessInput(m_Window, static_cast<float>(currentTime - g_LastFrameTime));
 	g_LastFrameTime = currentTime;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -183,27 +183,29 @@ void Application::OnFrameEnd()
 
 	glfwSwapBuffers(m_Window);
 	glfwPollEvents();
+
+	g_FrameCount++;
+	if (g_FrameCount < 2) {
+		ImGui::SetWindowFocus(NULL);
+	}
 }
 
 void Application::SetImGuiWindows() const
 {
+	ImGui::SetNextWindowSizeConstraints(
+		ImVec2(400.0f, 0.0f),
+		ImVec2(1000.f, 1000.f));
+
+	ImGui::Begin("Overflow", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove);
+	ImGui::SetWindowPos(ImVec2(6.0f, 6.0f), ImGuiCond_FirstUseEver);
+
+	if (ImGui::TreeNode("Rain"))
 	{
-		ImGui::Begin("Droplet Spawner");
-
-		if (ImGui::DragFloat("Particle Radius", &g_ParticleRadius, 0.001f, 0.01f, 1.0f))
-		{
-			m_Scene->m_Droplets->UpdateVertexVBO(g_ParticleRadius);
-
-			m_Scene->m_Droplets->ClearDroplets();
-			m_Simulator->ClearParticles();
-			m_Simulator->ClearParticleGrid();
-			m_Scene->m_IDs->clear();
-			m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
-		}
+		ImGui::PushItemWidth(150.0f);
 
 		static int count = 1;
 
-		if (ImGui::InputInt("Droplet Count", &count))
+		if (ImGui::InputInt("##Droplet Count", &count))
 		{
 			if (count < 0)
 				count = 0;
@@ -211,7 +213,7 @@ void Application::SetImGuiWindows() const
 
 		ImGui::SameLine();
 
-		if (ImGui::Button("Spawn Droplet"))
+		if (ImGui::Button("Spawn Droplet(s)"))
 		{
 			float baseX = -static_cast<float>(m_Simulator->GetWorldWidth()) * 0.5 + 0.5f;
 			float baseZ = -static_cast<float>(m_Simulator->GetWorldLength()) * 0.5 + 0.5f;
@@ -232,48 +234,66 @@ void Application::SetImGuiWindows() const
 
 			m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
 		}
-
-		ImGui::End();
+		ImGui::TreePop();
 	}
 
-	{
-		ImGui::Begin("Simulation Parameters");
+	ImGui::Separator();
 
+	if (ImGui::TreeNode("Rendering"))
+	{
+		static bool wireframe = false;
+		if (ImGui::Checkbox("Wireframe", &wireframe))
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
+		}
+
+		ImGui::TreePop();
+	}
+
+	ImGui::Separator();
+
+	if (ImGui::TreeNode("Simulation"))
+	{
 		static float deltaTime = 0.01f;
-		static bool isStopped = false;
+		static bool isPaused = false;
+
+		if (ImGui::DragFloat("Particle Radius", &g_ParticleRadius, 0.001f, 0.01f, 1.0f))
+		{
+			m_Scene->m_Droplets->UpdateVertexVBO(g_ParticleRadius);
+
+			m_Scene->m_Droplets->ClearDroplets();
+			m_Simulator->ClearParticles();
+			m_Simulator->ClearParticleGrid();
+			m_Scene->m_IDs->clear();
+			m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
+		}
 
 		if (ImGui::InputFloat("Delta Time", &deltaTime))
 		{
 			if (deltaTime < 0.0f)
 				deltaTime = 0.0f;
-			if (!isStopped)
+			if (!isPaused)
 				m_Simulator->SetDeltaTime(deltaTime);
 		}
 
-		if (ImGui::Checkbox("Stop Simulation", &isStopped))
-		{
-			m_Simulator->SetDeltaTime(isStopped ? 0.0f : deltaTime);
-		}
+		ImGui::SameLine();
 
-		ImGui::End();
+		if (ImGui::Checkbox("Pause", &isPaused))
+		{
+			m_Simulator->SetDeltaTime(isPaused ? 0.0f : deltaTime);
+		}
+		ImGui::TreePop();
 	}
 
+	ImGui::Separator();
+
+	if (ImGui::TreeNode("Terrain"))
 	{
-		ImGui::Begin("Terrain Parameters");
-
-		/*
-		* THIS CRASHES THE PROGRAM
-		* The simulation can't be resized currently
-		*/
-
 		static float size[2] = { m_TerrainGenerator->GetWidth(), m_TerrainGenerator->GetLength() };
 		if (ImGui::InputFloat2("Size", size))
 		{
-			if (size[0] < 0.01f)
-				size[0] = 0.01f;
-		
-			if (size[1] < 0.01f)
-				size[1] = 0.01f;
+			size[0] = std::min(size[0], 5.0f);
+			size[1] = std::min(size[1], 5.0f);
 			m_TerrainGenerator->SetWidth(size[0]);
 			m_TerrainGenerator->SetLength(size[1]);
 		}
@@ -281,11 +301,8 @@ void Application::SetImGuiWindows() const
 		static int resolution[2] = { m_TerrainGenerator->GetResX(), m_TerrainGenerator->GetResZ()};
 		if (ImGui::InputInt2("Mesh Detail", resolution))
 		{
-			if (resolution[0] < 2)
-				resolution[0] = 2;
-
-			if (resolution[1] < 2)
-				resolution[1] = 2;
+			resolution[0] = std::min(resolution[0], 2);
+			resolution[1] = std::min(resolution[1], 2);
 			m_TerrainGenerator->SetResX(resolution[0]);
 			m_TerrainGenerator->SetResZ(resolution[1]);
 		}
@@ -306,36 +323,29 @@ void Application::SetImGuiWindows() const
 
 		ImGui::Separator();
 
-		static int seed = m_TerrainGenerator->GetSeed();
+		static int32_t seed = m_TerrainGenerator->GetSeed();
 		if (ImGui::InputInt("Seed", &seed))
 		{
-			if (seed < 0)
-				seed = 0;
+			seed = std::clamp(seed, INT32_MIN, INT32_MAX);
 			m_TerrainGenerator->SetSeed(seed);
 		}
 
 		static float freq = m_TerrainGenerator->GetFreq();
 		if (ImGui::InputFloat("Frequency", &freq))
 		{
-			if (freq < 0.00001f)
-				freq = 0.00001f;
+			freq = std::clamp(freq, 0.0000001f, 5.0f);
 			m_TerrainGenerator->SetFreq(freq);
 		}
 
 		static int octaves = 12;
 		if (ImGui::InputInt("Octaves", &octaves))
 		{
-			if (octaves < 1)
-				octaves = 1;
+			octaves = std::min(1, octaves);
 		}
 		static float gain = 0.5f;
-		if (ImGui::InputFloat("Gain", &gain))
-		{
-
-		}
+		ImGui::InputFloat("Gain", &gain);
 		static float lacunarity = 1.5f;
-		if (ImGui::InputFloat("Lacunarity", &lacunarity))
-		{ }
+		ImGui::InputFloat("Lacunarity", &lacunarity);
 
 		ImGui::Separator();
 
@@ -367,9 +377,10 @@ void Application::SetImGuiWindows() const
 			m_Simulator->SetWorldLength(static_cast<uint32_t>(floorf(m_TerrainGenerator->GetLength())));
 			m_Simulator->SetTerrain(positions);
 		}
-
-		ImGui::End();
+		ImGui::TreePop();
 	}
+
+	ImGui::End();
 }
 
 void Application::Render()
