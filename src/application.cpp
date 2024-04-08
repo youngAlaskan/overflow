@@ -203,9 +203,9 @@ void Application::SetImGuiWindows() const
 	{
 		ImGui::PushItemWidth(150.0f);
 
-		static int count = 1;
+		static int count = 100;
 
-		if (ImGui::InputInt("##Droplet Count", &count))
+		if (ImGui::InputInt("Droplets", &count))
 		{
 			if (count < 0)
 				count = 0;
@@ -213,7 +213,7 @@ void Application::SetImGuiWindows() const
 
 		ImGui::SameLine();
 
-		if (ImGui::Button("Spawn Droplet(s)"))
+		if (ImGui::Button("Spawn"))
 		{
 			float baseX = -static_cast<float>(m_Simulator->GetWorldWidth()) * 0.5 + 0.5f;
 			float baseZ = -static_cast<float>(m_Simulator->GetWorldLength()) * 0.5 + 0.5f;
@@ -234,54 +234,13 @@ void Application::SetImGuiWindows() const
 
 			m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
 		}
-		ImGui::TreePop();
-	}
-
-	ImGui::Separator();
-
-	if (ImGui::TreeNode("Rendering"))
-	{
-		static bool wireframe = false;
-		if (ImGui::Checkbox("Wireframe", &wireframe))
-		{
-			glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
-		}
-
-		ImGui::TreePop();
-	}
-
-	ImGui::Separator();
-
-	if (ImGui::TreeNode("Simulation"))
-	{
-		static float deltaTime = 0.01f;
-		static bool isPaused = false;
-
-		if (ImGui::DragFloat("Particle Radius", &g_ParticleRadius, 0.001f, 0.01f, 1.0f))
-		{
-			m_Scene->m_Droplets->UpdateVertexVBO(g_ParticleRadius);
-
-			m_Scene->m_Droplets->ClearDroplets();
-			m_Simulator->ClearParticles();
-			m_Simulator->ClearParticleGrid();
-			m_Scene->m_IDs->clear();
-			m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
-		}
-
-		if (ImGui::InputFloat("Delta Time", &deltaTime))
-		{
-			if (deltaTime < 0.0f)
-				deltaTime = 0.0f;
-			if (!isPaused)
-				m_Simulator->SetDeltaTime(deltaTime);
-		}
 
 		ImGui::SameLine();
-
-		if (ImGui::Checkbox("Pause", &isPaused))
+		if (ImGui::Button("Clear"))
 		{
-			m_Simulator->SetDeltaTime(isPaused ? 0.0f : deltaTime);
+			ClearScene();
 		}
+
 		ImGui::TreePop();
 	}
 
@@ -298,7 +257,7 @@ void Application::SetImGuiWindows() const
 			m_TerrainGenerator->SetLength(size[1]);
 		}
 
-		static int resolution[2] = { m_TerrainGenerator->GetResX(), m_TerrainGenerator->GetResZ()};
+		static int resolution[2] = { m_TerrainGenerator->GetResX(), m_TerrainGenerator->GetResZ() };
 		if (ImGui::InputInt2("Mesh Detail", resolution))
 		{
 			resolution[0] = std::min(resolution[0], 2);
@@ -352,11 +311,7 @@ void Application::SetImGuiWindows() const
 		// Button: Reload
 		if (ImGui::Button("Regenerate Terrain"))
 		{
-			m_Scene->m_Droplets->ClearDroplets();
-			m_Simulator->ClearParticles();
-			m_Simulator->ClearParticleGrid();
-			m_Scene->m_IDs->clear();
-			m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
+			ClearScene();
 
 			auto generator = FastNoise::New<FastNoise::FractalFBm>();
 			generator->SetSource(FastNoise::New<FastNoise::Simplex>());
@@ -376,6 +331,50 @@ void Application::SetImGuiWindows() const
 			m_Simulator->SetWorldWidth(static_cast<uint32_t>(floorf(m_TerrainGenerator->GetWidth())));
 			m_Simulator->SetWorldLength(static_cast<uint32_t>(floorf(m_TerrainGenerator->GetLength())));
 			m_Simulator->SetTerrain(positions);
+		}
+		ImGui::TreePop();
+	}
+
+	ImGui::Separator();
+
+	if (ImGui::TreeNode("Rendering"))
+	{
+		static bool wireframe = false;
+		if (ImGui::Checkbox("Wireframe", &wireframe))
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
+		}
+
+		ImGui::TreePop();
+	}
+
+	ImGui::Separator();
+
+	if (ImGui::TreeNode("Simulation"))
+	{
+		static float deltaTime = 0.01f;
+		static bool isPaused = false;
+
+		if (ImGui::DragFloat("Particle Radius", &g_ParticleRadius, 0.001f, 0.01f, 1.0f))
+		{
+			m_Scene->m_Droplets->UpdateVertexVBO(g_ParticleRadius);
+
+			ClearScene();
+		}
+
+		if (ImGui::InputFloat("Delta Time", &deltaTime))
+		{
+			if (deltaTime < 0.0f)
+				deltaTime = 0.0f;
+			if (!isPaused)
+				m_Simulator->SetDeltaTime(deltaTime);
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Checkbox("Pause", &isPaused))
+		{
+			m_Simulator->SetDeltaTime(isPaused ? 0.0f : deltaTime);
 		}
 		ImGui::TreePop();
 	}
@@ -403,4 +402,12 @@ void Application::Simulate()
 	{
 		m_Simulator->Step();
 	}
+}
+
+void Application::ClearScene() const {
+	m_Scene->m_Droplets->ClearDroplets();
+	m_Simulator->ClearParticles();
+	m_Simulator->ClearParticleGrid();
+	m_Scene->m_IDs->clear();
+	m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
 }

@@ -67,6 +67,8 @@ private:
 
 	void Simulate();
 
+	void ClearScene() const;
+
 	bool WindowIsOpen() { return !glfwWindowShouldClose(m_Window); }
 
 	void CleanUp() const { glfwTerminate(); }
