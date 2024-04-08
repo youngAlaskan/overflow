@@ -14,6 +14,7 @@
 #include "scene/scene.h"
 #include "physics/simulator.h"
 #include "generators/terrainGenerator.h"
+#include "../input.h"
 
 constexpr float DELTA_TIME = 1.0f;
 
@@ -27,9 +28,10 @@ inline float g_LastY = SCR_HEIGHT / 2.0f;
 inline bool g_IsFirstMouse = true;
 
 inline bool g_IsMouseDisabled = true;
-inline bool g_IsMouse2JustPressed = false;
 
 inline float g_ParticleRadius = 0.5f;
+
+inline double g_LastFrameTime = 0.0f;
 
 // Handles all GLFW and glad window management
 class Application
@@ -105,34 +107,22 @@ inline void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 		g_ActiveCamera->ProcessMouseScroll(static_cast<float>(yOffset));
 }
 
-inline void processInput(GLFWwindow* window)
+inline void ProcessKeyInput(GLFWwindow* window, double deltaTime)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	InputKeyActions actions = PollKeyActions(window);
+	if (actions.closeWindow)
 		glfwSetWindowShouldClose(window, true);
 
-	bool isMouse2Pressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
-
-	if (isMouse2Pressed == GLFW_RELEASE && g_IsMouse2JustPressed == GLFW_PRESS)
+	if (actions.toggleMouse)
 	{
 		glfwSetInputMode(window, GLFW_CURSOR, g_IsMouseDisabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 		g_IsMouseDisabled = !g_IsMouseDisabled;
 	}
 
-	g_IsMouse2JustPressed = isMouse2Pressed;
-
 	if (!g_ActiveCamera)
 		return;
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		g_ActiveCamera->ProcessKeyboard(FORWARD, DELTA_TIME);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		g_ActiveCamera->ProcessKeyboard(BACKWARD, DELTA_TIME);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		g_ActiveCamera->ProcessKeyboard(LEFT, DELTA_TIME);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		g_ActiveCamera->ProcessKeyboard(RIGHT, DELTA_TIME);
-	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
-		g_ActiveCamera->ProcessKeyboard(TOGGLE_FLY, DELTA_TIME);
+	g_ActiveCamera->ProcessKeyInput(actions, deltaTime);
 }
 
 // Exceptions

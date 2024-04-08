@@ -320,6 +320,7 @@
     <ClInclude Include="src\imgui\misc\single_file\imgui_single_file.h" />
     <ClInclude Include="src\rendering\shaderProgram.h" />
     <ClInclude Include="src\scene\droplets.h" />
+    <ClInclude Include="src\input.h" />
     <ClInclude Include="src\scene\scene.h" />
     <ClInclude Include="src\scene\terrain.h" />
     <ClInclude Include="src\scene\texture.h" />
@@ -1035,6 +1036,7 @@
     <ClInclude Include="vendor\include\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\physics\primitives\heightfield.cpp" />
     <ClCompile Include="src\physics\simulator.cpp" />
     <ClCompile Include="src\scene\camera.cpp" />

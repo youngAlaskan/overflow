@@ -156,12 +156,15 @@ void Application::Init()
 	g_ActiveCamera = m_Scene->m_Camera;
 
 	m_Simulator->SetDeltaTime(0.01f);
+	g_LastFrameTime = glfwGetTime();
 }
 
 // Sets up start of new frame
 void Application::OnFrameStart()
 {
-	processInput(m_Window);
+	double currentTime = glfwGetTime();
+	ProcessKeyInput(m_Window, static_cast<float>(currentTime - g_LastFrameTime));
+	g_LastFrameTime = currentTime;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
