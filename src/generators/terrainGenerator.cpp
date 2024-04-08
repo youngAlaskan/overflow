@@ -10,12 +10,15 @@ std::vector<Vertex> TerrainGenerator::GenerateVertices(FastNoise::SmartNode<Fast
 	float* heightMap = new float[hmWidth * hmLength];
 	generator->GenUniformGrid2D(heightMap, 0, 0, hmWidth, hmLength, m_Freq, m_Seed);
 	auto og = glm::vec4(-m_Width * 0.5f, m_BaseElevation, -m_Length * 0.5f, 1.0f);
-	GLfloat dx = m_Width / (GLfloat)m_ResX;
-	GLfloat dz = m_Length / (GLfloat)m_ResZ;
+	GLfloat dx = m_Width / (GLfloat)(m_ResX - 1);
+	GLfloat dz = m_Length / (GLfloat)(m_ResZ - 1);
 
 	std::vector<Vertex> vertices = std::vector<Vertex>();
 
 	// Precalculate vertex values
+	int hIdxMin = 5000;
+	int hIdxMax = 5000;
+
 	Vertex* vertexMap = new Vertex[m_ResX * m_ResZ];
 	for (GLuint j = 0; j < m_ResZ; j++) {
 		for (GLuint i = 0; i < m_ResX; i++) {
@@ -23,11 +26,11 @@ std::vector<Vertex> TerrainGenerator::GenerateVertices(FastNoise::SmartNode<Fast
 			int hIdx = 1 + i + hmWidth * (1 + j);
 			GLfloat x = i * dx;
 			GLfloat z = j * dz;
-
 			vertexMap[vIdx].Position = glm::vec4(x, heightMap[hIdx] * m_HeightMul, z, 0.0f) + og;
 			vertexMap[vIdx].Normal = glm::normalize(
-				glm::vec3(2.0 * (heightMap[hIdx + 1] - heightMap[hIdx - 1]) * m_HeightMul, 
-					2.0 * (heightMap[hIdx + m_ResX] - heightMap[hIdx - m_ResX]) * m_HeightMul, -4.f)
+				glm::vec3(-0.5f * (heightMap[hIdx + 1] - heightMap[hIdx - 1]) * m_HeightMul, 
+					1.0f,
+					-0.5f * (heightMap[hIdx + m_ResX] - heightMap[hIdx - m_ResX]) * m_HeightMul)
 			);
 			vertexMap[vIdx].TexCoord = glm::vec2(0.f);
 		}
