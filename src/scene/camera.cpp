@@ -12,10 +12,13 @@ void Camera::OnUpdate()
 // processes input received from any keyboard-like input system. Accepts an InputKeyActions struct as input (to abstract it from windowing systems)
 void Camera::ProcessKeyInput(const InputKeyActions actions, const float deltaTime)
 {
-    glm::vec3 right = m_CanFly ? m_Right : glm::normalize(glm::vec3(m_Right.x, 0.0, m_Right.z));
-    glm::vec3 forward = m_CanFly ? m_Front : glm::normalize(glm::vec3(m_Front.x, 0.0, m_Front.z));
+    glm::vec3 right = m_CanFly ? m_Right : glm::normalize(glm::vec3(m_Right.x, 0.0f, m_Right.z));
+    glm::vec3 up = m_CanFly ? glm::vec3(0.0f, 0.75f, 0.0f) : glm::vec3(0.0f);
+    glm::vec3 forward = m_CanFly ? m_Front : glm::normalize(glm::vec3(m_Front.x, 0.0f, m_Front.z));
 
-    glm::vec3 moveDir = right * actions.move.x + forward * actions.move.y;
+    glm::vec3 moveDir = up * actions.move.y;
+    if (actions.move.x != 0.0f || actions.move.z != 0.0f) 
+        moveDir += glm::normalize(right * actions.move.x + forward * actions.move.z);
 
     if (actions.toggleFly)
         m_CanFly = !m_CanFly;

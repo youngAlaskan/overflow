@@ -12,9 +12,10 @@ InputKeyActions PollKeyActions(GLFWwindow* window) {
 	bool isClosePressed = glfwGetKey(window, CLOSE_WINDOW) == GLFW_PRESS;
 
 	InputKeyActions keyActions = {
-		glm::vec2(
+		glm::vec3(
 		float(glfwGetKey(window, MOVE_RIGHT) == GLFW_PRESS) - float(glfwGetKey(window, MOVE_LEFT) == GLFW_PRESS),
-		float(glfwGetKey(window, MOVE_UP) == GLFW_PRESS) - float(glfwGetKey(window, MOVE_DOWN) == GLFW_PRESS)
+		float(glfwGetKey(window, MOVE_UP) == GLFW_PRESS) - float(glfwGetKey(window, MOVE_DOWN) == GLFW_PRESS),
+		float(glfwGetKey(window, MOVE_FORWARD) == GLFW_PRESS) - float(glfwGetKey(window, MOVE_BACK) == GLFW_PRESS)
 		),
 		g_WasToggleFlyJustPressed && !isToggleFlyPressed,
 		g_WasToggleMouseJustPressed && !isToggleMousePressed,

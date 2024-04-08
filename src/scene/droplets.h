@@ -77,5 +77,5 @@ private:
 	VBO m_SphereVBO = VBO();
 	VBO m_InstanceVBO = VBO();
 	float m_Radius = 1.0f;
-	int m_Subdivisions = 5;
+	int m_Subdivisions = 8;
 };

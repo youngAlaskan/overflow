@@ -50,7 +50,7 @@ std::vector<glm::vec3> Droplets::CreateSphere() const
 
 	std::vector<glm::vec3> vertices = std::vector<glm::vec3>();
 
-	// Creates a sphere with 5 subdivisions on each axis.
+	// Creates a sphere with `m_Subdivisions` subdivisions on each axis.
 	auto points = std::vector<std::vector<glm::vec3>>(limit, std::vector<glm::vec3>(limit));
 
 	auto u = std::vector<GLfloat>(limit);
