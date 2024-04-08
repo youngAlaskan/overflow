@@ -4,16 +4,8 @@
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 
+#include "../input.h"
 #include "../glObjects.h"
-
-// Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
-enum CameraMovement {
-    FORWARD,
-    BACKWARD,
-    LEFT,
-    RIGHT,
-    TOGGLE_FLY
-};
 
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
 class Camera
@@ -27,8 +19,8 @@ public:
 
     void OnUpdate();
 
-    // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-    void ProcessKeyboard(const CameraMovement direction, const float deltaTime);
+    // processes input received from any keyboard-like input system. Accepts an InputKeyActions struct as input (to abstract it from windowing systems)
+    void ProcessKeyInput(const InputKeyActions input, const float deltaTime);
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void ProcessMouseMovement(float xOffset, float yOffset, const GLboolean constrainPitch = true);
@@ -56,10 +48,12 @@ public:
 
     float m_Yaw   = -90.0f;
     float m_Pitch = 0.0f;
+    float m_TiltPitch = 0.0f;
+    float m_Roll = 0.0f;
     
     // Camera options
     
-    float m_MovementSpeed    = 0.05f;
+    float m_MovementSpeed    = 6.0f;
     float m_MouseSensitivity = 0.1f;
     bool m_CanFly            = true;
 

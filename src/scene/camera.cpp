@@ -1,4 +1,5 @@
 #include "camera.h"
+#include <iostream>
 
 void Camera::OnUpdate()
 {
@@ -8,20 +9,18 @@ void Camera::OnUpdate()
     m_ViewProjMatrices.SetBufferSubData(sizeof(glm::mat4), m_View);
 }
 
-// processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-void Camera::ProcessKeyboard(const CameraMovement direction, const float deltaTime)
+// processes input received from any keyboard-like input system. Accepts an InputKeyActions struct as input (to abstract it from windowing systems)
+void Camera::ProcessKeyInput(const InputKeyActions actions, const float deltaTime)
 {
-    const float velocity = m_MovementSpeed * deltaTime;
-    if (direction == FORWARD)
-        m_Position += (m_CanFly ? m_Front : glm::normalize(glm::vec3(m_Front.x, 0.0, m_Front.z))) * velocity;
-    if (direction == BACKWARD)
-        m_Position -= (m_CanFly ? m_Front : glm::normalize(glm::vec3(m_Front.x, 0.0, m_Front.z))) * velocity;
-    if (direction == LEFT)
-        m_Position -= (m_CanFly ? m_Right : glm::normalize(glm::vec3(m_Right.x, 0.0, m_Right.z))) * velocity;
-    if (direction == RIGHT)
-        m_Position += (m_CanFly ? m_Right : glm::normalize(glm::vec3(m_Right.x, 0.0, m_Right.z))) * velocity;
-    if (direction == TOGGLE_FLY)
+    glm::vec3 right = m_CanFly ? m_Right : glm::normalize(glm::vec3(m_Right.x, 0.0, m_Right.z));
+    glm::vec3 forward = m_CanFly ? m_Front : glm::normalize(glm::vec3(m_Front.x, 0.0, m_Front.z));
+
+    glm::vec3 moveDir = right * actions.move.x + forward * actions.move.y;
+
+    if (actions.toggleFly)
         m_CanFly = !m_CanFly;
+
+    m_Position += moveDir * m_MovementSpeed * deltaTime;
 }
 
 // processes input received from a mouse input system. Expects the offset value in both the x and y direction.

@@ -320,6 +320,7 @@
     <ClInclude Include="src\imgui\misc\single_file\imgui_single_file.h" />
     <ClInclude Include="src\rendering\shaderProgram.h" />
     <ClInclude Include="src\scene\droplets.h" />
+    <ClInclude Include="src\input.h" />
     <ClInclude Include="src\scene\scene.h" />
     <ClInclude Include="src\scene\terrain.h" />
     <ClInclude Include="src\scene\texture.h" />
@@ -329,6 +330,17 @@
     <ClInclude Include="vendor\include\FastNoise\FastNoise_C.h" />
     <ClInclude Include="vendor\include\FastNoise\FastNoise_Config.h" />
     <ClInclude Include="vendor\include\FastNoise\FastNoise_Export.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\BasicGenerators.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\Blends.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\Cellular.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\DomainWarp.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\DomainWarpFractal.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\Fractal.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\Generator.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\Modifiers.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\Perlin.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\Simplex.h" />
+    <ClInclude Include="vendor\include\FastNoise\Generators\Value.h" />
     <ClInclude Include="vendor\include\FastNoise\Metadata.h" />
     <ClInclude Include="vendor\include\FastNoise\SmartNode.h" />
     <ClInclude Include="vendor\include\FastSIMD\FastSIMD.h" />
@@ -1035,6 +1047,7 @@
     <ClInclude Include="vendor\include\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\physics\primitives\heightfield.cpp" />
     <ClCompile Include="src\physics\simulator.cpp" />
     <ClCompile Include="src\scene\camera.cpp" />
