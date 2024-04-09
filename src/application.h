@@ -27,9 +27,16 @@ inline float g_LastX = SCR_WIDTH / 2.0f;
 inline float g_LastY = SCR_HEIGHT / 2.0f;
 inline bool g_IsFirstMouse = true;
 
-inline bool g_IsMouseDisabled = true;
+inline bool g_IsMouseDisabled = false;
 
-inline float g_ParticleRadius = 0.5f;
+inline float g_ParticleRadius = 0.3f;
+
+inline int g_SpawnCount = 0;
+inline int g_RainPeriod = 5;
+inline int g_RainDensity = 2;
+inline bool g_IsRainEnabled = false;
+
+inline bool g_IsSimulationPaused = false;
 
 inline uint64_t g_FrameCount = 0;
 inline double g_LastFrameTime = 0.0f;
@@ -67,6 +74,8 @@ private:
 
 	void Simulate();
 
+	void SpawnParticles();
+
 	void ClearScene() const;
 
 	bool WindowIsOpen() { return !glfwWindowShouldClose(m_Window); }
@@ -100,8 +109,11 @@ inline void MouseCallback(GLFWwindow* window, double xPosIn, double yPosIn)
 	g_LastX = xPos;
 	g_LastY = yPos;
 
-	if (g_ActiveCamera && g_IsMouseDisabled)
+	if (g_ActiveCamera && g_IsMouseDisabled) {
 		g_ActiveCamera->ProcessMouseMovement(xOffset, yOffset);
+		int width, height;
+		glfwGetWindowSize(window, &width, &height);
+	}
 }
 
 inline void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
@@ -124,7 +136,6 @@ inline void ProcessInput(GLFWwindow* window, double deltaTime)
 	if (io.WantCaptureMouse || io.WantCaptureKeyboard) {
 		return;
 	}
-
 
 	InputKeyActions keyActions = PollKeyActions(window);
 	if (keyActions.closeWindow) {

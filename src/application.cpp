@@ -68,6 +68,8 @@ void Application::Run()
 	{
 		OnFrameStart();
 
+		SpawnParticles();
+
 		m_Simulator->Step();
 
 		m_Scene->OnUpdate();
@@ -108,7 +110,6 @@ void Application::Init()
 	glfwSetFramebufferSizeCallback(m_Window, FramebufferSizeCallback);
 
 	// Register mouse callback
-	glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(m_Window, MouseCallback);
 
 	// Register scroll callback
@@ -155,7 +156,7 @@ void Application::Init()
 	m_Scene->m_Camera->m_ViewProjMatrices.SetEmptyBuffer(2 * sizeof(glm::mat4));
 	g_ActiveCamera = m_Scene->m_Camera;
 
-	m_Simulator->SetDeltaTime(0.01f);
+	m_Simulator->SetDeltaTime(0.02f);
 	g_LastFrameTime = glfwGetTime();
 }
 
@@ -192,194 +193,192 @@ void Application::OnFrameEnd()
 
 void Application::SetImGuiWindows() const
 {
-	ImGui::SetNextWindowSizeConstraints(
-		ImVec2(400.0f, 0.0f),
-		ImVec2(1000.f, 1000.f));
-
-	ImGui::Begin("Overflow", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove);
-	ImGui::SetWindowPos(ImVec2(6.0f, 6.0f), ImGuiCond_FirstUseEver);
-
-	if (ImGui::TreeNode("Rain"))
+	if (!g_IsMouseDisabled)
 	{
-		ImGui::PushItemWidth(150.0f);
+		ImGui::SetNextWindowSizeConstraints(
+			ImVec2(400.0f, 0.0f),
+			ImVec2(1000.f, 1000.f));
 
-		static int count = 100;
+		ImGui::Begin("Overflow", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove);
+		ImGui::SetWindowPos(ImVec2(6.0f, 6.0f), ImGuiCond_FirstUseEver);
 
-		if (ImGui::InputInt("Droplets", &count))
+		if (ImGui::TreeNode("Rain"))
 		{
-			if (count < 0)
-				count = 0;
-		}
+			ImGui::PushItemWidth(150.0f);
 
-		ImGui::SameLine();
-
-		if (ImGui::Button("Spawn"))
-		{
-			float baseX = -static_cast<float>(m_Simulator->GetWorldWidth()) * 0.5 + 0.5f;
-			float baseZ = -static_cast<float>(m_Simulator->GetWorldLength()) * 0.5 + 0.5f;
-
-			auto IDsAndSpheres = std::vector<std::pair<uint64_t, DynamicSphere>>(count);
-			for (int i = 0; i < count; i++)
+			if (ImGui::InputInt("Period (frames) ", &g_RainPeriod))
 			{
-				uint64_t id = Scene::GetFreshUUID();
-
-				float x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (m_Simulator->GetWorldWidth() - 1))) + baseX;
-				float y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (5.0f))) + 25.0f;
-				float z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (m_Simulator->GetWorldLength() - 1))) + baseZ;
-				glm::vec3 center = { x, y, z };
-				m_Simulator->RegisterParticle(id, { center, g_ParticleRadius });
-				m_Scene->m_Droplets->AddDroplet({ id, center });
-				m_Scene->m_IDs->push_back(id);
+				g_RainPeriod = std::max(g_RainPeriod, 1);
 			}
 
-			m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
-		}
+			if (ImGui::InputInt("Density", &g_RainDensity))
+			{
+				g_RainDensity = std::max(g_RainDensity, 1);
+			}
 
-		ImGui::SameLine();
-		if (ImGui::Button("Clear"))
-		{
-			ClearScene();
-		}
+			ImGui::Checkbox("Enable Rainfall", &g_IsRainEnabled);
 
-		ImGui::TreePop();
-	}
+			ImGui::Separator();
 
-	ImGui::Separator();
+			static int burstCount = 100;
+			if (ImGui::InputInt("Droplets", &burstCount))
+			{
+				burstCount = std::max(burstCount, 0);
+			}
 
-	if (ImGui::TreeNode("Terrain"))
-	{
-		static float size[2] = { m_TerrainGenerator->GetWidth(), m_TerrainGenerator->GetLength() };
-		if (ImGui::InputFloat2("Size", size))
-		{
-			size[0] = std::min(size[0], 5.0f);
-			size[1] = std::min(size[1], 5.0f);
-			m_TerrainGenerator->SetWidth(size[0]);
-			m_TerrainGenerator->SetLength(size[1]);
-		}
+			ImGui::SameLine();
 
-		static int resolution[2] = { m_TerrainGenerator->GetResX(), m_TerrainGenerator->GetResZ() };
-		if (ImGui::InputInt2("Mesh Detail", resolution))
-		{
-			resolution[0] = std::min(resolution[0], 2);
-			resolution[1] = std::min(resolution[1], 2);
-			m_TerrainGenerator->SetResX(resolution[0]);
-			m_TerrainGenerator->SetResZ(resolution[1]);
-		}
+			if (ImGui::Button("Spawn"))
+			{
+				g_SpawnCount += burstCount;
+			}
 
-		static float baseElevation = m_TerrainGenerator->GetBaseElevation();
-		if (ImGui::InputFloat("Base Elevation", &baseElevation))
-		{
-			m_TerrainGenerator->SetBaseElevation(baseElevation);
-		}
+			ImGui::SameLine();
+			if (ImGui::Button("Clear"))
+			{
+				g_SpawnCount = 0;
+				ClearScene();
+			}
 
-		static float heightMul = m_TerrainGenerator->GetHeightMul();
-		if (ImGui::InputFloat("Height Multiplier", &heightMul))
-		{
-			if (heightMul < 0.0f)
-				heightMul = 0.0f;
-			m_TerrainGenerator->SetHeightMul(heightMul);
+			ImGui::TreePop();
 		}
 
 		ImGui::Separator();
 
-		static int32_t seed = m_TerrainGenerator->GetSeed();
-		if (ImGui::InputInt("Seed", &seed))
+		if (ImGui::TreeNode("Terrain"))
 		{
-			seed = std::clamp(seed, INT32_MIN, INT32_MAX);
-			m_TerrainGenerator->SetSeed(seed);
-		}
+			static float size[2] = { m_TerrainGenerator->GetWidth(), m_TerrainGenerator->GetLength() };
+			if (ImGui::InputFloat2("Size", size))
+			{
+				size[0] = std::max(size[0], 5.0f);
+				size[1] = std::max(size[1], 5.0f);
+				m_TerrainGenerator->SetWidth(size[0]);
+				m_TerrainGenerator->SetLength(size[1]);
+			}
 
-		static float freq = m_TerrainGenerator->GetFreq();
-		if (ImGui::InputFloat("Frequency", &freq))
-		{
-			freq = std::clamp(freq, 0.0000001f, 5.0f);
-			m_TerrainGenerator->SetFreq(freq);
-		}
+			static int resolution[2] = { m_TerrainGenerator->GetResX(), m_TerrainGenerator->GetResZ() };
+			if (ImGui::InputInt2("Mesh Detail", resolution))
+			{
+				resolution[0] = std::max(resolution[0], 2);
+				resolution[1] = std::max(resolution[1], 2);
+				m_TerrainGenerator->SetResX(resolution[0]);
+				m_TerrainGenerator->SetResZ(resolution[1]);
+			}
 
-		static int octaves = 12;
-		if (ImGui::InputInt("Octaves", &octaves))
-		{
-			octaves = std::min(1, octaves);
+			static float baseElevation = m_TerrainGenerator->GetBaseElevation();
+			if (ImGui::InputFloat("Base Elevation", &baseElevation))
+			{
+				m_TerrainGenerator->SetBaseElevation(baseElevation);
+			}
+
+			static float heightMul = m_TerrainGenerator->GetHeightMul();
+			if (ImGui::InputFloat("Height Multiplier", &heightMul))
+			{
+				if (heightMul < 0.0f)
+					heightMul = 0.0f;
+				m_TerrainGenerator->SetHeightMul(heightMul);
+			}
+
+			ImGui::Separator();
+
+			static int32_t seed = m_TerrainGenerator->GetSeed();
+			if (ImGui::InputInt("Seed", &seed))
+			{
+				seed = std::clamp(seed, INT32_MIN, INT32_MAX);
+				m_TerrainGenerator->SetSeed(seed);
+			}
+
+			static float freq = m_TerrainGenerator->GetFreq();
+			if (ImGui::InputFloat("Frequency", &freq))
+			{
+				freq = std::clamp(freq, 0.0000001f, 5.0f);
+				m_TerrainGenerator->SetFreq(freq);
+			}
+
+			static int octaves = 12;
+			if (ImGui::InputInt("Octaves", &octaves))
+			{
+				octaves = std::max(1, octaves);
+			}
+			static float gain = 0.5f;
+			ImGui::InputFloat("Gain", &gain);
+			static float lacunarity = 1.5f;
+			ImGui::InputFloat("Lacunarity", &lacunarity);
+
+			ImGui::Separator();
+
+			// Button: Reload
+			if (ImGui::Button("Regenerate Terrain"))
+			{
+				ClearScene();
+
+				auto generator = FastNoise::New<FastNoise::FractalFBm>();
+				generator->SetSource(FastNoise::New<FastNoise::Simplex>());
+				generator->SetOctaveCount(octaves);
+				generator->SetGain(gain);
+				generator->SetLacunarity(lacunarity);
+
+				auto vertices = m_TerrainGenerator->GenerateVertices(generator);
+
+				m_Scene->UpdateTerrain(vertices);
+				auto positions = std::vector<glm::vec3>();
+				for (const auto& vertex : vertices)
+				{
+					positions.push_back(vertex.Position);
+				}
+
+				m_Simulator->SetWorldWidth(static_cast<uint32_t>(floorf(m_TerrainGenerator->GetWidth())));
+				m_Simulator->SetWorldLength(static_cast<uint32_t>(floorf(m_TerrainGenerator->GetLength())));
+				m_Simulator->SetTerrain(positions);
+			}
+			ImGui::TreePop();
 		}
-		static float gain = 0.5f;
-		ImGui::InputFloat("Gain", &gain);
-		static float lacunarity = 1.5f;
-		ImGui::InputFloat("Lacunarity", &lacunarity);
 
 		ImGui::Separator();
 
-		// Button: Reload
-		if (ImGui::Button("Regenerate Terrain"))
+		if (ImGui::TreeNode("Rendering"))
 		{
-			ClearScene();
-
-			auto generator = FastNoise::New<FastNoise::FractalFBm>();
-			generator->SetSource(FastNoise::New<FastNoise::Simplex>());
-			generator->SetOctaveCount(octaves);
-			generator->SetGain(gain);
-			generator->SetLacunarity(lacunarity);
-
-			auto vertices = m_TerrainGenerator->GenerateVertices(generator);
-
-			m_Scene->UpdateTerrain(vertices);
-			auto positions = std::vector<glm::vec3>();
-			for (const auto& vertex : vertices)
+			static bool wireframe = false;
+			if (ImGui::Checkbox("Wireframe", &wireframe))
 			{
-				positions.push_back(vertex.Position);
+				glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
 			}
 
-			m_Simulator->SetWorldWidth(static_cast<uint32_t>(floorf(m_TerrainGenerator->GetWidth())));
-			m_Simulator->SetWorldLength(static_cast<uint32_t>(floorf(m_TerrainGenerator->GetLength())));
-			m_Simulator->SetTerrain(positions);
+			ImGui::TreePop();
 		}
-		ImGui::TreePop();
+
+		ImGui::Separator();
+
+		if (ImGui::TreeNode("Simulation"))
+		{
+			static float deltaTime = 0.02f;
+
+			if (ImGui::DragFloat("Particle Radius", &g_ParticleRadius, 0.001f, 0.01f, 1.0f))
+			{
+				m_Scene->m_Droplets->UpdateVertexVBO(g_ParticleRadius);
+
+				ClearScene();
+			}
+
+			if (ImGui::InputFloat("Delta Time", &deltaTime))
+			{
+				if (deltaTime < 0.0f)
+					deltaTime = 0.0f;
+				if (!g_IsSimulationPaused)
+					m_Simulator->SetDeltaTime(deltaTime);
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Checkbox("Pause", &g_IsSimulationPaused))
+			{
+				m_Simulator->SetDeltaTime(g_IsSimulationPaused ? 0.0f : deltaTime);
+			}
+			ImGui::TreePop();
+		}
+
+		ImGui::End();
 	}
-
-	ImGui::Separator();
-
-	if (ImGui::TreeNode("Rendering"))
-	{
-		static bool wireframe = false;
-		if (ImGui::Checkbox("Wireframe", &wireframe))
-		{
-			glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
-		}
-
-		ImGui::TreePop();
-	}
-
-	ImGui::Separator();
-
-	if (ImGui::TreeNode("Simulation"))
-	{
-		static float deltaTime = 0.01f;
-		static bool isPaused = false;
-
-		if (ImGui::DragFloat("Particle Radius", &g_ParticleRadius, 0.001f, 0.01f, 1.0f))
-		{
-			m_Scene->m_Droplets->UpdateVertexVBO(g_ParticleRadius);
-
-			ClearScene();
-		}
-
-		if (ImGui::InputFloat("Delta Time", &deltaTime))
-		{
-			if (deltaTime < 0.0f)
-				deltaTime = 0.0f;
-			if (!isPaused)
-				m_Simulator->SetDeltaTime(deltaTime);
-		}
-
-		ImGui::SameLine();
-
-		if (ImGui::Checkbox("Pause", &isPaused))
-		{
-			m_Simulator->SetDeltaTime(isPaused ? 0.0f : deltaTime);
-		}
-		ImGui::TreePop();
-	}
-
-	ImGui::End();
 }
 
 void Application::Render()
@@ -402,6 +401,30 @@ void Application::Simulate()
 	{
 		m_Simulator->Step();
 	}
+}
+
+void Application::SpawnParticles() {
+	g_SpawnCount += (g_IsRainEnabled && !g_IsSimulationPaused && (g_FrameCount % g_RainPeriod == 0)) * g_RainDensity;
+
+	if (g_SpawnCount == 0) return;
+	float baseX = -static_cast<float>(m_Simulator->GetWorldWidth()) * 0.5 + 0.5f;
+	float baseZ = -static_cast<float>(m_Simulator->GetWorldLength()) * 0.5 + 0.5f;
+
+	auto IDsAndSpheres = std::vector<std::pair<uint64_t, DynamicSphere>>(g_SpawnCount);
+	for (int i = 0; i < g_SpawnCount; i++) {
+		uint64_t id = Scene::GetFreshUUID();
+
+		float x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (m_Simulator->GetWorldWidth() - 1))) + baseX;
+		float y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (10.0f))) + 30.0f;
+		float z = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (m_Simulator->GetWorldLength() - 1))) + baseZ;
+		glm::vec3 center = { x, y, z };
+		m_Simulator->RegisterParticle(id, { center, g_ParticleRadius });
+		m_Scene->m_Droplets->AddDroplet({ id, center });
+		m_Scene->m_IDs->push_back(id);
+	}
+
+	g_SpawnCount = 0;
+	m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
 }
 
 void Application::ClearScene() const {
