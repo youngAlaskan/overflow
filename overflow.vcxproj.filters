@@ -442,10 +442,9 @@
     <None Include="vendor\lib\physx\PhysXCommon_64.exp" />
     <None Include="vendor\lib\physx\PhysXCooking_64.exp" />
     <None Include="vendor\lib\physx\PhysXFoundation_64.exp" />
-    <None Include="vendor\bin\FastNoise\FastNoise.dll" />
-    <None Include="vendor\bin\FastNoise\FastNoiseD.dll" />
     <None Include="vendor\bin\FastNoise\FastNoiseD.pdb" />
     <None Include="vendor\bin\FastNoise\NoiseTool.exe" />
+    <None Include="bin\x64\Debug\FastNoise.dll" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vendor\include\glad\glad.h">
@@ -2470,9 +2469,6 @@
     <ClInclude Include="src\scene\texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\generators\noise.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\generators\terrainGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -2650,6 +2646,42 @@
     <ClInclude Include="vendor\include\FastSIMD\SIMDTypeList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\Generators\BasicGenerators.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\Generators\Blends.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\Generators\Cellular.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\Generators\DomainWarp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\Generators\DomainWarpFractal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\Generators\Fractal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\Generators\Generator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\Generators\Modifiers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\Generators\Perlin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\Generators\Simplex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\include\FastNoise\Generators\Value.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -2715,13 +2747,13 @@
     <ClCompile Include="src\scene\terrain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\generators\noise.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\generators\terrainGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\physics\primitives\heightfield.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -2746,11 +2778,7 @@
     <Library Include="vendor\lib\FastNoise\FastNoiseD.lib" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="vendor\bin\FastNoise2\FastNoise.dll">
-      <Filter>Resource Files</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="vendor\bin\FastNoise2\FastNoiseD.dll">
-      <Filter>Resource Files</Filter>
-    </CopyFileToFolders>
+    <CopyFileToFolders Include="vendor\bin\FastNoise\FastNoise.dll" />
+    <CopyFileToFolders Include="vendor\bin\FastNoise\FastNoiseD.dll" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
 #include "simulator.h"
 #include <omp.h>
+#include <unordered_set>
 
 void Simulator::SetParticleGrid()
 {
@@ -29,6 +30,11 @@ void Simulator::SetParticleGrid()
 			uint32_t widthIndex = GetParticleWidthIndex(GetParticle(id));
 			uint32_t depthIndex = GetParticleDepthIndex(GetParticle(id));
 
+			if (m_ParticleGrid[depthIndex][widthIndex][lengthIndex].empty())
+			{
+				m_OccupiedCells.push_back({ depthIndex, widthIndex, lengthIndex });
+			}
+
 			#pragma omp critical
 			{
 				m_ParticleGrid[depthIndex][widthIndex][lengthIndex].push_back(id);
@@ -39,16 +45,31 @@ void Simulator::SetParticleGrid()
 
 void Simulator::SetNeighbors()
 {
+	#pragma omp parallel for schedule(dynamic)
 	for (int i = 0; i < m_IDs->size(); i++)
 	{
 		const auto& id = (*m_IDs)[i];
-		m_IDsToNeighbors[id] = GetParticleNeighbors(id);
+		std::set<uint64_t>& neighbors = GetParticleNeighbors(id);
+		
+		// Store the neighbors in the map if there are any, otherwise remove the entry for this particle
+		#pragma omp critical
+		{
+			if (!neighbors.empty())
+			{
+				m_IDsToNeighbors[id] = neighbors;
+			}
+			else
+			{
+				m_IDsToNeighbors.erase(id);
+			}
+		}
 	}
 }
 
-inline std::vector<uint64_t> Simulator::GetParticleNeighbors(const uint64_t id)
+inline std::set<uint64_t> Simulator::GetParticleNeighbors(const uint64_t id)
 {
-	std::vector<uint64_t> neighbors = std::vector<uint64_t>();
+	std::unordered_set<uint64_t> neighborSet;
+	neighborSet.reserve(32);
 	DynamicSphere& particle = GetParticle(id);
 	uint32_t lengthIndex = GetParticleLengthIndex(particle);
 	uint32_t widthIndex = GetParticleWidthIndex(particle);
@@ -60,17 +81,20 @@ inline std::vector<uint64_t> Simulator::GetParticleNeighbors(const uint64_t id)
 				if (z < m_WorldLength && x < m_WorldWidth && y < m_WorldDepth) {
 					std::vector<uint64_t>& block = m_ParticleGrid[y][x][z];
 					if (block.empty()) continue;
-					neighbors.insert(neighbors.end(), block.begin(), block.end()); // Append vector
+
+					for (const auto& neighborID : block)
+					{
+						if (neighborID != id) // Exclude the particle itself
+						{
+							neighborSet.insert(neighborID);
+						}
+					}
 				}
 			}
 		}
 	}
 
-	auto iter = find(neighbors.begin(), neighbors.end(), id);
-	if (iter != neighbors.end())
-		neighbors.erase(iter);
-
-	return neighbors;
+	return std::set<uint64_t>(neighborSet.begin(), neighborSet.end());
 }
 
 inline bool Simulator::IsParticleInWorldBounds(const DynamicSphere& particle) const
@@ -123,8 +147,14 @@ void Simulator::HandleCollisions()
 
 		float minDistance = 2.0f * particle.GetRadius();
 
+		// ------------------------------
 		// Handle sphere-sphere collision
-		const std::vector<uint64_t>& neighborIDs = m_IDsToNeighbors.at(id);
+		// ------------------------------
+
+		// Skip if there are no neighbors for this particle
+		if (m_IDsToNeighbors.empty() || m_IDsToNeighbors.find(id) == m_IDsToNeighbors.end()) continue;
+
+		const std::set<uint64_t>& neighborIDs = m_IDsToNeighbors.at(id);
 		for (const auto neighborID : neighborIDs)
 		{
 			DynamicSphere& neighbor = GetParticle(neighborID);
@@ -147,16 +177,26 @@ void Simulator::ApplySPH()
 	std::vector<std::vector<uint64_t>> neighbors = std::vector<std::vector<uint64_t>>(limit, std::vector<uint64_t>());
 
 	// Set densities
-	#pragma omp parallel for
-	for (int i = 0; i < limit; i++)
+	
+	// Skip if there are no neighbors for any particle
+	if (!m_IDsToNeighbors.empty())
 	{
-		DynamicSphere& particle = GetParticle(m_IDs->at(i));
-		const auto& neighborIDs = m_IDsToNeighbors.at(m_IDs->at(i));
-		for (const auto& neighborID : neighborIDs)
+		#pragma omp parallel for
+		for (int i = 0; i < limit; i++)
 		{
-			neighbors[i].push_back(neighborID);
+			DynamicSphere& particle = GetParticle(m_IDs->at(i));
+
+			// Skip if there are no neighbors for this particle
+			if (m_IDsToNeighbors.find(m_IDs->at(i)) == m_IDsToNeighbors.end())
+				continue;
+
+			const auto& neighborIDs = m_IDsToNeighbors.at(m_IDs->at(i));
+			for (const auto& neighborID : neighborIDs)
+			{
+				neighbors[i].push_back(neighborID);
+			}
+			particle.SetDensity(GetDensity(particle, neighbors[i]));
 		}
-		particle.SetDensity(GetDensity(particle, neighbors[i]));
 	}
 
 	std::vector<uint64_t> deadIDs = std::vector<uint64_t>();
@@ -209,6 +249,10 @@ float Simulator::GetDensity(const DynamicSphere& particle, const std::vector<uin
 
 	for (const auto& neighborID : neighborIDs)
 	{
+		// Skip if the neighbor is not in the IDsToCenters map
+		// Note: Neighbors that have fallen out of bounds may still be in the neighbor list, but they will not be in the IDsToCenters map
+		if (m_IDsToCenters->find(neighborID) == m_IDsToCenters->end())
+			continue;
 		glm::vec3 toParticle = particle.GetPosition() - m_IDsToCenters->at(neighborID);
 		float distance = glm::length(toParticle);
 		density += Wpoly(distance);

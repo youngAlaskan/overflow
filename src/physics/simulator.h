@@ -3,11 +3,16 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
+#include <set>
+
+#include <algorithm>
 
 #include "primitives/sphere.h"
 #include "primitives/heightfield.h"
 
 inline static const glm::vec3 GRAVITY = glm::vec3(0.0f, -9.81f, 0.0f);
+
+struct CellIndex { uint32_t row; uint32_t col; uint32_t aisle; };
 
 class Simulator
 {
@@ -67,14 +72,21 @@ public:
 	void RegisterParticle(const uint64_t ID, const DynamicSphere& particle)
 	{
 		m_IDsToParticles[ID] = particle;
-		GetParticleBlock(particle).push_back(ID);
+		std::vector<uint64_t>& block = GetParticleBlock(particle);
+		if (block.empty())
+		{
+			m_OccupiedCells.push_back({ GetParticleDepthIndex(particle), GetParticleWidthIndex(particle), GetParticleLengthIndex(particle) });
+		}
+		block.push_back(ID);
 	}
 
 	void RemoveParticle(const uint64_t ID)
 	{
 		DynamicSphere& particle = m_IDsToParticles[ID];
 
-		m_IDsToCenters->erase(ID);
+		// Remove center mapping if present
+		if (m_IDsToCenters)
+			m_IDsToCenters->erase(ID);
 		m_IDsToParticles.erase(ID);
 	}
 
@@ -83,16 +95,11 @@ public:
 	void SetParticleGrid();
 	void ClearParticleGrid()
 	{
-		for (auto& row : m_ParticleGrid)
+		for (const auto& idx : m_OccupiedCells)
 		{
-			for (auto& col : row)
-			{
-				for (auto& aisle : col)
-				{
-					aisle.clear();
-				}
-			}
+			m_ParticleGrid[idx.row][idx.col][idx.aisle].clear();
 		}
+		m_OccupiedCells.clear();
 	}
 	void UpdateParticleGrid()
 	{
@@ -132,14 +139,14 @@ private:
 	uint32_t GetParticleWidthIndex(const DynamicSphere& particle) const { return static_cast<uint32_t>(particle.GetPosition().x + m_WorldWidth / 2.0f); }
 	uint32_t GetParticleDepthIndex(const DynamicSphere& particle) const { return static_cast<uint32_t>(particle.GetPosition().y + m_WorldDepth / 2.0f); }
 
-	std::vector<uint64_t>& GetParticleBlock(const DynamicSphere& particle) { return m_ParticleGrid[GetParticleDepthIndex(particle)][GetParticleWidthIndex(particle)][GetParticleLengthIndex(particle)]; }
+	std::vector<uint64_t>& GetParticleBlock(const DynamicSphere& particle){ return m_ParticleGrid[GetParticleDepthIndex(particle)][GetParticleWidthIndex(particle)][GetParticleLengthIndex(particle)]; }
 	std::vector<uint64_t>& GetParticleBlock(const uint64_t id)
 	{
 		DynamicSphere& particle = GetParticle(id);
 		return m_ParticleGrid[GetParticleDepthIndex(particle)][GetParticleWidthIndex(particle)][GetParticleLengthIndex(particle)];
 	}
 
-	std::vector<uint64_t> GetParticleNeighbors(const uint64_t id);
+	std::set<uint64_t> GetParticleNeighbors(const uint64_t id);
 
 	bool IsParticleInWorldBounds(const DynamicSphere& particle) const;
 
@@ -180,8 +187,9 @@ private:
 	std::shared_ptr<std::vector<uint64_t>> m_IDs = nullptr;
 	std::shared_ptr<std::unordered_map<uint64_t, glm::vec3>> m_IDsToCenters = nullptr;
 	std::unordered_map<uint64_t, DynamicSphere> m_IDsToParticles = std::unordered_map<uint64_t, DynamicSphere>();
-	std::unordered_map<uint64_t, std::vector<uint64_t>> m_IDsToNeighbors = std::unordered_map<uint64_t, std::vector<uint64_t>>();
+	std::unordered_map<uint64_t, std::set<uint64_t>> m_IDsToNeighbors = std::unordered_map<uint64_t, std::set<uint64_t>>();
 	std::vector<std::vector<std::vector<std::vector<uint64_t>>>> m_ParticleGrid = std::vector<std::vector<std::vector<std::vector<uint64_t>>>>();
+	std::vector<CellIndex> m_OccupiedCells = std::vector<CellIndex>();
 	uint32_t m_WorldLength = 10U;
 	uint32_t m_WorldWidth  = 10U;
 	uint32_t m_WorldDepth  = 10U;

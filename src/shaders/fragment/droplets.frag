@@ -5,10 +5,10 @@ in vec2 ViewportCoord;
 out vec4 FragColor;
 
 const lowp float indexMat[16] = float[](
- 0f, 16f,  4f, 20f,
-24f,  8f, 28f, 12f,
- 6f, 22f,  2f, 18f,
-30f, 14f, 26f, 10f);
+ 0.0f, 16.0f,  4.0f, 20.0f,
+24.0f,  8.0f, 28.0f, 12.0f,
+ 6.0f, 22.0f,  2.0f, 18.0f,
+30.0f, 14.0f, 26.0f, 10.0f);
 
 void main()
 {
