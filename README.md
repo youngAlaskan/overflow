@@ -1,6 +1,8 @@
 # Puddle Simulator!
 This is a shallow water simulator for CS 434.
 
+Using the Smoothed Particle Hydrodynamics (SPH) method, this simulator is able to simulate the behavior of water droplets on a terrain. The terrain is generated using Perlin noise and can be textured with a variety of textures.
+
 ## Project Structure
 The primary control flow is the following:
 > main() -> Application\:\:Run() -> Renderer\:\:Render()
