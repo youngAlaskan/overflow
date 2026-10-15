@@ -29,7 +29,7 @@ inline bool g_IsFirstMouse = true;
 
 inline bool g_IsMouseDisabled = false;
 
-inline float g_ParticleRadius = 0.3f;
+inline float g_ParticleRadius = 0.25f;
 
 inline int g_SpawnCount = 0;
 inline int g_RainPeriod = 5;

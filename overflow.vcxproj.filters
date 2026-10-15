@@ -2475,7 +2475,7 @@
     <ClInclude Include="src\physics\primitives\sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\physics\primitives\heightfield.h">
+    <ClInclude Include="src\physics\primitives\heightgrid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vendor\include\noise\model\cylinder.h">
@@ -2750,7 +2750,7 @@
     <ClCompile Include="src\generators\terrainGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\physics\primitives\heightfield.cpp">
+    <ClCompile Include="src\physics\primitives\heightgrid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\input.cpp">

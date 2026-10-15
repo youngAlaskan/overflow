@@ -329,7 +329,6 @@ void Application::SetImGuiWindows() const
 
 				m_Simulator->SetWorldWidth(static_cast<uint32_t>(floorf(m_TerrainGenerator->GetWidth())));
 				m_Simulator->SetWorldLength(static_cast<uint32_t>(floorf(m_TerrainGenerator->GetLength())));
-				m_Simulator->SetTerrain(positions);
 			}
 			ImGui::TreePop();
 		}
@@ -351,7 +350,7 @@ void Application::SetImGuiWindows() const
 
 		if (ImGui::TreeNode("Simulation"))
 		{
-			static float deltaTime = 0.02f;
+			static float deltaTime = m_Simulator->GetDeltaTime();
 
 			if (ImGui::DragFloat("Particle Radius", &g_ParticleRadius, 0.001f, 0.01f, 1.0f))
 			{
@@ -407,8 +406,8 @@ void Application::SpawnParticles() {
 	g_SpawnCount += (g_IsRainEnabled && !g_IsSimulationPaused && (g_FrameCount % g_RainPeriod == 0)) * g_RainDensity;
 
 	if (g_SpawnCount == 0) return;
-	float baseX = -static_cast<float>(m_Simulator->GetWorldWidth()) * 0.5 + 0.5f;
-	float baseZ = -static_cast<float>(m_Simulator->GetWorldLength()) * 0.5 + 0.5f;
+	float baseX = -static_cast<float>(m_Simulator->GetWorldWidth()) * 0.5f + 0.5f;
+	float baseZ = -static_cast<float>(m_Simulator->GetWorldLength()) * 0.5f + 0.5f;
 
 	auto IDsAndSpheres = std::vector<std::pair<uint64_t, DynamicSphere>>(g_SpawnCount);
 	for (int i = 0; i < g_SpawnCount; i++) {

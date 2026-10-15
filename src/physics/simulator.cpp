@@ -61,13 +61,7 @@ void Simulator::HandleCollisions()
 {
 	if (!m_TerrainGeometry || !m_IDs) return;
 
-	const float maxX = static_cast<float>(m_TerrainGeometry->GetWidth()) / 2.0f;
-	const float minX = -maxX;
-	const float maxZ = static_cast<float>(m_TerrainGeometry->GetLength()) / 2.0f;
-	const float minZ = -maxZ;
-
 	// Tunable boundary parameters
-	const float contactDistance = 0.5f * m_ParticleSpacing; // NOT the smoothing radius h; Later should be based on particle spacing
 	const float restitution = 0.05f;		  // water barely bounces
 	const float friction = 0.1f;			  // Coulomb coefficient, 0 = free-slip
 
@@ -77,10 +71,10 @@ void Simulator::HandleCollisions()
 		glm::vec3 position = particle.GetPosition();
 
 		// Outside the terrain footprint: nothing to collide with.
-		if (position.x < minX || position.x > maxX || position.z < minZ || position.z > maxZ)
-			continue;
+		if (!m_TerrainGeometry->Contains(position.x, position.z)) continue;
 
 		// Handle Terrain collision
+		const float contactDistance = particle.GetRadius();   // matches the rendered radius
 		const float height = m_TerrainGeometry->GetHeight(position.x, position.z);
 		const glm::vec3 normal = glm::normalize(m_TerrainGeometry->GetNormal(position.x, position.z));
 

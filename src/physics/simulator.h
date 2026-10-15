@@ -10,7 +10,7 @@
 #include <cmath>
 
 #include "primitives/sphere.h"
-#include "primitives/heightfield.h"
+#include "primitives/heightgrid.h"
 
 inline static const glm::vec3 GRAVITY = glm::vec3(0.0f, -9.81f, 0.0f);
 
@@ -21,7 +21,6 @@ class Simulator
 public:
 	Simulator() { Init(); }
 	Simulator(uint32_t width, uint32_t length, uint32_t depth) : m_WorldWidth(width), m_WorldLength(length), m_WorldDepth(depth) { Init(); }
-	~Simulator() = default;
 
 	void SetDeltaTime(float deltaTime) { m_DeltaTime = deltaTime; }
 	float GetDeltaTime() const { return m_DeltaTime; }
@@ -44,15 +43,11 @@ public:
 
 	void SetTerrain(std::vector<glm::vec3> vertices)
 	{
-		if (m_TerrainGeometry) {
-			Heightfield* terrainGeometry = m_TerrainGeometry.release();
-			delete terrainGeometry;
-		}
-		
-		m_TerrainGeometry = std::make_unique<Heightfield>(m_WorldLength + 1U, m_WorldWidth + 1U);
-		m_TerrainGeometry->SetHeightsFromTriangleMesh(vertices);
+		m_TerrainGeometry->Build(vertices);
 		Init();
 	}
+
+	float GetTerrainHeight(float x, float z) const { return m_TerrainGeometry->GetHeight(x, z); }
 
 	void SetIDs(const std::shared_ptr<std::vector<uint64_t>>& IDs) { m_IDs = IDs; }
 	std::shared_ptr<std::vector<uint64_t>> GetIDs() const { return m_IDs; }
@@ -136,6 +131,15 @@ public:
 		ApplySPH();				// density -> forces -> integrate -> HandleCollisions -> sync centers
 		ClearNeighbors();
 	}
+
+	~Simulator() {
+		ClearParticles();
+		ClearParticleGrid();
+		ClearNeighbors();
+
+		if (m_TerrainGeometry)
+			m_TerrainGeometry.reset();
+	}
 public:
 	inline static constexpr float H = 1.0f;   // smoothing radius (matches grid cell size)
 	inline static constexpr float PI = 3.14159265f;
@@ -213,7 +217,7 @@ private:
 	}
 
 private:
-	std::unique_ptr<Heightfield> m_TerrainGeometry = nullptr;
+	std::unique_ptr<HeightGrid> m_TerrainGeometry = std::make_unique<HeightGrid>();
 	std::shared_ptr<std::vector<uint64_t>> m_IDs = nullptr;
 	std::shared_ptr<std::unordered_map<uint64_t, glm::vec3>> m_IDsToCenters = nullptr;
 	std::unordered_map<uint64_t, DynamicSphere> m_IDsToParticles = std::unordered_map<uint64_t, DynamicSphere>();

@@ -303,7 +303,7 @@
     <None Include="vendor\lib\physx\PhysX_64.exp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\physics\primitives\heightfield.h" />
+    <ClInclude Include="src\physics\primitives\heightgrid.h" />
     <ClInclude Include="src\physics\simulator.h" />
     <ClInclude Include="src\physics\primitives\sphere.h" />
     <ClInclude Include="src\scene\camera.h" />
@@ -1051,7 +1051,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\input.cpp" />
-    <ClCompile Include="src\physics\primitives\heightfield.cpp" />
+    <ClCompile Include="src\physics\primitives\heightgrid.cpp" />
     <ClCompile Include="src\physics\simulator.cpp" />
     <ClCompile Include="src\scene\camera.cpp" />
     <ClCompile Include="src\glObjects.h" />
