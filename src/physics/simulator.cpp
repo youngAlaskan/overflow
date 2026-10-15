@@ -121,52 +121,59 @@ void Simulator::HandleCollisions()
 	const float maxZ = static_cast<float>(m_TerrainGeometry->GetLength() / 2U);
 	const float minZ = -maxZ;
 
+	// Tunable boundary parameters
+	const float contactDistanceFactor = 0.5f; // NOT the smoothing radius h; Later should be based on particle spacing
+	const float restitution = 0.05f;		  // water barely bounces
+	const float friction = 0.1f;			  // Coulomb coefficient, 0 = free-slip
 
 	for (const auto& id : *m_IDs)
 	{
 		DynamicSphere& particle = GetParticle(id);
-		glm::vec3 center = particle.GetPosition();
+		glm::vec3 position = particle.GetPosition();
+
+		// Outside the terrain footprint: nothing to collide with.
+		if (position.x < minX || position.x > maxX || position.z < minZ || position.z > maxZ)
+		{
+			// Particle is outside the terrain footprint, remove it from the simulation
+			RemoveParticle(id);
+			continue;
+		}
 
 		// Handle Terrain collision
-		if (center.x >= minX && center.x <= maxX && center.z >= minZ && center.z <= maxZ)
+		const float height = m_TerrainGeometry->GetHeight(position.x, position.z);
+		const glm::vec3 normal = glm::normalize(m_TerrainGeometry->GetNormal(position.x, position.z));
+
+		// Distance to the surface measured along the normal (accounts for slope)
+		const float distance = (position.y - height) * normal.y;
+		const float penetration = contactDistanceFactor * particle.GetRadius() - distance;
+
+		if (penetration <= 0.0f) continue; // No collision
+
+		// 1. Position correction: push the particle back out along the normal
+		position += normal * penetration;
+		particle.SetPosition(position);
+
+		// 2. Velocity response, only if the particle is moving into the surface
+		glm::vec3 velocity = particle.GetVelocity();
+		const float vn = glm::dot(velocity, normal);
+
+		if (vn < 0.0f) // Particle is moving into the surface
 		{
-			// Get vertical offset from terrain
-			float offset = center.y - m_TerrainGeometry->GetHeight(center.x, center.z);
+			const glm::vec3 vNormal = vn * normal;
+			glm::vec3 vTangent = velocity - vNormal;
 
-			// Check if sphere is intersecting height field
-			if (particle.GetRadius() >= offset)
+			// Coulomb friction: tangential speed lost is proportional to the normal impulse
+			const float tangentSpeed = glm::length(vTangent);
+			if (tangentSpeed > 1e-6f)
 			{
-				particle.SetPosition(center + glm::vec3(0.0f, particle.GetRadius() - offset, 0.0f)); // Push sphere outwards
-				glm::vec3 normal = m_TerrainGeometry->GetNormal(center.x, center.z);
-				glm::vec3 incoming = particle.GetVelocity();
-				glm::vec3 projection = glm::dot(incoming, normal) / glm::length(normal) * normal;
-				glm::vec3 perp = incoming - projection;
-				particle.SetVelocity(perp * 0.9f);
+				const float maxFrictionDrop = friction * (1.0f + restitution) * (-vn);
+				const float newSpeed = glm::max(0.0f, tangentSpeed - maxFrictionDrop);
+				vTangent *= newSpeed / tangentSpeed;
 			}
+
+			velocity = vTangent - restitution * vNormal;
+			particle.SetVelocity(velocity);
 		}
-
-		float minDistance = 2.0f * particle.GetRadius();
-
-		// ------------------------------
-		// Handle sphere-sphere collision
-		// ------------------------------
-
-		// Skip if there are no neighbors for this particle
-		if (m_IDsToNeighbors.empty() || m_IDsToNeighbors.find(id) == m_IDsToNeighbors.end()) continue;
-
-		const std::set<uint64_t>& neighborIDs = m_IDsToNeighbors.at(id);
-		for (const auto neighborID : neighborIDs)
-		{
-			DynamicSphere& neighbor = GetParticle(neighborID);
-			glm::vec3 toNeighbor = neighbor.GetPosition() - center;
-			glm::vec3 toParticle = -1.0f * toNeighbor;
-			if (glm::length(toNeighbor) <= minDistance)
-			{
-				particle.SetPosition(particle.GetPosition() + toParticle * (minDistance - glm::length(toParticle)) * 0.5f);
-				neighbor.SetPosition(neighbor.GetPosition() + toNeighbor * (minDistance - glm::length(toNeighbor)) * 0.5f);
-			}
-		}
-
 	}
 }
 
