@@ -34,39 +34,31 @@ private:
 class DynamicSphere : public Sphere
 {
 public:
-	DynamicSphere() : Sphere() { m_Mass = 0.0f; }
+	DynamicSphere() = default;
 	DynamicSphere(glm::vec3 center) : Sphere(center) {}
 	DynamicSphere(float radius) : Sphere(radius) {}
 	DynamicSphere(glm::vec3 center, float radius) : Sphere(center, radius) {}
 
 	glm::vec3 GetActiveForce() const { return m_ActiveForces; }
-
 	void ApplyForce(glm::vec3 force) { m_ActiveForces += force; }
-	void ClearForces() { m_ActiveForces = glm::vec3(); }
+	void ClearForces() { m_ActiveForces = glm::vec3(0.0f); }
 
 	glm::vec3 GetVelocity() const { return m_Velocity; }
 	void SetVelocity(glm::vec3 velocity) { m_Velocity = velocity; }
-	void UpdateVelocity(glm::vec3 prevAcceleration, const float deltaTime) { m_Velocity += 0.5f * (prevAcceleration + m_Acceleration) * deltaTime; }
-
-	void SetAcceleration(glm::vec3 acceleration) { m_Acceleration = acceleration; }
 	glm::vec3 GetAcceleration() const { return m_Acceleration; }
-	void UpdateAcceleration() { m_Acceleration = m_ActiveForces / m_Density; }
-
-	void UpdatePosition(const float deltaTime) { SetPosition(GetPosition() + m_Velocity * deltaTime + 0.5f * m_Acceleration * deltaTime * deltaTime); }
 
 	void SetDensity(float density) { m_Density = density; }
 	float GetDensity() const { return m_Density; }
 
-	static void SetMass(float mass) { m_Mass = mass; }
-	static float GetMass() { return m_Mass; }
+	void SetMass(float mass) { m_Mass = mass; }
+	float GetMass() const { return m_Mass; }
 
-	// Update velocity and position using leap frog scheme
+	// Semi-implicit Euler
 	void Update(const float deltaTime)
 	{
-		glm::vec3 prevAcceleration = GetAcceleration();
-		UpdateAcceleration();
-		UpdateVelocity(prevAcceleration, deltaTime);
-		UpdatePosition(deltaTime);
+		m_Acceleration = m_ActiveForces / m_Mass;
+		m_Velocity += m_Acceleration * deltaTime;
+		SetPosition(GetPosition() + m_Velocity * deltaTime);
 	}
 
 	bool operator==(const DynamicSphere& other) const
@@ -75,7 +67,8 @@ public:
 			m_ActiveForces == other.m_ActiveForces &&
 			m_Acceleration == other.m_Acceleration &&
 			m_Velocity == other.m_Velocity &&
-			m_Density == other.m_Density;
+			m_Density == other.m_Density &&
+			m_Mass == other.m_Mass;
 	}
 
 private:
@@ -83,5 +76,5 @@ private:
 	glm::vec3 m_Acceleration = glm::vec3(0.0f);
 	glm::vec3 m_Velocity = glm::vec3(0.0f);
 	float m_Density = 1.0f;
-	inline static float m_Mass;
+	float m_Mass = 1.0f;
 };
