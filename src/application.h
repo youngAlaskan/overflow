@@ -90,7 +90,7 @@ private:
 private:
 	void SetRenderMode(bool marchingCubes) const;
 
-	void UpdateWaterSurface() const;
+	void RedrawOnly();
 };
 
 // Application Callbacks:
@@ -98,7 +98,12 @@ private:
 // Sets the size of the OpenGL Viewport
 inline void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
+	if (width == 0 || height == 0) return; // ignore minimized window
+
 	glViewport(0, 0, width, height);
+
+	if (g_ActiveCamera)
+		g_ActiveCamera->m_AspectRatio = static_cast<float>(width) / static_cast<float>(height);
 }
 
 inline void MouseCallback(GLFWwindow* window, double xPosIn, double yPosIn)

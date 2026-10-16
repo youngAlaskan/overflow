@@ -1,7 +1,6 @@
 #version 330 core
 
 in lowp float WorldHeight;
-in vec2 ViewportCoord;
 out vec4 FragColor;
 
 const lowp float indexMat[16] = float[](

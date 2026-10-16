@@ -24,9 +24,9 @@ void Simulator::SetNeighbors()
 		m_Neighbors[i] = GetParticleNeighbors((*m_IDs)[i]);   // each thread writes its own slot, no critical needed
 }
 
-std::vector<uint64_t> Simulator::GetParticleNeighbors(const uint64_t id)
+std::vector<Neighbor> Simulator::GetParticleNeighbors(const uint64_t id)
 {
-	std::vector<uint64_t> result;
+	std::vector<Neighbor> result;
 	result.reserve(64);
 	const DynamicSphere& particle = GetParticle(id);
 	const uint32_t zi = GetParticleLengthIndex(particle);
@@ -37,7 +37,14 @@ std::vector<uint64_t> Simulator::GetParticleNeighbors(const uint64_t id)
 		for (uint32_t x = xi ? xi - 1 : 0; x <= xi + 1 && x <= m_WorldWidth; x++)
 			for (uint32_t z = zi ? zi - 1 : 0; z <= zi + 1 && z <= m_WorldLength; z++)
 				for (uint64_t other : m_ParticleGrid[y][x][z])
-					if (other != id) result.push_back(other);
+					if (other != id)
+					{
+						Neighbor n;
+						n.ID = other;
+						n.distance = glm::distance(particle.GetPosition(), GetParticle(other).GetPosition());
+						if (n.distance <= H)  // only include neighbors within smoothing radius
+							result.push_back(n);
+					}
 
 	return result;
 }
@@ -144,7 +151,7 @@ void Simulator::ApplySPH()
 	CullOutOfBounds();   // removes dead particles and rebuilds m_IDs
 }
 
-void Simulator::ApplyForces(DynamicSphere& particle, const std::vector<uint64_t>& neighbors)
+void Simulator::ApplyForces(DynamicSphere& particle, const std::vector<Neighbor>& neighbors)
 {
 	ApplyPreassureForce(particle, neighbors);
 	ApplyExternalForce(particle, neighbors);
@@ -152,22 +159,22 @@ void Simulator::ApplyForces(DynamicSphere& particle, const std::vector<uint64_t>
 	ApplyViscosityForce(particle, neighbors);
 }
 
-float Simulator::GetDensity(const DynamicSphere& particle, const std::vector<uint64_t>& neighborIDs)
+float Simulator::GetDensity(const DynamicSphere& particle, const std::vector<Neighbor>& neighbors)
 {
 	float sum = Wpoly(0.0f); // self contribution
-	for (uint64_t neighborID : neighborIDs)
-		sum += Wpoly(glm::length(particle.GetPosition() - GetParticle(neighborID).GetPosition()));
+	for (const auto& neighbor : neighbors)
+		sum += Wpoly(neighbor.distance);
 	return particle.GetMass() * sum;
 }
 
-void Simulator::ApplyPreassureForce(DynamicSphere& particle, const std::vector<uint64_t>& neighborIDs)
+void Simulator::ApplyPreassureForce(DynamicSphere& particle, const std::vector<Neighbor>& neighbors)
 {
 	const float pi = glm::max(0.0f, m_Stiffness * (particle.GetDensity() - m_RestDensity));
 
 	glm::vec3 fDensity(0.0f);
-	for (uint64_t neighborID : neighborIDs)
+	for (const auto& neighbor : neighbors)
 	{
-		const DynamicSphere& n = GetParticle(neighborID);
+		const DynamicSphere& n = GetParticle(neighbor.ID);
 		glm::vec3 r = particle.GetPosition() - n.GetPosition();
 		float dist = glm::length(r);
 		if (dist < 1e-6f || dist >= H) continue;
@@ -179,23 +186,23 @@ void Simulator::ApplyPreassureForce(DynamicSphere& particle, const std::vector<u
 	particle.ApplyForce(fDensity * (particle.GetMass() / particle.GetDensity())); // force density -> force
 }
 
-void Simulator::ApplyExternalForce(DynamicSphere& particle, const std::vector<uint64_t>& neighbors)
+void Simulator::ApplyExternalForce(DynamicSphere& particle, const std::vector<Neighbor>& neighbors)
 {
 	particle.ApplyForce(particle.GetMass() * GRAVITY);
 }
 
 // TODO
-void Simulator::ApplySurfaceForce(DynamicSphere& particle, const std::vector<uint64_t>& neighborIDs)
+void Simulator::ApplySurfaceForce(DynamicSphere& particle, const std::vector<Neighbor>& neighbors)
 {
 }
 
-void Simulator::ApplyViscosityForce(DynamicSphere& particle, const std::vector<uint64_t>& neighborIDs)
+void Simulator::ApplyViscosityForce(DynamicSphere& particle, const std::vector<Neighbor>& neighbors)
 {
 	glm::vec3 fDensity(0.0f);
-	for (uint64_t neighborID : neighborIDs)
+	for (const auto& neighbor : neighbors)
 	{
-		const DynamicSphere& n = GetParticle(neighborID);
-		float dist = glm::length(particle.GetPosition() - n.GetPosition());
+		const DynamicSphere& n = GetParticle(neighbor.ID);
+		float dist = neighbor.distance;
 		if (dist >= H) continue;
 		fDensity += n.GetMass() * (n.GetVelocity() - particle.GetVelocity()) / n.GetDensity()
 			* Wviscosity2ndOrder(dist);

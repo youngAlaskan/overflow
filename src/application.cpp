@@ -120,6 +120,9 @@ void Application::Init()
 
 	glfwMakeContextCurrent(m_Window);
 
+	// Set minimum window size
+	glfwSetWindowSizeLimits(m_Window, 320, 240, GLFW_DONT_CARE, GLFW_DONT_CARE);
+
 	// Register window resizing callback
 	glfwSetFramebufferSizeCallback(m_Window, FramebufferSizeCallback);
 
@@ -128,6 +131,12 @@ void Application::Init()
 
 	// Register scroll callback
 	glfwSetScrollCallback(m_Window, ScrollCallback);
+
+	// Register window refresh callback
+	glfwSetWindowUserPointer(m_Window, this);
+	glfwSetWindowRefreshCallback(m_Window, [](GLFWwindow* w) {
+		static_cast<Application*>(glfwGetWindowUserPointer(w))->RedrawOnly();
+	});
 
 	// Initialize GLAD
 	// ---------------
@@ -166,9 +175,12 @@ void Application::Init()
 	m_Simulator = std::make_unique<Simulator>(100U, 100U, 100U);
 	m_TerrainGenerator = std::make_unique<TerrainGenerator>();
 
-	m_Scene->m_Camera->m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
 	m_Scene->m_Camera->m_ViewProjMatrices.SetEmptyBuffer(2 * sizeof(glm::mat4));
 	g_ActiveCamera = m_Scene->m_Camera;
+
+	int fbWidth = 0, fbHeight = 0;
+	glfwGetFramebufferSize(m_Window, &fbWidth, &fbHeight);
+	FramebufferSizeCallback(m_Window, fbWidth, fbHeight);
 
 	m_Simulator->SetDeltaTime(0.02f);
 	g_LastFrameTime = glfwGetTime();
@@ -463,4 +475,20 @@ void Application::SetRenderMode(bool marchingCubes) const
 	m_Renderer->SetVAOVisible(m_Scene->m_Droplets->GetVAO()->GetID(), !marchingCubes);
 	m_Renderer->SetVAOVisible(m_Scene->m_Water->GetVAO()->GetID(), marchingCubes);
 	m_Scene->m_RenderSpheres = !marchingCubes;
+}
+
+void Application::RedrawOnly()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+	SetImGuiWindows();
+
+	m_Scene->OnUpdate(g_ParticleRadius);
+	m_Renderer->Render();
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	glfwSwapBuffers(m_Window);
 }

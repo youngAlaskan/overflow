@@ -16,6 +16,12 @@ inline static const glm::vec3 GRAVITY = glm::vec3(0.0f, -9.81f, 0.0f);
 
 struct CellIndex { uint32_t row; uint32_t col; uint32_t aisle; };
 
+struct Neighbor
+{
+	uint64_t ID;
+	float distance;
+};
+
 class Simulator
 {
 public:
@@ -164,7 +170,7 @@ private:
 		return m_ParticleGrid[GetParticleDepthIndex(particle)][GetParticleWidthIndex(particle)][GetParticleLengthIndex(particle)];
 	}
 
-	std::vector<uint64_t> GetParticleNeighbors(const uint64_t id);
+	std::vector<Neighbor> GetParticleNeighbors(const uint64_t id);
 
 	bool IsParticleInWorldBounds(const DynamicSphere& particle) const;
 
@@ -185,15 +191,15 @@ private:
 	void HandleCollisions();
 	void ApplySPH();
 
-	void ApplyForces(DynamicSphere& particle, const std::vector<uint64_t>& neighbors);
+	void ApplyForces(DynamicSphere& particle, const std::vector<Neighbor>& neighbors);
 
-	float GetDensity(const DynamicSphere& particle, const std::vector<uint64_t>& neighbors);
+	float GetDensity(const DynamicSphere& particle, const std::vector<Neighbor>& neighbors);
 
-	void ApplyPreassureForce(DynamicSphere& particle, const std::vector<uint64_t>& neighbors);
-	void ApplyExternalForce(DynamicSphere& particle, const std::vector<uint64_t>& neighbors);
+	void ApplyPreassureForce(DynamicSphere& particle, const std::vector<Neighbor>& neighbors);
+	void ApplyExternalForce(DynamicSphere& particle, const std::vector<Neighbor>& neighbors);
 	// TODO
-	void ApplySurfaceForce(DynamicSphere& particle, const std::vector<uint64_t>& neighbors);
-	void ApplyViscosityForce(DynamicSphere& particle, const std::vector<uint64_t>& neighbors);
+	void ApplySurfaceForce(DynamicSphere& particle, const std::vector<Neighbor>& neighbors);
+	void ApplyViscosityForce(DynamicSphere& particle, const std::vector<Neighbor>& neighbors);
 
 	float Wpoly(float r) const
 	{
@@ -221,7 +227,7 @@ private:
 	std::shared_ptr<std::vector<uint64_t>> m_IDs = nullptr;
 	std::shared_ptr<std::unordered_map<uint64_t, glm::vec3>> m_IDsToCenters = nullptr;
 	std::unordered_map<uint64_t, DynamicSphere> m_IDsToParticles = std::unordered_map<uint64_t, DynamicSphere>();
-	std::vector<std::vector<uint64_t>> m_Neighbors;
+	std::vector<std::vector<Neighbor>> m_Neighbors;
 	std::vector<std::vector<std::vector<std::vector<uint64_t>>>> m_ParticleGrid = std::vector<std::vector<std::vector<std::vector<uint64_t>>>>();
 	std::vector<CellIndex> m_OccupiedCells = std::vector<CellIndex>();
 	uint32_t m_WorldLength = 10U;

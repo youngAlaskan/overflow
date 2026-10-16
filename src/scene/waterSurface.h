@@ -17,6 +17,10 @@ public:
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(SurfaceVertex), (void*)offsetof(SurfaceVertex, Normal));
 		glEnableVertexAttribArray(1);
+
+		m_EBO.Bind();                 // the element buffer binding is stored in the VAO
+		m_VAO->hasEBO = true;
+		glBindVertexArray(0);
 	}
 
 	std::shared_ptr<VAO> GetVAO() const { return m_VAO; }
@@ -28,17 +32,23 @@ public:
 		m_Points.reserve(centers.size());
 		for (const auto& kv : centers) m_Points.push_back(kv.second);
 
-		m_Mesher.Build(m_Points, prm, m_Verts);
+		m_Mesher.Build(m_Points, prm, m_Mesh);
 
-		m_VBO.SetBufferData(m_Verts, GL_STREAM_DRAW);   // binds GL_ARRAY_BUFFER itself; no VAO bind needed
-		m_VAO->vertexCount = static_cast<GLuint>(m_Verts.size());
-		m_VAO->triangleCount = m_VAO->vertexCount / 3U;
+		m_VBO.SetBufferData(m_Mesh.Vertices, GL_STREAM_DRAW);
+		
+		m_VAO->Bind();                // bind first, or the EBO would attach to whatever VAO was last bound
+		m_EBO.SetBufferData(m_Mesh.idx);
+		glBindVertexArray(0);
+		
+		m_VAO->vertexCount = static_cast<GLuint>(m_Mesh.Vertices.size());
+		m_VAO->triangleCount = static_cast<GLuint>(m_Mesh.idx.size() / 3);
 	}
 
 private:
 	std::shared_ptr<VAO> m_VAO = std::make_shared<VAO>();
 	VBO m_VBO;
+	EBO m_EBO;
 	MarchingCubesMesher m_Mesher;
 	std::vector<glm::vec3> m_Points;
-	std::vector<SurfaceVertex> m_Verts;
+	SurfaceMesh m_Mesh;
 };
