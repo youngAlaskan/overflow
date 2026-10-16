@@ -45,6 +45,8 @@ void Application::Run()
 
 	m_Scene->CreateDroplets(g_ParticleRadius);
 
+	m_Scene->m_VAOs->push_back(m_Water->GetVAO());
+
 	m_Simulator->SetIDs(m_Scene->m_IDs);
 	m_Simulator->SetIDsToCenters(m_Scene->m_Droplets->GetIDsToCenters());
 
@@ -57,11 +59,23 @@ void Application::Run()
 		}
 	);
 
+	// Create Water shader
+	std::shared_ptr<ShaderProgram> waterShader = m_Renderer->AddShaderProgram(
+		std::vector<std::pair<GLenum, const char*>>
+	{
+		{ GL_VERTEX_SHADER, "src\\shaders\\vertex\\water.vert" },
+		{ GL_FRAGMENT_SHADER, "src\\shaders\\fragment\\water.frag" }
+	}
+	);
+
 	// Register Shader ID with VAO ID
 	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Terrain->m_VAO->GetID(), terrainShader->GetID());
 	m_Renderer->RegisterVAOShaderMatch(m_Scene->m_Droplets->GetVAO()->GetID(), dropletShader->GetID());
+	m_Renderer->RegisterVAOShaderMatch(m_Water->GetVAO()->GetID(), waterShader->GetID());
 
 	m_Renderer->RegisterUniformBuffer(m_Scene->m_Camera->m_ViewProjMatrices);
+
+	SetRenderMode(g_UseMarchingCubes);
 
 	// Main loop
 	while (WindowIsOpen())
@@ -73,6 +87,8 @@ void Application::Run()
 		m_Simulator->Step();
 
 		m_Scene->OnUpdate();
+
+		UpdateWaterSurface();
 
 		m_Renderer->Render();
 
@@ -151,6 +167,7 @@ void Application::Init()
 	m_Scene = std::make_unique<Scene>();
 	m_Simulator = std::make_unique<Simulator>(100U, 100U, 100U);
 	m_TerrainGenerator = std::make_unique<TerrainGenerator>();
+	m_Water = std::make_unique<WaterSurface>();
 
 	m_Scene->m_Camera->m_AspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
 	m_Scene->m_Camera->m_ViewProjMatrices.SetEmptyBuffer(2 * sizeof(glm::mat4));
@@ -343,6 +360,16 @@ void Application::SetImGuiWindows() const
 				glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
 			}
 
+			if (ImGui::Checkbox("Marching cubes water", &g_UseMarchingCubes))
+				SetRenderMode(g_UseMarchingCubes);
+
+			if (g_UseMarchingCubes)
+			{
+				ImGui::SliderFloat("Cell size", &g_McCellSize, 0.1f, 1.0f);
+				ImGui::SliderFloat("Influence radius", &g_McInfluence, 0.5f, 2.0f);
+				ImGui::SliderFloat("Iso level", &g_McIsoFraction, 0.05f, 0.8f);
+			}
+
 			ImGui::TreePop();
 		}
 
@@ -432,4 +459,25 @@ void Application::ClearScene() const {
 	m_Simulator->ClearParticleGrid();
 	m_Scene->m_IDs->clear();
 	m_Scene->m_Droplets->UpdateInstanceVBO(*(m_Scene->m_IDs));
+}
+
+void Application::SetRenderMode(bool marchingCubes) const
+{
+	m_Renderer->SetVAOVisible(m_Scene->m_Droplets->GetVAO()->GetID(), !marchingCubes);
+	m_Renderer->SetVAOVisible(m_Water->GetVAO()->GetID(), marchingCubes);
+	m_Scene->m_RenderSpheres = !marchingCubes;
+}
+
+void Application::UpdateWaterSurface() const
+{
+	if (!g_UseMarchingCubes) return;
+	const auto centers = m_Simulator->GetIDsToCenters();
+	if (!centers) return;
+
+	MarchingCubesMesher::Params prm;
+	prm.cellSize = g_McCellSize;
+	prm.influenceRadius = g_McInfluence;
+	prm.isoLevel = g_McIsoFraction * MarchingCubesMesher::RestField(2.0f * g_ParticleRadius, g_McInfluence);
+
+	m_Water->Update(*centers, prm);
 }

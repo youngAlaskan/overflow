@@ -9,6 +9,9 @@ void Renderer::Render()
 		if (!VAO)
 			continue;
 
+		if (m_HiddenVAOs.count(VAO->GetID()))
+			continue;
+
 		ShaderProgram::Use(m_VAOtoShaderProgram[VAO->GetID()]);
 
 		VAO->Bind();

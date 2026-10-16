@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "..\glObjects.h"
 #include "shaderProgram.h"
@@ -33,9 +34,22 @@ public:
 
 	void RegisterVAOShaderMatch(GLuint id, GLuint sp) { m_VAOtoShaderProgram.insert({ id, sp }); }
 
+	void SetVAOVisible(GLuint id, bool visible)
+	{
+		if (visible)
+		{
+			m_HiddenVAOs.erase(id);
+		}
+		else
+		{
+			m_HiddenVAOs.insert(id);
+		}
+	}
+
 private:
 	std::shared_ptr<std::vector<std::shared_ptr<VAO>>> m_VAOs = nullptr;
 	std::vector<std::shared_ptr<ShaderProgram>> m_ShaderPrograms = std::vector<std::shared_ptr<ShaderProgram>>();
 	std::unordered_map<GLuint, GLuint> m_VAOtoShaderProgram = {};
+	std::unordered_set<GLuint> m_HiddenVAOs = {};
 };
 

@@ -149,6 +149,7 @@
     <None Include="src\scene\README.md" />
     <None Include="src\shaders\fragment\droplets.frag" />
     <None Include="src\shaders\fragment\terrain.frag" />
+    <None Include="src\shaders\fragment\water.frag" />
     <None Include="src\shaders\vertex\droplets.vert" />
     <None Include="src\shaders\vertex\terrain.vert" />
     <CopyFileToFolders Include="vendor\bin\FastNoise\FastNoise.dll">
@@ -159,6 +160,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <None Include="src\shaders\vertex\water.vert" />
     <None Include="vendor\bin\FastNoise\FastNoiseD.pdb" />
     <None Include="vendor\bin\FastNoise\NoiseTool.exe" />
     <None Include="vendor\include\glm\detail\func_common.inl" />
@@ -306,6 +308,8 @@
     <ClInclude Include="src\physics\primitives\heightgrid.h" />
     <ClInclude Include="src\physics\simulator.h" />
     <ClInclude Include="src\physics\primitives\sphere.h" />
+    <ClInclude Include="src\rendering\marchingCubes.h" />
+    <ClInclude Include="src\rendering\marchingCubesTables.h" />
     <ClInclude Include="src\scene\camera.h" />
     <ClInclude Include="src\glErrors.h" />
     <ClInclude Include="src\rendering\renderer.h" />
@@ -329,6 +333,7 @@
     <ClInclude Include="src\scene\texture.h" />
     <ClInclude Include="src\scene\vertex.h" />
     <ClInclude Include="src\generators\terrainGenerator.h" />
+    <ClInclude Include="src\scene\waterSurface.h" />
     <ClInclude Include="vendor\include\FastNoise\FastNoise.h" />
     <ClInclude Include="vendor\include\FastNoise\FastNoise_C.h" />
     <ClInclude Include="vendor\include\FastNoise\FastNoise_Config.h" />
@@ -1053,6 +1058,7 @@
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\physics\primitives\heightgrid.cpp" />
     <ClCompile Include="src\physics\simulator.cpp" />
+    <ClCompile Include="src\rendering\marchingCubes.cpp" />
     <ClCompile Include="src\scene\camera.cpp" />
     <ClCompile Include="src\glObjects.h" />
     <ClCompile Include="src\rendering\renderer.cpp" />

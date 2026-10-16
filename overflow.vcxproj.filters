@@ -445,6 +445,8 @@
     <None Include="vendor\bin\FastNoise\FastNoiseD.pdb" />
     <None Include="vendor\bin\FastNoise\NoiseTool.exe" />
     <None Include="bin\x64\Debug\FastNoise.dll" />
+    <None Include="src\shaders\fragment\water.frag" />
+    <None Include="src\shaders\vertex\water.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vendor\include\glad\glad.h">
@@ -2682,6 +2684,15 @@
     <ClInclude Include="vendor\include\FastNoise\Generators\Value.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\rendering\marchingCubes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scene\waterSurface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rendering\marchingCubesTables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -2754,6 +2765,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\input.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rendering\marchingCubes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

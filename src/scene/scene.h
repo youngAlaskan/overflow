@@ -40,7 +40,8 @@ public:
 	void OnUpdate() const
 	{
 		m_Camera->OnUpdate();
-		UpdateDroplets();
+		if (m_RenderSpheres)
+			UpdateDroplets();
 	}
 
 	void RegisterParticle(const std::pair<uint64_t, glm::vec3>& IDandCenter) const
@@ -71,4 +72,5 @@ public:
 	std::unique_ptr<Droplets> m_Droplets = nullptr;
 	std::shared_ptr<std::vector<uint64_t>> m_IDs = std::make_shared<std::vector<uint64_t>>();
 	std::shared_ptr<std::vector<std::shared_ptr<VAO>>> m_VAOs = std::make_shared<std::vector<std::shared_ptr<VAO>>>();
+	bool m_RenderSpheres = true;
 };

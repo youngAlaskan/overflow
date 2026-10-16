@@ -43,10 +43,10 @@ public:
 
 	void Bind() const { glBindBuffer(GL_ARRAY_BUFFER, m_ID); }
 	template<typename T>
-	void SetBufferData(const std::vector<T>& vertices) const
+	void SetBufferData(const std::vector<T>& vertices, GLenum usage = GL_STATIC_DRAW) const
 	{
 		Bind();
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(T), vertices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(T), vertices.data(), usage);
 	}
 
 private:
