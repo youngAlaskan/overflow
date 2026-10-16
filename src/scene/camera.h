@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 #include <glad\glad.h>
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
@@ -27,10 +29,11 @@ public:
 
     void ProcessMouseScroll(const float yOffset)
     {
-        //m_MovementSpeed += 0.001f * yOffset;
-        //if (m_MovementSpeed < 0.0f)
-        //    m_MovementSpeed = 0.0f;
+        // multiplicative, so every wheel notch feels the same at any zoom level
+        m_Zoom = glm::clamp(m_Zoom * std::pow(1.1f, yOffset), kMinZoom, kMaxZoom);
     }
+
+    float GetEffectiveFov() const;
 public:
     // Camera attributes
     
@@ -56,6 +59,10 @@ public:
     float m_MovementSpeed    = 6.0f;
     float m_MouseSensitivity = 0.1f;
     bool m_CanFly            = true;
+    static constexpr float kMinFov = 20.0f, kMaxFov = 120.0f;
+    static constexpr float kMinZoom = 1.0f, kMaxZoom = 20.0f;
+    float m_Fov = 45.0f;   // base vertical FOV in degrees (the slider)
+    float m_Zoom = 1.0f;    // magnification (the scroll wheel)
 
 private:
     // calculates the front vector from the Camera's (updated) Euler Angles

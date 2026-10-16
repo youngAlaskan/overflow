@@ -133,6 +133,8 @@ inline void MouseCallback(GLFWwindow* window, double xPosIn, double yPosIn)
 
 inline void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 {
+	if (ImGui::GetIO().WantCaptureMouse) return;
+
 	if (g_ActiveCamera)
 		g_ActiveCamera->ProcessMouseScroll(static_cast<float>(yOffset));
 }

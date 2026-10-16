@@ -412,6 +412,22 @@ void Application::SetImGuiWindows() const
 			ImGui::TreePop();
 		}
 
+		ImGui::Separator();
+
+		if (ImGui::TreeNode("Camera"))
+		{
+			ImGui::SliderFloat("Field of view", &g_ActiveCamera->m_Fov, Camera::kMinFov, Camera::kMaxFov, "%.0f deg");
+			ImGui::SliderFloat("Zoom", &g_ActiveCamera->m_Zoom, Camera::kMinZoom, Camera::kMaxZoom, "%.1fx", ImGuiSliderFlags_Logarithmic);
+			ImGui::Text("Effective FOV: %.1f deg", glm::degrees(g_ActiveCamera->GetEffectiveFov()));
+
+			if (ImGui::Button("Reset"))
+			{
+				g_ActiveCamera->m_Fov = 45.0f;
+				g_ActiveCamera->m_Zoom = 1.0f;
+			}
+			ImGui::TreePop();
+		}
+
 		ImGui::End();
 	}
 }

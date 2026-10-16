@@ -3,8 +3,12 @@
 
 void Camera::OnUpdate()
 {
+    // clamp here too, so values typed into an ImGui slider (ctrl+click) can't break the projection
+    m_Fov = glm::clamp(m_Fov, kMinFov, kMaxFov);
+    m_Zoom = glm::clamp(m_Zoom, kMinZoom, kMaxZoom);
+
     m_View = GetViewMatrix();
-    m_Proj = glm::perspective(glm::radians(45.0f), m_AspectRatio, 0.01f, 1000.0f);
+    m_Proj = glm::perspective(GetEffectiveFov(), m_AspectRatio, 0.01f, 1000.0f);
     m_ViewProjMatrices.SetBufferSubData(0, m_Proj);
     m_ViewProjMatrices.SetBufferSubData(sizeof(glm::mat4), m_View);
 }
@@ -29,8 +33,9 @@ void Camera::ProcessKeyInput(const InputKeyActions actions, const float deltaTim
 // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 void Camera::ProcessMouseMovement(float xOffset, float yOffset, const GLboolean constrainPitch)
 {
-    xOffset *= m_MouseSensitivity;
-    yOffset *= m_MouseSensitivity;
+    const float sensitivity = m_MouseSensitivity / m_Zoom;
+    xOffset *= sensitivity;
+    yOffset *= sensitivity;
 
     m_Yaw += xOffset;
     m_Pitch += yOffset;
@@ -47,6 +52,13 @@ void Camera::ProcessMouseMovement(float xOffset, float yOffset, const GLboolean 
     // update Front, Right and Up Vectors using the updated Euler angles
     UpdateCameraVectors();
 }
+
+float Camera::GetEffectiveFov() const
+{
+    // zooming by k divides the half-angle's tangent by k, which is how a longer lens behaves
+    return 2.0f * std::atan(std::tan(glm::radians(m_Fov) * 0.5f) / m_Zoom);
+}
+
 
 // calculates the front vector from the Camera's (updated) Euler Angles
 void Camera::UpdateCameraVectors()
