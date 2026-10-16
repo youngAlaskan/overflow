@@ -42,11 +42,6 @@ inline bool g_IsSimulationPaused = false;
 inline uint64_t g_FrameCount = 0;
 inline double g_LastFrameTime = 0.0f;
 
-inline bool  g_UseMarchingCubes = false;
-inline float g_McCellSize = 0.3f;
-inline float g_McInfluence = 1.0f;
-inline float g_McIsoFraction = 0.3f;
-
 // Handles all GLFW and glad window management
 class Application
 {
@@ -66,7 +61,6 @@ public:
 	std::unique_ptr<Scene> m_Scene = nullptr;
 	std::unique_ptr<Simulator> m_Simulator = nullptr;
 	std::unique_ptr<TerrainGenerator> m_TerrainGenerator = nullptr;
-	std::unique_ptr<WaterSurface> m_Water = nullptr;
 
 private:
 	void Init();
@@ -88,7 +82,6 @@ private:
 	bool WindowIsOpen() { return !glfwWindowShouldClose(m_Window); }
 
 	void CleanUp() const {
-		// m_Water.reset();
 		// m_Scene.reset();
 		// m_Renderer.reset();
 		glfwTerminate();
